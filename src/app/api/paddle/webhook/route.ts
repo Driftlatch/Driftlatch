@@ -14,7 +14,7 @@ import {
 import { getSupabaseAdmin } from "@/lib/supabaseAdmin";
 import type { Tables, TablesInsert } from "@/lib/types/supabase";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 type EntitlementRow = Tables<"user_entitlements">;
 
@@ -144,7 +144,7 @@ export async function POST(request: Request) {
   }
 
   const rawBody = await request.text();
-  if (!verifyPaddleSignature(rawBody, signatureHeader, secret)) {
+  if (!(await verifyPaddleSignature(rawBody, signatureHeader, secret))) {
     console.warn("[paddle-webhook] Signature verification failed.");
     return NextResponse.json({ error: "Invalid signature." }, { status: 401 });
   }
