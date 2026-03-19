@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { hasAppAccess, loadUserEntitlement } from "@/lib/auth";
 import { getSupabase } from "@/lib/supabase";
 
+export const dynamic = "force-dynamic";
+
 const PADDLE_ANNUAL_URL = "PADDLE_ANNUAL_URL";
 const PADDLE_MONTHLY_URL = "PADDLE_MONTHLY_URL";
 
