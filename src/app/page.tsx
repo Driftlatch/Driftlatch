@@ -461,11 +461,6 @@ export default function Home() {
         </div>
       </footer>
       </FadeIn>
-      <style jsx>{`
-        .public-footer a:hover {
-          color: var(--accent) !important;
-        }
-      `}</style>
     </main>
   );
 }
