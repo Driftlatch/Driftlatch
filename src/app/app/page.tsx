@@ -138,8 +138,8 @@ const TUTORIAL_COPY: Record<1 | 2, TutorialStepMeta> = {
     arrow: "down",
   },
   2: {
-    headline: "This is your tool",
-    body: "Matched to your state. Open it, do it, close the app. That's the whole loop.",
+    headline: "This is your step",
+    body: "Picked for your state. Open it, do it, close the app. That's the whole loop.",
     arrow: "up",
   },
 };
@@ -845,11 +845,11 @@ export default function Page() {
                 <div style={{ display: "grid", gap: 10 }}>
                   <span style={eyebrowStyle}>Start here</span>
                   <div style={{ ...heroTitleStyle, fontSize: "clamp(2rem, 6vw, 3rem)" }}>No profile yet.</div>
-                  <p style={subtitleStyle}>Two minutes. You&apos;ll get matched tools, your default packs, and a pressure map.</p>
+                  <p style={subtitleStyle}>Two minutes. You&apos;ll get a clear starting point, your default packs, and a pressure map.</p>
                 </div>
                 <div className="home-actions" style={actionGridStyle}>
                   <MotionLink whileTap={{ scale: 0.97 }} href="/app/onboarding" className="btn-primary">Take the Pressure Profile →</MotionLink>
-                  <MotionLink whileTap={{ scale: 0.97 }} href="/app/checkin" className="btn-secondary">Get one tool →</MotionLink>
+                  <MotionLink whileTap={{ scale: 0.97 }} href="/app/checkin" className="btn-secondary">Get one step →</MotionLink>
                 </div>
               </div>
             </TiltCard>

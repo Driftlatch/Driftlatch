@@ -7,17 +7,16 @@ export default function Home() {
       <FadeIn>
       <section className="section">
         <div className="kicker">DRIFTLATCH</div>
-        <h1>Closeness at home. Clarity at work.</h1>
+        <h1>Closeness at home. Clarity at work. Kept intact.</h1>
         <p style={{ maxWidth: "68ch" }}>
-          Driftlatch is a privacy-first companion for founders and high-drive professionals.
-          It helps you manage your cognitive state cleanly, ensuring work pressure doesn't cost your closeness at home,
-          and home tension doesn't steal your focus at work.
+          Driftlatch is a privacy-first system for founders and high-drive professionals.
+          It helps you build emotional intelligence under pressure, so work does not follow you home and home tension does not take your edge at work.
         </p>
 
         <HeroVisual />
 
         <div className="btnRow" style={{ marginTop: 26 }}>
-  <a className="btn primary" href="/app/onboarding">
+  <a className="btn primary" href="/pressure-profile">
     Take the Pressure Profile (2 min)
   </a>
   <a className="btn ghost" href="/buy?plan=annual">
@@ -41,7 +40,7 @@ export default function Home() {
 <section className="section">
   <h2>Start with a Pressure Profile</h2>
   <p className="small" style={{ maxWidth: "78ch" }}>
-    A short check that identifies your carryover, drift pattern and attachment style (Anxious/Avoidant) —so Driftlatch can match the right tools to your state.
+    A short check that identifies your carryover, drift pattern and attachment style (Anxious/Avoidant) —so Driftlatch can match the right kind of support to your state.
     No tracking. No message reading. Just what you choose to enter.
   </p>
 
@@ -60,7 +59,7 @@ export default function Home() {
 
     <div className="card">
       <div className="badge">3</div>
-      <h3 style={{ marginTop: 12 }}>Receive your first pack</h3>
+      <h3 style={{ marginTop: 12 }}>Receive your first support pack</h3>
       <p className="small">Late-night shutdown, low-sleep day, overloaded &amp; reactive, clean re-entry, and more.</p>
     </div>
   </div>
@@ -79,13 +78,13 @@ export default function Home() {
 
         <div className="painLine" style={{ maxWidth: "78ch" }}>
           <ul style={{ color: "var(--muted)", marginTop: 0 }}>
-            <li>You finish work, but your head doesn’t shut off.</li>
-            <li>Sleep gets lighter. Mornings get heavier.</li>
-            <li>Outside work, you’re present physically—mentally elsewhere.</li>
-            <li>Anxious one wants closeness. The other avoidant one needs space.</li>
-            <li>Stress shows up as overthinking, snapping, shutting down, or reassurance loops and both get misunderstood.</li>
+            <li>You close the laptop, but your brain keeps going.</li>
+            <li>Sleep gets lighter. The next morning starts heavier.</li>
+            <li>You’re home, but part of you is still in the workday.</li>
+            <li>One of you reaches for closeness. The other reaches for space.</li>
+            <li>Stress shows up as snapping, shutting down, overthinking, or reassurance loops.</li>
             <li>
-              Over time, you lose both: <span style={{ color: "var(--text)" }}>closeness at home</span>{" "}
+              Left alone long enough, it costs both: <span style={{ color: "var(--text)" }}>closeness at home</span>{" "}
               and <span style={{ color: "var(--text)" }}>clarity at work</span>.
             </li>
           </ul>
@@ -185,15 +184,14 @@ export default function Home() {
       {/* 05 EXPERT TOOLS */}
       <FadeIn>
       <section className="section">
-        <h2>Built from simple expert tools (made effortless)</h2>
+        <h2>A calmer system for hard days.</h2>
         <p className="small" style={{ maxWidth: "78ch" }}>
-          Driftlatch uses practical tools drawn from performance psychology and evidence-based
-          relationship dynamics without turning your life into homework.
+          Driftlatch turns proven practices into short resets and grounded next steps, without turning your life into homework.
         </p>
 
         <div className="grid two" style={{ marginTop: 18 }}>
           <div className="card">
-            <div className="kicker">Work clarity tools</div>
+            <div className="kicker">Work clarity support</div>
             <ul style={{ color: "var(--muted)" }}>
               <li>
                 <span style={{ color: "var(--text)" }}>Shutdown ritual</span>: capture open loops → set tomorrow’s first
@@ -210,7 +208,7 @@ export default function Home() {
           </div>
 
           <div className="card">
-            <div className="kicker">Nervous system tools</div>
+            <div className="kicker">Nervous system resets</div>
             <ul style={{ color: "var(--muted)" }}>
               <li>
                 <span style={{ color: "var(--text)" }}>STOP pause</span>: interrupt reactive replies before they happen
@@ -226,7 +224,7 @@ export default function Home() {
         </div>
 
         <div style={{ marginTop: 24 }} className="card">
-          <div className="kicker">Interaction tools</div>
+          <div className="kicker">Interaction support</div>
           <ul style={{ color: "var(--muted)" }}>
             <li>
               <span style={{ color: "var(--text)" }}>Name the state</span>: “I’m overloaded, not upset.”
@@ -239,7 +237,7 @@ export default function Home() {
             </li>
           </ul>
           <p className="small" style={{ marginTop: 12 }}>
-            Driftlatch doesn’t diagnose. It helps you use the right tool at the right moment.
+            Driftlatch doesn’t diagnose. It helps you find the right next step at the right moment.
           </p>
         </div>
       </section>
@@ -247,12 +245,22 @@ export default function Home() {
 
       {/* 06 PRICING */}
       <FadeIn>
-      <section className="section">
+      <section className="section" id="pricing">
         <h2>Founding Access</h2>
         <p className="small">No free tier. Driftlatch is built to be a system you keep.</p>
+        <p className="small" style={{ marginTop: 8 }}>
+          Both plans include full access. Annual just costs less.
+        </p>
 
         <div className="grid two" style={{ marginTop: 18 }}>
-          <div className="card premium">
+          <div
+            className="card premium"
+            style={{
+              border: "1px solid rgba(194,122,92,0.28)",
+              boxShadow: "0 18px 40px rgba(194,122,92,0.12), inset 0 1px 0 rgba(255,255,255,0.04)",
+              background: "linear-gradient(180deg, rgba(194,122,92,0.08) 0%, rgba(255,255,255,0.02) 100%)",
+            }}
+          >
             <div className="kicker">Annual (Best value)</div>
             <p style={{ marginBottom: 6 }}>
               <strong>$59 / year</strong>
@@ -265,6 +273,9 @@ export default function Home() {
               <a className="btn primary" href="/buy?plan=annual">Start Annual</a>
               <a className="btn ghost" href="/pricing">Read details</a>
             </div>
+            <p className="small" style={{ marginTop: 10 }}>
+              Secure checkout via Paddle.
+            </p>
 
             <p className="small" style={{ marginTop: 12 }}>
               14-day refund guarantee—no questions asked.
@@ -283,6 +294,9 @@ export default function Home() {
             <div className="btnRow">
               <a className="btn ghost" href="/buy?plan=monthly">Start Monthly</a>
             </div>
+            <p className="small" style={{ marginTop: 10 }}>
+              Secure checkout via Paddle.
+            </p>
 
             <p className="small" style={{ marginTop: 12 }}>
               Includes the same system—just billed monthly.
@@ -324,8 +338,7 @@ export default function Home() {
       <details>
         <summary><strong>Is Driftlatch therapy?</strong></summary>
         <p className="small" style={{ marginTop: 12 }}>
-          No. Driftlatch is a daily pressure + presence system. It helps with closure, regulation, and clean re-entry.
-          It doesn’t diagnose or provide treatment.
+          No. Driftlatch is a daily pressure and presence system for cleaner shutdowns, steadier evenings, and better re-entry.
         </p>
       </details>
     </div>
@@ -334,8 +347,7 @@ export default function Home() {
       <details>
         <summary><strong>Why would I pay for this?</strong></summary>
         <p className="small" style={{ marginTop: 12 }}>
-          You’re paying for structure: the right tool at the right state, a tailored library, and weekly pattern reflection—
-          so it gets easier over time. Without that, it’s just reminders.
+          You’re paying for structure: the right next step for your state, a tailored library, and weekly reflection that makes the whole system easier to use over time. In real life, that helps you build emotional intelligence under pressure.
         </p>
       </details>
     </div>
@@ -344,7 +356,7 @@ export default function Home() {
       <details>
         <summary><strong>Do you read my messages or track my phone?</strong></summary>
         <p className="small" style={{ marginTop: 12 }}>
-          No. Driftlatch does not read messages, emails, calls, or track your phone activity. It works only from what you choose to enter.
+          No. Driftlatch only works from what you choose to enter.
         </p>
       </details>
     </div>
@@ -353,7 +365,7 @@ export default function Home() {
       <details>
         <summary><strong>Is this a relationship app?</strong></summary>
         <p className="small" style={{ marginTop: 12 }}>
-          No. Driftlatch protects two outcomes: closeness at home and clarity at work. It’s about preventing spillover and drift—especially on heavy weeks.
+          No. Driftlatch protects two outcomes: closeness at home and clarity at work. It is built to reduce spillover, especially on heavy weeks.
         </p>
       </details>
     </div>
@@ -362,7 +374,7 @@ export default function Home() {
       <details>
         <summary><strong>What if my partner doesn’t use it?</strong></summary>
         <p className="small" style={{ marginTop: 12 }}>
-          Driftlatch still works. One person ending the day cleanly—without disappearing or escalating—often stabilises the whole dynamic.
+          Driftlatch still helps. One person ending the day cleanly often changes the tone of the whole dynamic.
         </p>
       </details>
     </div>
@@ -371,7 +383,7 @@ export default function Home() {
       <details>
         <summary><strong>What’s the refund policy?</strong></summary>
         <p className="small" style={{ marginTop: 12 }}>
-          14-day refund guarantee. If it doesn’t feel useful, email support and we’ll refund you—no questions asked.
+          14-day refund guarantee. If it is not useful, email support and we will refund you.
         </p>
       </details>
     </div>
@@ -381,13 +393,79 @@ export default function Home() {
 
       {/* FOOTER */}
       <FadeIn>
-      <section className="section" style={{ paddingBottom: 40 }}>
-        <div className="small">
-          <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> ·{" "}
-          <span style={{ color: "var(--muted)" }}>© {new Date().getFullYear()} Driftlatch</span>
+      <footer
+        className="section public-footer"
+        style={{
+          marginTop: 20,
+          paddingTop: 26,
+          paddingBottom: 40,
+          borderTop: "1px solid var(--border)",
+          background: "rgba(255,255,255,0.02)",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "space-between",
+            gap: 20,
+            alignItems: "flex-start",
+          }}
+        >
+          <div style={{ display: "grid", gap: 10, maxWidth: 360 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+              <span
+                aria-hidden
+                style={{
+                  width: 14,
+                  height: 14,
+                  borderRadius: 999,
+                  background: "radial-gradient(circle at 30% 30%, rgba(214,150,120,1) 0%, rgba(194,122,92,1) 55%, rgba(146,86,63,1) 100%)",
+                  boxShadow: "0 0 18px rgba(194,122,92,0.22)",
+                }}
+              />
+              <span style={{ color: "var(--text)", fontWeight: 700, letterSpacing: "0.04em" }}>Driftlatch</span>
+            </div>
+            <p className="small" style={{ margin: 0, maxWidth: 320 }}>
+              Built for founders and high-drive professionals who want a cleaner end to the day and a steadier start to the next one.
+            </p>
+            <div className="small" style={{ color: "var(--muted)" }}>
+              © {new Date().getFullYear()} Driftlatch. All rights reserved.
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gap: 10,
+              minWidth: "min(100%, 320px)",
+            }}
+          >
+            <div className="small" style={{ color: "var(--text)", fontWeight: 700 }}>
+              Quick links
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "10px 18px",
+              }}
+            >
+              <a href="/pricing" style={{ color: "var(--muted)", textDecoration: "none", transition: "color 0.2s ease" }}>Pricing</a>
+              <a href="/terms" style={{ color: "var(--muted)", textDecoration: "none", transition: "color 0.2s ease" }}>Terms</a>
+              <a href="/privacy" style={{ color: "var(--muted)", textDecoration: "none", transition: "color 0.2s ease" }}>Privacy</a>
+              <a href="/refunds" style={{ color: "var(--muted)", textDecoration: "none", transition: "color 0.2s ease" }}>Refunds</a>
+              <a href="mailto:support@driftlatch.com" style={{ color: "var(--muted)", textDecoration: "none", transition: "color 0.2s ease" }}>Support</a>
+            </div>
+          </div>
         </div>
-      </section>
+      </footer>
       </FadeIn>
+      <style jsx>{`
+        .public-footer a:hover {
+          color: var(--accent) !important;
+        }
+      `}</style>
     </main>
   );
 }

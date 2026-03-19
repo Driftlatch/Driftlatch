@@ -18,7 +18,7 @@ function buildStateLine(state: DriftState | null, timeMinutes: number | null) {
   }
   if (state === "wired") {
     return timeMinutes !== null && timeMinutes <= 3
-      ? "You're wired right now. A shorter tool is more likely to help."
+      ? "You're wired right now. A shorter reset is more likely to help."
       : "You're wired right now. This helps because it gives your system one clear thing to do.";
   }
   if (state === "drained") {
@@ -31,7 +31,7 @@ function buildStateLine(state: DriftState | null, timeMinutes: number | null) {
     return "You're steady right now. This helps you keep the day simple.";
   }
   return timeMinutes !== null && timeMinutes <= 3
-    ? "Right now, a shorter tool is more likely to help."
+    ? "Right now, a shorter reset is more likely to help."
     : "This is meant to be a steady next step.";
 }
 
@@ -78,7 +78,7 @@ function buildPatternLine({
   }
 
   if (tool.depth === "micro" || tool.selector_priority === "high") {
-    return "Right now, a simpler tool is more likely to help.";
+    return "Right now, a simpler step is more likely to help.";
   }
 
   if (tool.tool_family === "movement_reset" || tool.tool_family === "body_release") {

@@ -35,8 +35,8 @@ const STATES: { id: DriftState; label: string; hint: string }[] = [
 
 const TIMES: { minutes: ValidToolTime; label: string; sub: string }[] = [
   { minutes: 1, label: "1 min", sub: "Quick reset" },
-  { minutes: 3, label: "3 min", sub: "Short tool" },
-  { minutes: 5, label: "5 min", sub: "Full tool" },
+  { minutes: 3, label: "3 min", sub: "Short reset" },
+  { minutes: 5, label: "5 min", sub: "Full reset" },
   { minutes: 10, label: "10 min", sub: "Deeper reset" },
 ];
 
@@ -439,7 +439,7 @@ export default function CheckinPage() {
           <span style={kickerStyle}>CHECK-IN</span>
           <h1 style={titleStyle}>What&apos;s your state right now?</h1>
           <p style={subtextStyle}>
-            {quickMode ? "Choose one. We&apos;ll open the right tool." : "Override your defaults for this check-in."}
+            {quickMode ? "Choose one. We&apos;ll open the right next step." : "Override your defaults for this check-in."}
           </p>
         </motion.header>
 
@@ -672,7 +672,7 @@ export default function CheckinPage() {
                   color: "#fff", fontSize: 14, fontWeight: 900, cursor: "pointer", letterSpacing: "-0.01em",
                 }}
               >
-                Get one tool -&gt;
+                Get one step -&gt;
               </motion.button>
               {/* Secondary — glass, recedes behind primary */}
               <motion.button

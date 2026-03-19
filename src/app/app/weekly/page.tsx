@@ -111,10 +111,10 @@ const INTERPRETATION: Record<DriftState, string> = {
 };
 
 const NEED_SUGGESTION: Record<DriftNeed, string> = {
-  regain_clarity: "Keep one short clarity tool within reach — not for emergencies, just for the moment things blur.",
+  regain_clarity: "Keep one short clarity step within reach — not for emergencies, just for the moment things blur.",
   wind_down: "One evening reset, easy to open, does more than you'd expect.",
-  be_here: "A presence tool ready at home transitions is the one that actually gets used.",
-  come_back: "Keep one repair tool close for re-entry — it's the gap most people skip.",
+  be_here: "A simple presence reset at home transitions is the one that actually gets used.",
+  come_back: "Keep one repair step close for re-entry — it's the gap most people skip.",
 };
 
 const RANGE_DAYS: RangeDays = 7;
@@ -196,7 +196,7 @@ function buildCheckinSummary(current: CheckinRow[], previous: CheckinRow[], rang
   const needCount = current.filter((r) => r.need === topNeed).length;
   const needShare = topNeed ? Math.round((needCount / checkinCount) * 100) : null;
   const obs2 = topNeed && needShare != null
-    ? `Your most repeated need was to ${NEED_LABEL[topNeed]} — ${needShare}% of sessions. That's not random. It usually means that specific gear shift is the one your day keeps demanding, and it's worth having a tool preloaded for it rather than deciding in the moment.`
+    ? `Your most repeated need was to ${NEED_LABEL[topNeed]} — ${needShare}% of sessions. That's not random. It usually means that specific gear shift is the one your day keeps demanding, and it's worth having a step ready for it rather than deciding in the moment.`
     : `No single need dominated this period. That could mean your context was varied, or that the pattern needs more check-ins to surface clearly.`;
 
   // Observation 3: What actually worked
@@ -206,10 +206,10 @@ function buildCheckinSummary(current: CheckinRow[], previous: CheckinRow[], rang
     : topToolNames[0] ?? "your repeated tools";
   const completionRead =
     completionPct >= 80
-      ? "That's a high follow-through rate — the tools are landing."
+      ? "That's a high follow-through rate — this approach is landing."
       : completionPct >= 50
         ? "Roughly half completed. The ones that got finished were probably the right length for where you were."
-        : "Completion was lower than usual. That often means the moment passed before the tool could land, or the tool wasn't quite the right fit for the state.";
+        : "Completion was lower than usual. That often means the moment passed before the step could land, or the fit wasn't quite right for the state.";
   const obs3 = `What you reached for was ${toolsSentence}, with a ${completionPct}% completion rate. ${completionRead}`;
 
   // Observation 4: Trend + what to carry forward
@@ -221,7 +221,7 @@ function buildCheckinSummary(current: CheckinRow[], previous: CheckinRow[], rang
         : "Load is broadly similar to last week. Consistency can work for or against you — it depends whether the pattern is one you'd choose.";
   const suggestionLine = topNeed
     ? NEED_SUGGESTION[topNeed]
-    : "Keep one tool ready for your most common moment — the one you can open without deciding anything.";
+    : "Keep one simple step ready for your most common moment — the one you can open without deciding anything.";
   const obs4 = `${trendLine} ${suggestionLine}`;
 
   // Pipe-delimited so the card can render each observation as a separate block
@@ -237,7 +237,7 @@ function buildRecentFallbackSummary(current: RecentRow[], previous: RecentRow[],
   if (!current.length) {
     return {
       mode: "empty",
-      paragraph: `No tool usage found in the last ${rangeDays} days. Start one short check-in and this fills in.`,
+      paragraph: `No recent activity found in the last ${rangeDays} days. Start one short check-in and this fills in.`,
       topTools: [],
       trend: null,
     };
@@ -261,13 +261,13 @@ function buildRecentFallbackSummary(current: RecentRow[], previous: RecentRow[],
           ? `That's ${prevCount - currCount} fewer than last period. Lighter weeks happen — one session this week keeps the thread.`
           : "Exactly the same rhythm as last period. Consistency is underrated.";
 
-  const obs1 = `${rangeLabel.charAt(0).toUpperCase() + rangeLabel.slice(1)} you returned to ${toolsSentence} — ${currCount} tool action${currCount === 1 ? "" : "s"} total. ${consistencyRead}`;
+  const obs1 = `${rangeLabel.charAt(0).toUpperCase() + rangeLabel.slice(1)} you returned to ${toolsSentence} — ${currCount} repeat${currCount === 1 ? "" : "s"} total. ${consistencyRead}`;
 
   const obs2 = topTools.length > 0
-    ? `The tools you're repeating are a signal in themselves. Returning to the same thing across different moments usually means it's doing real work — not just something you tried once.`
+    ? `The things you're repeating are a signal in themselves. Returning to the same thing across different moments usually means it's doing real work — not just something you tried once.`
     : `Start one check-in to get a proper read — even a single session gives this page something to reflect back.`;
 
-  const obs3 = `To get fuller pattern data here, add a state check-in next time you open a tool. It takes ten seconds and turns this from usage stats into actual signal.`;
+  const obs3 = `To get fuller pattern data here, add a state check-in next time you open something here. It takes ten seconds and turns this from usage stats into actual signal.`;
 
   return {
     mode: "recent_fallback",
@@ -307,7 +307,7 @@ function buildPersonalCheckinSummary(
   const needCount = current.filter((r) => r.need === topNeed).length;
   const needShare = topNeed ? Math.round((needCount / checkinCount) * 100) : null;
   const obs2 = topNeed && needShare != null
-    ? `The move you needed most was to ${NEED_LABEL[topNeed]} - ${needShare}% of sessions. That's usually the part of the day asking for a little more help, so it makes sense to keep that kind of tool close.`
+    ? `The move you needed most was to ${NEED_LABEL[topNeed]} - ${needShare}% of sessions. That's usually the part of the day asking for a little more help, so it makes sense to keep that kind of support close.`
     : `No single need dominated this period. That could mean your context was varied, or that the pattern needs more check-ins to surface clearly.`;
 
   const topToolNames = topTools.slice(0, 2).map(toolTitle);
@@ -316,10 +316,10 @@ function buildPersonalCheckinSummary(
     : topToolNames[0] ?? "your repeated tools";
   const completionRead =
     completionPct >= 80
-      ? "That follow-through is a good sign. The tools are landing."
+      ? "That follow-through is a good sign. This approach is landing."
       : completionPct >= 50
         ? "About half got finished. The ones that landed were probably the right size for where you were."
-        : "Completion was lower. That usually means the moment moved faster than the tool, or the fit was a little off.";
+        : "Completion was lower. That usually means the moment moved faster than the step, or the fit was a little off.";
   const obs3 = `You responded most to ${toolsSentence}, with a ${completionPct}% completion rate. ${completionRead}`;
 
   const trendLine =
@@ -330,8 +330,8 @@ function buildPersonalCheckinSummary(
         : "Things felt broadly similar to last week. That's useful when the pattern is one you want to keep shifting.";
   const suggestionLine = topNeed
     ? NEED_SUGGESTION[topNeed]
-    : "Keep one tool ready for your most common moment - the one you can open without deciding anything.";
-  const obs4 = `${trendLine} ${suggestionLine}`;
+    : "Keep one simple step ready for your most common moment - the one you can open without deciding anything.";
+  const obs4 = `${trendLine} ${suggestionLine} That's part of emotional intelligence under pressure: noticing the moment early enough to choose your next step.`;
 
   return {
     mode: "checkins",
@@ -366,11 +366,11 @@ function buildPersonalRecentFallbackSummary(
         : currCount < prevCount
           ? `That's ${prevCount - currCount} fewer than last period. Lighter weeks happen - one session this week keeps the thread.`
           : "Exactly the same rhythm as last period. Consistency is underrated.";
-  const obs1 = `${rangeLabel.charAt(0).toUpperCase() + rangeLabel.slice(1)}, you kept coming back to ${toolsSentence} - ${currCount} tool action${currCount === 1 ? "" : "s"} total. ${consistencyRead}`;
+  const obs1 = `${rangeLabel.charAt(0).toUpperCase() + rangeLabel.slice(1)}, you kept coming back to ${toolsSentence} - ${currCount} repeat${currCount === 1 ? "" : "s"} total. ${consistencyRead}`;
   const obs2 = topTools.length > 0
-    ? "That repeat pattern matters. Coming back to the same tools usually means they feel easier to trust in the moment."
+    ? "That repeat pattern matters. Coming back to the same few things usually means they feel easier to trust in the moment."
     : "Start one check-in to get a proper read - even a single session gives this page something to reflect back.";
-  const obs3 = "To make this feel more personal, add a state check-in next time you open a tool. It takes a few seconds and gives the app a better read on what actually helps.";
+  const obs3 = "To make this feel more personal, add a state check-in next time you open a step here. It takes a few seconds and gives the app a better read on what actually helps.";
 
   return {
     mode: "recent_fallback",

@@ -2,8 +2,21 @@
 
 import Link from "next/link";
 import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
+import {
+  clearStoredPublicProfileData,
+  clearStoredPublicProfileResult,
+  readStoredPublicProfileAnswers,
+  readStoredPublicProfileContext,
+  readStoredPublicProfileResult,
+  syncPublicProfileResultToAccount,
+  writeStoredPublicProfileAnswers,
+  writeStoredPublicProfileContext,
+  writeStoredPublicProfileResult,
+  type PublicProfileContext,
+  type PublicProfileResult,
+} from "@/lib/publicProfile";
 import { getSupabase } from "@/lib/supabase";
 
 type Answer = 0 | 1 | 2 | 3 | 4;
@@ -183,12 +196,30 @@ function mapSituationToId(homeSetup: HomeSetup) {
   return "kids_around";
 }
 
+function isHomeSetup(value: string): value is HomeSetup {
+  return value === "Partner/spouse" || value === "Kids/family" || value === "Partner + kids" || value === "Long distance" || value === "Solo";
+}
+
+function isWorkIntensity(value: string): value is WorkIntensity {
+  return value === "Normal" || value === "Busy" || value === "Peak pressure";
+}
+
+function isSpillover(value: string): value is Spillover {
+  return value === "Work → home" || value === "Home → work" || value === "Both ways";
+}
+
+function isPriority(value: string): value is Priority {
+  return value === "Clarity at work" || value === "Closeness at home" || value === "Both";
+}
+
 export default function OnboardingPage() {
-  const router = useRouter();
+  const pathname = usePathname();
+  const isPublicFlow = !pathname.startsWith("/app/");
   const hasPersistedResultsRef = useRef(false);
   const [page, setPage] = useState<PageKey>("intro");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [displayNameInput, setDisplayNameInput] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const [homeSetup, setHomeSetup] = useState<HomeSetup>("Partner + kids");
   const [workIntensity, setWorkIntensity] = useState<WorkIntensity>("Busy");
@@ -329,6 +360,78 @@ export default function OnboardingPage() {
     };
   }, [answers, spillover]);
 
+  const primaryPackIds = useMemo(
+    () =>
+      [groups.primaryPack, groups.secondaryPack]
+        .filter((pack): pack is string => Boolean(pack))
+        .map((pack) => PACK_ID_BY_NAME[pack])
+        .filter((id): id is string => Boolean(id)),
+    [groups.primaryPack, groups.secondaryPack],
+  );
+
+  const topPatterns = useMemo(
+    () =>
+      [groups.workTop?.[0], groups.recoveryTop?.[0], groups.homeTop?.[0], groups.attachTop?.[0]]
+        .filter((pattern): pattern is string => Boolean(pattern)),
+    [groups.attachTop, groups.homeTop, groups.recoveryTop, groups.workTop],
+  );
+
+  const publicProfileContext = useMemo<PublicProfileContext>(
+    () => ({
+      display_name: displayNameInput,
+      home_setup: homeSetup,
+      priority,
+      spillover,
+      work_intensity: workIntensity,
+    }),
+    [displayNameInput, homeSetup, priority, spillover, workIntensity],
+  );
+
+  const publicProfileResult = useMemo<PublicProfileResult>(
+    () => ({
+      attachment_style: groups.style,
+      defaults: {
+        default_need: mapNeedToId(priority, groups.primaryPack),
+        default_situation: mapSituationToId(homeSetup),
+        default_time: mapTimeToDefault(workIntensity),
+        primary_pack_ids: primaryPackIds,
+        top_patterns: topPatterns,
+      },
+      display_name: displayNameInput.trim() || null,
+      primary_pack_ids: primaryPackIds,
+      result_summary: {
+        attach_top: groups.attachTop?.[0] ?? null,
+        emotional_line: groups.emotionalLine,
+        home_top: groups.homeTop?.[0] ?? null,
+        micro_pack: groups.microPack,
+        primary_pack: groups.primaryPack,
+        priority,
+        recovery_top: groups.recoveryTop?.[0] ?? null,
+        secondary_pack: groups.secondaryPack,
+        spillover,
+        work_top: groups.workTop?.[0] ?? null,
+      },
+    }),
+    [
+      displayNameInput,
+      groups.attachTop,
+      groups.emotionalLine,
+      groups.homeTop,
+      groups.microPack,
+      groups.primaryPack,
+      groups.recoveryTop,
+      groups.secondaryPack,
+      groups.style,
+      groups.workTop,
+      homeSetup,
+      primaryPackIds,
+      priority,
+      spillover,
+      topPatterns,
+      workIntensity,
+    ],
+  );
+
   function setAnswer(questionIndex: number, val: Answer) {
     setAnswers((prev) => {
       const next = [...prev] as Answer[];
@@ -339,6 +442,12 @@ export default function OnboardingPage() {
 
   function handleDisplayNameChange(event: ChangeEvent<HTMLInputElement>) {
     setDisplayNameInput(event.target.value);
+  }
+
+  function handleRetakeProfile() {
+    hasPersistedResultsRef.current = false;
+    if (isPublicFlow) clearStoredPublicProfileResult();
+    goToQuestion(0);
   }
 
   const progressLabel = (key: PageKey) => {
@@ -378,39 +487,90 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     const supabase = getSupabase();
+    let active = true;
+
+    const loadSessionState = async () => {
+      const { data } = await supabase.auth.getUser();
+      if (!active) return;
+      setIsLoggedIn(Boolean(data.user));
+    };
+
+    void loadSessionState();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!active) return;
+      setIsLoggedIn(Boolean(session));
+    });
+
+    return () => {
+      active = false;
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isPublicFlow) return;
+
+    const storedAnswers = readStoredPublicProfileAnswers();
+    if (storedAnswers && storedAnswers.length === 20) {
+      const nextAnswers = storedAnswers.map(
+        (answer) => Math.max(0, Math.min(4, Math.round(answer))) as Answer,
+      );
+      setAnswers(nextAnswers);
+    }
+
+    const storedContext = readStoredPublicProfileContext();
+    if (storedContext) {
+      setDisplayNameInput(storedContext.display_name ?? "");
+      if (isHomeSetup(storedContext.home_setup)) setHomeSetup(storedContext.home_setup);
+      if (isWorkIntensity(storedContext.work_intensity)) setWorkIntensity(storedContext.work_intensity);
+      if (isSpillover(storedContext.spillover)) setSpillover(storedContext.spillover);
+      if (isPriority(storedContext.priority)) setPriority(storedContext.priority);
+    }
+
+    if (readStoredPublicProfileResult()) {
+      setCurrentQuestionIndex(19);
+      setPage("results");
+    }
+  }, [isPublicFlow]);
+
+  useEffect(() => {
+    if (!isPublicFlow) return;
+    writeStoredPublicProfileAnswers(answers);
+  }, [answers, isPublicFlow]);
+
+  useEffect(() => {
+    if (!isPublicFlow) return;
+    writeStoredPublicProfileContext(publicProfileContext);
+  }, [isPublicFlow, publicProfileContext]);
+
+  useEffect(() => {
+    const supabase = getSupabase();
     if (page !== "results" || hasPersistedResultsRef.current) return;
     hasPersistedResultsRef.current = true;
 
     let cancelled = false;
 
     const persistProfile = async () => {
-      const { data, error: authError } = await supabase.auth.getUser();
+      if (isPublicFlow) {
+        writeStoredPublicProfileAnswers(answers);
+        writeStoredPublicProfileContext(publicProfileContext);
+        writeStoredPublicProfileResult(publicProfileResult);
+      }
+
+      const { data, error: authError } = await supabase.auth.getSession();
       if (cancelled) return;
-      if (authError || !data.user) return;
+      if (authError || !data.session) return;
 
-      const primaryPackIds = [groups.primaryPack, groups.secondaryPack]
-        .filter((pack): pack is string => Boolean(pack))
-        .map((pack) => PACK_ID_BY_NAME[pack])
-        .filter((id): id is string => Boolean(id));
-
-      const topPatterns = [groups.workTop?.[0], groups.recoveryTop?.[0], groups.homeTop?.[0], groups.attachTop?.[0]]
-        .filter((p): p is string => Boolean(p));
-
-      const defaults = {
-        default_need: mapNeedToId(priority, groups.primaryPack),
-        default_time: mapTimeToDefault(workIntensity),
-        default_situation: mapSituationToId(homeSetup),
-        primary_pack_ids: primaryPackIds,
-        top_patterns: topPatterns,
-      };
-
-      const { error } = await supabase.from("user_profile").upsert({
-        user_id: data.user.id,
-        display_name: displayNameInput.trim() || null,
-        attachment_style: groups.style,
-        defaults,
-        updated_at: new Date().toISOString(),
-      });
+      const error = await (async () => {
+        try {
+          await syncPublicProfileResultToAccount(data.session, publicProfileResult);
+          if (isPublicFlow) clearStoredPublicProfileData();
+          return null;
+        } catch (persistError) {
+          return persistError;
+        }
+      })();
 
       if (cancelled) return;
       if (error) {
@@ -422,10 +582,11 @@ export default function OnboardingPage() {
     void persistProfile();
     return () => { cancelled = true; };
   }, [
-    page, router,
-    groups.style, groups.primaryPack, groups.secondaryPack,
-    groups.workTop, groups.recoveryTop, groups.homeTop, groups.attachTop,
-    displayNameInput, priority, workIntensity, homeSetup,
+    answers,
+    isPublicFlow,
+    page,
+    publicProfileContext,
+    publicProfileResult,
   ]);
 
   return (
@@ -438,7 +599,7 @@ export default function OnboardingPage() {
             <div className="kicker">PRESSURE PROFILE</div>
             <h1 style={{ marginBottom: 10 }}>Two minutes. You'll see exactly where it's leaking.</h1>
             <p style={{ maxWidth: "78ch" }}>
-              20 statements about your real life — work, evenings, home, how you handle friction. We'll map where pressure is costing you most and match tools to your specific patterns.
+              20 statements about your real life — work, evenings, home, how you handle friction. We'll map where pressure is costing you most and match the right support to your specific patterns.
             </p>
 
             <div className="card" style={{ marginTop: 18, maxWidth: 460 }}>
@@ -493,7 +654,7 @@ export default function OnboardingPage() {
             <div className="kicker">CONTEXT</div>
             <h1 style={{ marginBottom: 10 }}>Tell us what your life actually looks like.</h1>
             <p className="small" style={{ maxWidth: "78ch" }}>
-              This shapes which tools Driftlatch puts in front of you first. No wrong answers.
+              This shapes which next steps Driftlatch puts in front of you first. No wrong answers.
             </p>
 
             <div className="grid two" style={{ marginTop: 18 }}>
@@ -680,7 +841,10 @@ export default function OnboardingPage() {
             <h1 style={{ marginBottom: 8 }}>Where pressure is showing up</h1>
             <p style={{ maxWidth: "78ch" }}>{groups.emotionalLine}</p>
             <p className="small" style={{ maxWidth: "78ch" }}>
-              This isn't a diagnosis. It's a practical map — so Driftlatch can put the right tool in front of you with less effort on your part.
+              This isn't a diagnosis. It's a practical map — so Driftlatch can put the right next step in front of you with less effort on your part.
+            </p>
+            <p className="small" style={{ maxWidth: "78ch" }}>
+              This is part of building emotional intelligence under pressure — noticing your pattern before it runs the moment.
             </p>
 
             <div className="grid two" style={{ marginTop: 18 }}>
@@ -755,16 +919,35 @@ export default function OnboardingPage() {
               )}
               <div className="hr" />
               <div className="btnRow">
-                <Link className="btn primary" href="/app/checkin">
-                  Open your first tool →
-                </Link>
-                <button className="btn ghost" type="button" onClick={() => goToQuestion(0)}>
+                {isPublicFlow && !isLoggedIn ? (
+                  <>
+                    <Link className="btn primary" href="/pricing">
+                      See pricing →
+                    </Link>
+                    <Link className="btn ghost" href="/buy?plan=annual">
+                      Start annual
+                    </Link>
+                    <Link className="btn ghost" href="/buy?plan=monthly">
+                      Start monthly
+                    </Link>
+                  </>
+                ) : (
+                  <Link className="btn primary" href="/app/checkin">
+                    Open your first step →
+                  </Link>
+                )}
+                <button className="btn ghost" type="button" onClick={handleRetakeProfile}>
                   Retake
                 </button>
                 <Link className="btn ghost" href="/">
                   Back to site
                 </Link>
               </div>
+              {isPublicFlow && !isLoggedIn ? (
+                <p className="small" style={{ marginTop: 12 }}>
+                  This result is saved on this browser until you log in or buy. If you use another device later, you may need to retake it.
+                </p>
+              ) : null}
               <p className="small" style={{ marginTop: 12 }}>
                 Home: <span style={{ color: "var(--text)" }}>{homeSetup}</span> · Work:{" "}
                 <span style={{ color: "var(--text)" }}>{workIntensity}</span> · Spillover:{" "}

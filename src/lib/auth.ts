@@ -1,4 +1,5 @@
 import type { Session } from "@supabase/supabase-js";
+import { syncStoredPublicProfileToAccount } from "@/lib/publicProfile";
 import { getSupabase } from "@/lib/supabase";
 import type { Tables, TablesInsert } from "@/lib/types/supabase";
 
@@ -8,25 +9,19 @@ export type UserProfile = Pick<
 >;
 
 export type UserEntitlement = {
+  cancel_at_period_end: boolean | null;
+  current_period_end: string | null;
   plan: string | null;
   user_id: string;
   status: string | null;
 };
 
-type UntypedEntitlementsQuery = {
-  select: (columns: string) => {
-    eq: (column: string, value: string) => {
-      maybeSingle: () => Promise<{ data: unknown; error: { message: string } | null }>;
-    };
-  };
-};
+function isSafeAppPath(path: string | null | undefined): path is string {
+  return typeof path === "string" && path.startsWith("/") && !path.startsWith("//");
+}
 
-type UntypedEntitlementsClient = {
-  from: (relation: "user_entitlements") => UntypedEntitlementsQuery;
-};
-
-export function getPostAuthRedirectPath() {
-  return "/app";
+export function getPostAuthRedirectPath(nextPath?: string | null): string {
+  return isSafeAppPath(nextPath) ? nextPath : "/app";
 }
 
 export function getSessionUserEmail(session: Session | null) {
@@ -55,10 +50,10 @@ export async function loadUserProfile(userId: string) {
 }
 
 export async function loadUserEntitlement(userId: string) {
-  const supabase = getSupabase() as unknown as UntypedEntitlementsClient;
+  const supabase = getSupabase();
   const { data, error } = await supabase
     .from("user_entitlements")
-    .select("user_id, plan, status")
+    .select("user_id, plan, status, current_period_end, cancel_at_period_end")
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -113,7 +108,9 @@ export async function loadAuthState() {
   if (error) throw error;
   if (!session) return { session: null, profile: null };
 
-  const profile = await syncUserProfileIdentity(session);
+  await syncUserProfileIdentity(session);
+  await syncStoredPublicProfileToAccount(session);
+  const profile = await loadUserProfile(session.user.id);
   return { session, profile };
 }
 

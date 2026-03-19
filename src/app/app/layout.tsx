@@ -9,9 +9,11 @@ import {
   hasAppAccess,
   hasCompletedSetup,
   loadAuthState,
+  loadUserProfile,
   loadUserEntitlement,
   syncUserProfileIdentity,
 } from "@/lib/auth";
+import { syncStoredPublicProfileToAccount } from "@/lib/publicProfile";
 import { getSupabase } from "@/lib/supabase";
 
 const SETUP_ROUTE = "/app/setup";
@@ -29,7 +31,14 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     const guardRoute = async (sessionOverride?: Session | null) => {
       try {
         const authState = sessionOverride
-          ? { session: sessionOverride, profile: await syncUserProfileIdentity(sessionOverride) }
+          ? {
+              session: sessionOverride,
+              profile: await (async () => {
+                await syncUserProfileIdentity(sessionOverride);
+                await syncStoredPublicProfileToAccount(sessionOverride);
+                return loadUserProfile(sessionOverride.user.id);
+              })(),
+            }
           : await loadAuthState();
 
         if (!active) return;
