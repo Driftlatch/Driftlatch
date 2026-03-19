@@ -1,5 +1,3 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
-
 const SIGNATURE_TOLERANCE_SECONDS = 300;
 
 type PaddleCustomData = Record<string, unknown> & {
@@ -57,13 +55,39 @@ export type PaddleWebhookEvent<TData = unknown> = {
   occurred_at: string;
 };
 
-function safeCompareHex(a: string, b: string) {
-  const left = Buffer.from(a, "hex");
-  const right = Buffer.from(b, "hex");
-  return left.length === right.length && timingSafeEqual(left, right);
+function hexToBytes(value: string) {
+  if (value.length % 2 !== 0) return null;
+
+  const bytes = new Uint8Array(value.length / 2);
+  for (let index = 0; index < value.length; index += 2) {
+    const byte = Number.parseInt(value.slice(index, index + 2), 16);
+    if (Number.isNaN(byte)) return null;
+    bytes[index / 2] = byte;
+  }
+
+  return bytes;
 }
 
-export function verifyPaddleSignature(rawBody: string, signatureHeader: string, secret: string) {
+function safeCompareHex(a: string, b: string) {
+  const left = hexToBytes(a);
+  const right = hexToBytes(b);
+  if (!left || !right || left.length !== right.length) {
+    return false;
+  }
+
+  let mismatch = 0;
+  for (let index = 0; index < left.length; index += 1) {
+    mismatch |= left[index] ^ right[index];
+  }
+
+  return mismatch === 0;
+}
+
+function bytesToHex(bytes: Uint8Array) {
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+export async function verifyPaddleSignature(rawBody: string, signatureHeader: string, secret: string) {
   const parts = signatureHeader.split(";").map((part) => part.trim());
   const timestampPart = parts.find((part) => part.startsWith("ts="));
   const h1Parts = parts.filter((part) => part.startsWith("h1="));
@@ -83,7 +107,19 @@ export function verifyPaddleSignature(rawBody: string, signatureHeader: string, 
   }
 
   const signedPayload = `${timestamp}:${rawBody}`;
-  const expected = createHmac("sha256", secret).update(signedPayload).digest("hex");
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { hash: "SHA-256", name: "HMAC" },
+    false,
+    ["sign"],
+  );
+  const signatureBytes = await crypto.subtle.sign(
+    "HMAC",
+    cryptoKey,
+    new TextEncoder().encode(signedPayload),
+  );
+  const expected = bytesToHex(new Uint8Array(signatureBytes));
 
   return h1Parts.some((part) => {
     const signature = part.slice(3);
