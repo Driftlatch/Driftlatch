@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { LIBRARY } from "@/lib/toolLibrary";
 import ToolClient from "./ToolClient";
 
+export const runtime = "edge";
+
 type RouteParams = { id: string };
 
 export default async function Page({
