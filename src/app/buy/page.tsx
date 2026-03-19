@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { hasAppAccess, loadUserEntitlement } from "@/lib/auth";
 import { getSupabase } from "@/lib/supabase";
-
-export const dynamic = "force-dynamic";
 
 const PADDLE_ANNUAL_URL = "PADDLE_ANNUAL_URL";
 const PADDLE_MONTHLY_URL = "PADDLE_MONTHLY_URL";
@@ -18,7 +16,8 @@ const trustLines = [
   "Redirecting you securely via Paddle.",
 ];
 
-export default function BuyPage() {
+// Inner component uses useSearchParams — must be inside Suspense
+function BuyInner() {
   const router = useRouter();
   const sp = useSearchParams();
   const plan = sp.get("plan"); // "monthly" | "annual" | null
@@ -76,8 +75,6 @@ export default function BuyPage() {
     }, 18);
 
     const redirectTimer = setTimeout(() => {
-      // If you haven't added real Paddle links yet, this will 404.
-      // For testing, temporarily set both URLs to "/pricing".
       window.location.href = url;
     }, 1800);
 
@@ -340,5 +337,14 @@ export default function BuyPage() {
         </motion.p>
       </motion.div>
     </main>
+  );
+}
+
+// Outer page wraps inner in Suspense — required for useSearchParams at build time
+export default function BuyPage() {
+  return (
+    <Suspense>
+      <BuyInner />
+    </Suspense>
   );
 }
