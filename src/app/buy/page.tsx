@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Script from "next/script";
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { hasAppAccess, loadUserEntitlement } from "@/lib/auth";
@@ -39,6 +39,7 @@ const PADDLE_CLIENT_TOKEN = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN ?? "";
 const PADDLE_ANNUAL_PRICE_ID = process.env.NEXT_PUBLIC_PADDLE_ANNUAL_PRICE_ID ?? "";
 const PADDLE_MONTHLY_PRICE_ID = process.env.NEXT_PUBLIC_PADDLE_MONTHLY_PRICE_ID ?? "";
 const PADDLE_ENVIRONMENT = process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT ?? "";
+const IS_DEVELOPMENT = process.env.NODE_ENV !== "production";
 
 const trustLines = [
   "14-day refund guarantee - no questions asked.",
@@ -50,6 +51,113 @@ const trustLines = [
 type CheckoutState = "checking" | "needs-login" | "ready" | "opening" | "error";
 
 let paddleInitialized = false;
+
+function maskValue(value: string) {
+  if (!value) return "(empty)";
+  if (value.length <= 10) return value;
+  return `${value.slice(0, 6)}...${value.slice(-4)}`;
+}
+
+function maskEmail(email: string) {
+  if (!email) return "(empty)";
+  const [localPart = "", domain = ""] = email.split("@");
+  if (!domain) return maskValue(email);
+  return `${localPart.slice(0, 2) || "*"}***@${domain}`;
+}
+
+function describePaddleValue(value: string) {
+  if (!value) {
+    return {
+      kind: "empty",
+      preview: "(empty)",
+    };
+  }
+
+  if (value.startsWith("pri_")) {
+    return {
+      kind: "price_id",
+      preview: maskValue(value),
+    };
+  }
+
+  if (value.startsWith("pro_")) {
+    return {
+      kind: "product_id",
+      preview: maskValue(value),
+    };
+  }
+
+  return {
+    kind: "unknown",
+    preview: maskValue(value),
+  };
+}
+
+function describeCheckoutError(error: unknown) {
+  if (error instanceof Error) {
+    return {
+      message: error.message,
+      name: error.name,
+      stack: error.stack,
+    };
+  }
+
+  if (typeof error === "string") {
+    return {
+      message: error,
+    };
+  }
+
+  if (error && typeof error === "object") {
+    const maybeMessage =
+      "message" in error && typeof error.message === "string"
+        ? error.message
+        : "error_description" in error && typeof error.error_description === "string"
+          ? error.error_description
+          : "details" in error && typeof error.details === "string"
+            ? error.details
+            : null;
+
+    return {
+      error,
+      message: maybeMessage ?? "Unknown error object",
+      ...(typeof (error as { code?: unknown }).code === "string"
+        ? { code: (error as { code: string }).code }
+        : {}),
+      ...(typeof (error as { hint?: unknown }).hint === "string"
+        ? { hint: (error as { hint: string }).hint }
+        : {}),
+    };
+  }
+
+  return {
+    message: "Unknown error",
+  };
+}
+
+function getVisibleErrorCopy(error: unknown, fallback: string) {
+  if (!IS_DEVELOPMENT) {
+    return fallback;
+  }
+
+  const detail = describeCheckoutError(error).message;
+  return detail ? `${fallback} (${detail})` : fallback;
+}
+
+function logCheckoutDebug(label: string, details?: Record<string, unknown>) {
+  console.info(`[buy] ${label}`, details ?? {});
+}
+
+function isMissingSupabaseSessionError(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const name = "name" in error && typeof error.name === "string" ? error.name : "";
+  const message = "message" in error && typeof error.message === "string" ? error.message : "";
+
+  return name === "AuthSessionMissingError" || message === "Auth session missing!";
+}
 
 function BuyInner() {
   const router = useRouter();
@@ -72,6 +180,22 @@ function BuyInner() {
   const [statusCopy, setStatusCopy] = useState("Checking your access.");
   const [errorCopy, setErrorCopy] = useState<string | null>(null);
   const hasOpenedRef = useRef(false);
+  const monthlyPriceInfo = useMemo(() => describePaddleValue(PADDLE_MONTHLY_PRICE_ID), []);
+  const annualPriceInfo = useMemo(() => describePaddleValue(PADDLE_ANNUAL_PRICE_ID), []);
+  const resolvedPriceInfo = useMemo(() => describePaddleValue(priceId), [priceId]);
+
+  useEffect(() => {
+    logCheckoutDebug("Resolved checkout configuration", {
+      annualPriceId: annualPriceInfo,
+      clientTokenPresent: Boolean(PADDLE_CLIENT_TOKEN),
+      clientTokenPreview: maskValue(PADDLE_CLIENT_TOKEN),
+      environment: PADDLE_ENVIRONMENT || "production",
+      monthlyPriceId: monthlyPriceInfo,
+      resolvedPlan,
+      selectedPlan: plan ?? "(default annual)",
+      resolvedPriceId: resolvedPriceInfo,
+    });
+  }, [annualPriceInfo, monthlyPriceInfo, plan, resolvedPlan, resolvedPriceInfo]);
 
   useEffect(() => {
     const trustTimer = setInterval(() => {
@@ -86,26 +210,66 @@ function BuyInner() {
 
     const checkAccess = async () => {
       try {
+        logCheckoutDebug("Preparing checkout", {
+          resolvedPlan,
+          resolvedPriceId: resolvedPriceInfo,
+          scriptReady,
+        });
+
         const supabase = getSupabase();
-        const { data: authData, error } = await supabase.auth.getUser();
+        const {
+          data: { session },
+          error: sessionError,
+        } = await supabase.auth.getSession();
         if (cancelled) return;
 
-        if (error) {
-          throw error;
+        if (sessionError) {
+          throw sessionError;
         }
 
-        if (!authData.user) {
+        if (!session) {
+          logCheckoutDebug("Checkout needs login", {
+            resolvedPlan,
+            reason: "missing_session",
+          });
           setCheckoutState("needs-login");
           setStatusCopy("Log in first so your purchase lands on the right Driftlatch account.");
           setProgress(24);
           return;
         }
 
+        const { data: authData, error } = await supabase.auth.getUser();
+        if (cancelled) return;
+
+        if (error) {
+          if (isMissingSupabaseSessionError(error)) {
+            logCheckoutDebug("Checkout needs login", {
+              resolvedPlan,
+              reason: "expired_or_missing_session",
+            });
+            setCheckoutState("needs-login");
+            setStatusCopy("Log in first so your purchase lands on the right Driftlatch account.");
+            setProgress(24);
+            return;
+          }
+
+          throw error;
+        }
+
         setUserId(authData.user.id);
         setUserEmail(authData.user.email?.trim().toLowerCase() ?? "");
+        logCheckoutDebug("Authenticated user resolved for checkout", {
+          email: maskEmail(authData.user.email?.trim().toLowerCase() ?? ""),
+          userId: authData.user.id,
+        });
 
         const entitlement = await loadUserEntitlement(authData.user.id);
         if (cancelled) return;
+
+        logCheckoutDebug("Entitlement lookup completed", {
+          entitlementStatus: entitlement?.status ?? null,
+          plan: entitlement?.plan ?? null,
+        });
 
         if (hasAppAccess(entitlement?.status)) {
           router.replace("/app");
@@ -113,20 +277,39 @@ function BuyInner() {
         }
 
         if (!PADDLE_CLIENT_TOKEN || !priceId) {
+          logCheckoutDebug("Checkout configuration missing", {
+            clientTokenPresent: Boolean(PADDLE_CLIENT_TOKEN),
+            resolvedPriceId: resolvedPriceInfo,
+          });
           setCheckoutState("error");
           setErrorCopy("Checkout is not configured yet. Add the Paddle client token and price IDs, then try again.");
           setProgress(20);
           return;
         }
 
+        logCheckoutDebug("Checkout marked ready", {
+          resolvedPlan,
+          resolvedPriceId: resolvedPriceInfo,
+          scriptReady,
+        });
         setCheckoutState("ready");
         setStatusCopy("Opening secure checkout.");
         setProgress(scriptReady ? 68 : 42);
       } catch (error) {
-        console.error("Failed to prepare checkout:", error);
+        console.error("[buy] Failed to prepare checkout", {
+          ...describeCheckoutError(error),
+          annualPriceId: annualPriceInfo,
+          clientTokenPresent: Boolean(PADDLE_CLIENT_TOKEN),
+          monthlyPriceId: monthlyPriceInfo,
+          resolvedPlan,
+          resolvedPriceId: resolvedPriceInfo,
+          scriptReady,
+        });
         if (cancelled) return;
         setCheckoutState("error");
-        setErrorCopy("We could not prepare checkout right now. Refresh and try again.");
+        setErrorCopy(
+          getVisibleErrorCopy(error, "We could not prepare checkout right now. Refresh and try again."),
+        );
         setProgress(16);
       }
     };
@@ -136,7 +319,15 @@ function BuyInner() {
     return () => {
       cancelled = true;
     };
-  }, [priceId, router, scriptReady]);
+  }, [
+    annualPriceInfo,
+    monthlyPriceInfo,
+    priceId,
+    resolvedPlan,
+    resolvedPriceInfo,
+    router,
+    scriptReady,
+  ]);
 
   useEffect(() => {
     if (checkoutState !== "opening") return;
@@ -148,7 +339,11 @@ function BuyInner() {
     return () => clearInterval(progressTimer);
   }, [checkoutState]);
 
-  function handlePaddleEvent(event: { name?: string }) {
+  const handlePaddleEvent = useCallback((event: { name?: string }) => {
+    logCheckoutDebug("Paddle event", {
+      eventName: event.name ?? "(unknown)",
+    });
+
     switch (event.name) {
       case "checkout.loaded":
         setProgress(78);
@@ -167,47 +362,93 @@ function BuyInner() {
       default:
         break;
     }
-  }
+  }, [router]);
 
-  function openCheckout() {
-    if (!window.Paddle || !priceId || !userEmail || !userId) {
-      setCheckoutState("error");
-      setErrorCopy("Checkout is not ready yet. Refresh and try again.");
-      return;
-    }
+  const openCheckout = useCallback(() => {
+    try {
+      logCheckoutDebug("Open checkout requested", {
+        paddleAvailable: Boolean(window.Paddle),
+        resolvedPlan,
+        resolvedPriceId: resolvedPriceInfo,
+        userEmail: maskEmail(userEmail),
+        userId,
+      });
 
-    if (!paddleInitialized) {
-      if (PADDLE_ENVIRONMENT === "sandbox") {
-        window.Paddle.Environment?.set("sandbox");
+      if (!window.Paddle || !priceId || !userEmail || !userId) {
+        logCheckoutDebug("Checkout open blocked by missing prerequisites", {
+          paddleAvailable: Boolean(window.Paddle),
+          resolvedPriceId: resolvedPriceInfo,
+          userEmailPresent: Boolean(userEmail),
+          userIdPresent: Boolean(userId),
+        });
+        setCheckoutState("error");
+        setErrorCopy("Checkout is not ready yet. Refresh and try again.");
+        return;
       }
 
-      window.Paddle.Initialize({
-        eventCallback: handlePaddleEvent,
-        token: PADDLE_CLIENT_TOKEN,
-      });
-      paddleInitialized = true;
-    }
+      if (!paddleInitialized) {
+        logCheckoutDebug("Initializing Paddle", {
+          environment: PADDLE_ENVIRONMENT || "production",
+          tokenPresent: Boolean(PADDLE_CLIENT_TOKEN),
+          tokenPreview: maskValue(PADDLE_CLIENT_TOKEN),
+        });
 
-    setCheckoutState("opening");
-    setStatusCopy("Opening secure checkout.");
-    setProgress(72);
+        if (PADDLE_ENVIRONMENT === "sandbox") {
+          window.Paddle.Environment?.set("sandbox");
+        }
 
-    window.Paddle.Checkout.open({
-      customer: { email: userEmail },
-      customData: {
-        driftlatch_plan: resolvedPlan,
-        driftlatch_user_email: userEmail,
-        driftlatch_user_id: userId,
-      },
-      items: [{ priceId, quantity: 1 }],
-      settings: {
-        allowLogout: false,
-        displayMode: "overlay",
+        window.Paddle.Initialize({
+          eventCallback: handlePaddleEvent,
+          token: PADDLE_CLIENT_TOKEN,
+        });
+        paddleInitialized = true;
+        logCheckoutDebug("Paddle initialized", {
+          environment: PADDLE_ENVIRONMENT || "production",
+        });
+      }
+
+      setCheckoutState("opening");
+      setStatusCopy("Opening secure checkout.");
+      setProgress(72);
+
+      logCheckoutDebug("Calling Paddle.Checkout.open", {
+        customerEmail: maskEmail(userEmail),
+        itemQuantity: 1,
+        resolvedPlan,
+        resolvedPriceId: resolvedPriceInfo,
         successUrl: `${window.location.origin}/thanks`,
-        theme: "dark",
-      },
-    });
-  }
+      });
+
+      window.Paddle.Checkout.open({
+        customer: { email: userEmail },
+        customData: {
+          driftlatch_plan: resolvedPlan,
+          driftlatch_user_email: userEmail,
+          driftlatch_user_id: userId,
+        },
+        items: [{ priceId, quantity: 1 }],
+        settings: {
+          allowLogout: false,
+          displayMode: "overlay",
+          successUrl: `${window.location.origin}/thanks`,
+          theme: "dark",
+        },
+      });
+    } catch (error) {
+      console.error("[buy] Failed to open Paddle checkout", {
+        ...describeCheckoutError(error),
+        resolvedPlan,
+        resolvedPriceId: resolvedPriceInfo,
+        userEmail: maskEmail(userEmail),
+        userId,
+      });
+      setCheckoutState("error");
+      setErrorCopy(
+        getVisibleErrorCopy(error, "We could not prepare checkout right now. Refresh and try again."),
+      );
+      setProgress(16);
+    }
+  }, [handlePaddleEvent, priceId, resolvedPlan, resolvedPriceInfo, userEmail, userId]);
 
   useEffect(() => {
     if (!scriptReady || checkoutState !== "ready" || hasOpenedRef.current || !userEmail || !userId) {
@@ -216,7 +457,7 @@ function BuyInner() {
 
     hasOpenedRef.current = true;
     openCheckout();
-  }, [checkoutState, scriptReady, userEmail, userId]);
+  }, [checkoutState, openCheckout, scriptReady, userEmail, userId]);
 
   return (
     <>
@@ -224,6 +465,9 @@ function BuyInner() {
         src="https://cdn.paddle.com/paddle/v2/paddle.js"
         strategy="afterInteractive"
         onLoad={() => {
+          logCheckoutDebug("Paddle script loaded", {
+            paddleAvailable: Boolean(window.Paddle),
+          });
           setScriptReady(true);
           setProgress((value) => Math.max(value, 56));
         }}
