@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
-import { getPostAuthRedirectPath, loadAuthState, syncUserProfileIdentity } from "@/lib/auth";
+import { getPostAuthRedirectPath, loadAuthState } from "@/lib/auth";
 import { getSupabase } from "@/lib/supabase";
 
 type Phase = "email" | "code";
@@ -42,6 +42,10 @@ function readNextPath() {
   return new URLSearchParams(window.location.search).get("next");
 }
 
+function logLoginDebug(label: string, details?: Record<string, unknown>) {
+  console.info(`[login] ${label}`, details ?? {});
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("email");
@@ -71,16 +75,38 @@ export default function LoginPage() {
     const supabase = getSupabase();
     let active = true;
     void (async () => {
-      const { session } = await loadAuthState();
-      if (!active || !session) return;
-      router.replace(getPostAuthRedirectPath(readNextPath()));
+      try {
+        const authState = await loadAuthState();
+        if (!active || !authState.session) return;
+        if (authState.diagnostics.length > 0) {
+          logLoginDebug("Recovered session with diagnostics", {
+            diagnostics: authState.diagnostics,
+          });
+        }
+        router.replace(getPostAuthRedirectPath(readNextPath()));
+      } catch (error) {
+        console.error("[login] Failed to restore auth state", error);
+        if (!active) return;
+        setNotice({ tone: "neutral", text: "We could not restore an older session cleanly. Sign in again to continue." });
+      }
     })();
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       if (!session || !active) return;
-      void syncUserProfileIdentity(session).then(() => {
-        if (!active) return;
-        router.replace(getPostAuthRedirectPath(readNextPath()));
-      });
+      void loadAuthState(session)
+        .then((authState) => {
+          if (!active || !authState.session) return;
+          if (authState.diagnostics.length > 0) {
+            logLoginDebug("Auth event resolved with diagnostics", {
+              diagnostics: authState.diagnostics,
+            });
+          }
+          router.replace(getPostAuthRedirectPath(readNextPath()));
+        })
+        .catch((error) => {
+          console.error("[login] Failed to finalize auth event", error);
+          if (!active) return;
+          setNotice({ tone: "error", text: "Sign-in worked, but we could not restore this account state yet. Refresh and try again." });
+        });
     });
     return () => { active = false; sub.subscription.unsubscribe(); };
   }, [router]);
@@ -122,8 +148,18 @@ export default function LoginPage() {
     setBusyAction(null);
     if (error) { setNotice({ tone: "error", text: mapOtpError(error.message) }); return; }
     if (!data.session) { setNotice({ tone: "error", text: "Could not sign you in. Try again." }); return; }
-    await syncUserProfileIdentity(data.session);
-    router.replace(getPostAuthRedirectPath(readNextPath()));
+    try {
+      const authState = await loadAuthState(data.session);
+      if (authState.diagnostics.length > 0) {
+        logLoginDebug("Verified code with diagnostics", {
+          diagnostics: authState.diagnostics,
+        });
+      }
+      router.replace(getPostAuthRedirectPath(readNextPath()));
+    } catch (restoreError) {
+      console.error("[login] Failed to restore account after OTP verification", restoreError);
+      setNotice({ tone: "error", text: "Sign-in worked, but we could not restore this older account state. Refresh and try again." });
+    }
   }
 
   function handleDigitInput(i: number, val: string) {

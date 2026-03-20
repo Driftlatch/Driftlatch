@@ -1,5 +1,5 @@
 import type { Session } from "@supabase/supabase-js";
-import { syncStoredPublicProfileToAccount } from "@/lib/publicProfile";
+import { clearStoredPublicProfileData, syncStoredPublicProfileToAccount } from "@/lib/publicProfile";
 import { getSupabase } from "@/lib/supabase";
 import type { Tables, TablesInsert } from "@/lib/types/supabase";
 
@@ -14,6 +14,17 @@ export type UserEntitlement = {
   plan: string | null;
   user_id: string;
   status: string | null;
+};
+
+export type AuthStateDiagnostic = {
+  detail?: string;
+  stage: "session" | "profile_sync" | "stored_profile_sync" | "profile_load";
+};
+
+export type AuthState = {
+  diagnostics: AuthStateDiagnostic[];
+  profile: UserProfile | null;
+  session: Session | null;
 };
 
 function isSafeAppPath(path: string | null | undefined): path is string {
@@ -34,6 +45,81 @@ export function hasAppAccess(status: string | null | undefined) {
 
 export function hasCompletedSetup(profile: Pick<UserProfile, "username"> | null | undefined) {
   return typeof profile?.username === "string" && profile.username.trim().length > 0;
+}
+
+function describeAuthError(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (typeof error === "string") {
+    return error;
+  }
+
+  if (error && typeof error === "object") {
+    if ("message" in error && typeof error.message === "string") {
+      return error.message;
+    }
+
+    if ("error_description" in error && typeof error.error_description === "string") {
+      return error.error_description;
+    }
+  }
+
+  return "Unknown auth error";
+}
+
+function isMissingSupabaseSessionError(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const name = "name" in error && typeof error.name === "string" ? error.name : "";
+  const message = "message" in error && typeof error.message === "string" ? error.message : "";
+
+  return name === "AuthSessionMissingError" || message === "Auth session missing!";
+}
+
+async function resolveProfileForSession(session: Session, diagnostics: AuthStateDiagnostic[]) {
+  try {
+    await syncUserProfileIdentity(session);
+  } catch (error) {
+    const detail = describeAuthError(error);
+    diagnostics.push({ detail, stage: "profile_sync" });
+    console.warn("[auth] Failed to sync profile identity. Continuing with existing profile.", {
+      detail,
+      userId: session.user.id,
+    });
+  }
+
+  try {
+    const syncedStoredProfile = await syncStoredPublicProfileToAccount(session);
+    if (syncedStoredProfile) {
+      console.info("[auth] Synced stored public profile into account.", {
+        userId: session.user.id,
+      });
+    }
+  } catch (error) {
+    const detail = describeAuthError(error);
+    diagnostics.push({ detail, stage: "stored_profile_sync" });
+    console.warn("[auth] Failed to sync stored public profile. Clearing stale local data.", {
+      detail,
+      userId: session.user.id,
+    });
+    clearStoredPublicProfileData();
+  }
+
+  try {
+    return await loadUserProfile(session.user.id);
+  } catch (error) {
+    const detail = describeAuthError(error);
+    diagnostics.push({ detail, stage: "profile_load" });
+    console.warn("[auth] Failed to load user profile. Treating setup as incomplete.", {
+      detail,
+      userId: session.user.id,
+    });
+    return null;
+  }
 }
 
 export async function loadUserProfile(userId: string) {
@@ -98,20 +184,37 @@ export async function syncUserProfileIdentity(
   return loadUserProfile(session.user.id);
 }
 
-export async function loadAuthState() {
+export async function loadAuthState(sessionOverride?: Session | null): Promise<AuthState> {
+  const diagnostics: AuthStateDiagnostic[] = [];
+
+  if (sessionOverride !== undefined) {
+    if (!sessionOverride) {
+      return { diagnostics, session: null, profile: null };
+    }
+
+    const profile = await resolveProfileForSession(sessionOverride, diagnostics);
+    return { diagnostics, session: sessionOverride, profile };
+  }
+
   const supabase = getSupabase();
   const {
     data: { session },
     error,
   } = await supabase.auth.getSession();
 
-  if (error) throw error;
-  if (!session) return { session: null, profile: null };
+  if (error) {
+    if (isMissingSupabaseSessionError(error)) {
+      diagnostics.push({ detail: describeAuthError(error), stage: "session" });
+      return { diagnostics, session: null, profile: null };
+    }
 
-  await syncUserProfileIdentity(session);
-  await syncStoredPublicProfileToAccount(session);
-  const profile = await loadUserProfile(session.user.id);
-  return { session, profile };
+    throw error;
+  }
+
+  if (!session) return { diagnostics, session: null, profile: null };
+
+  const profile = await resolveProfileForSession(session, diagnostics);
+  return { diagnostics, session, profile };
 }
 
 export async function signOut() {
