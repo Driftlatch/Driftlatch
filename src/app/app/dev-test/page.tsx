@@ -1,9 +1,14 @@
 "use client";
 
 import { useMemo } from "react";
+import { redirect } from "next/navigation";
 import { selectTool } from "@/lib/selectTool";
 
 export default function DevTestPage() {
+  if (process.env.NODE_ENV !== "development") {
+    redirect("/app");
+  }
+
   const out = useMemo(
     () =>
       selectTool({

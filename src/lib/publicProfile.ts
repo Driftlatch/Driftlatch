@@ -121,7 +121,6 @@ export async function syncPublicProfileResultToAccount(session: Session, result:
     username: email,
     attachment_style: result.attachment_style,
     defaults: result.defaults as Json,
-    primary_pack_ids: result.primary_pack_ids,
     updated_at: new Date().toISOString(),
   };
 
@@ -129,7 +128,7 @@ export async function syncPublicProfileResultToAccount(session: Session, result:
     payload.display_name = displayName;
   }
 
-  const { error } = await supabase.from("user_profile").upsert(payload);
+  const { error } = await supabase.from("user_profile").upsert(payload, { onConflict: "user_id" });
 
   if (error) throw error;
 }

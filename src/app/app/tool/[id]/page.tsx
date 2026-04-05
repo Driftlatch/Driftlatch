@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { LIBRARY } from "@/lib/toolLibrary";
 import ToolClient from "./ToolClient";
@@ -9,16 +10,17 @@ type RouteParams = { id: string };
 export default async function Page({
   params,
 }: {
-  params: RouteParams | Promise<RouteParams>;
+  params: Promise<RouteParams>;
 }) {
-  const resolvedParams: RouteParams =
-    typeof (params as any)?.then === "function"
-      ? await (params as Promise<RouteParams>)
-      : (params as RouteParams);
+  const resolvedParams = await params;
 
   const tool = LIBRARY.tools.find((item) => item.id === resolvedParams.id);
 
   if (!tool) return notFound();
 
-  return <ToolClient tool={tool} />;
+  return (
+    <Suspense fallback={null}>
+      <ToolClient tool={tool} />
+    </Suspense>
+  );
 }

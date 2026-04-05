@@ -1,7 +1,5 @@
 "use client";
 
-export const runtime = "edge";
-
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { notFound, useParams } from "next/navigation";
@@ -14,6 +12,7 @@ import {
   type Pack,
   type Tool,
 } from "@/lib/toolLibrary";
+import { getPackBestWhen, getPackPurpose as getSupportPurpose } from "@/lib/supportLabels";
 
 const MotionLink = motion(Link);
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -72,7 +71,7 @@ const CLEAR_LIGHT_PACK_IDS = new Set([
 
 const LANE_META: Record<LaneKey, { label: string; time: string; desc: string }> = {
   fast: { label: "Quick hits", time: "0–1 min", desc: "One action, immediate effect" },
-  standard: { label: "Standard", time: "2–5 min", desc: "The core of this pack" },
+  standard: { label: "Standard", time: "2-5 min", desc: "The core of this support" },
   deep: { label: "Deep work", time: "10+ min", desc: "When you have more space" },
 };
 
@@ -108,7 +107,7 @@ function readLastState(): DriftState | null {
 }
 
 function getPackPurpose(pack: Pack): string {
-  return pack.purpose || PURPOSE_FALLBACK[pack.id] || "Grounded tools for real pressure.";
+  return getSupportPurpose(pack.id, pack.purpose || PURPOSE_FALLBACK[pack.id]);
 }
 
 function inferNeedFromPackId(packId: string): DriftNeed {
@@ -195,7 +194,7 @@ function toolTimeLabel(tool: Tool): string {
   if (tool.time_min_minutes === 0 && tool.time_max_minutes === 0) return "< 1 min";
   if (tool.time_min_minutes === tool.time_max_minutes) return `${tool.time_min_minutes} min`;
   if (tool.time_min_minutes === 0) return `< ${tool.time_max_minutes} min`;
-  return `${tool.time_min_minutes}–${tool.time_max_minutes} min`;
+  return `${tool.time_min_minutes}-${tool.time_max_minutes} min`;
 }
 
 function glowForPack(packId: string): string {
@@ -290,7 +289,7 @@ export default function PackDetailPage() {
 
           <div style={{ position: "relative", zIndex: 1, display: "grid", gap: 18 }}>
             <MotionLink whileTap={{ scale: 0.985 }} href="/app/packs" style={backLinkStyle}>
-              ← Back to packs
+              ← Back to supports
             </MotionLink>
 
             {/* Title + purpose */}
@@ -336,7 +335,7 @@ export default function PackDetailPage() {
             </div>
 
             {/* Best when */}
-            {BEST_WHEN_BY_PACK[pack.id] && (
+            {getPackBestWhen(pack.id, BEST_WHEN_BY_PACK[pack.id]) && (
               <div
                 style={{
                   padding: "10px 14px",
@@ -351,7 +350,7 @@ export default function PackDetailPage() {
                   Best when
                 </span>
                 <span style={{ color: "rgba(244,244,245,0.72)", fontSize: 14, lineHeight: 1.55 }}>
-                  {BEST_WHEN_BY_PACK[pack.id]}
+                  {getPackBestWhen(pack.id, BEST_WHEN_BY_PACK[pack.id])}
                 </span>
               </div>
             )}
@@ -380,7 +379,7 @@ export default function PackDetailPage() {
                   textTransform: "uppercase",
                 }}
               >
-                First move
+                Start here
               </span>
               <motion.button
                 whileTap={{ scale: 0.97 }}

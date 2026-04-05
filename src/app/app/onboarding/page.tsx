@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import Link from "next/link";
-import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -17,6 +17,11 @@ import {
   type PublicProfileContext,
   type PublicProfileResult,
 } from "@/lib/publicProfile";
+import {
+  getAttachmentStyleQualifier,
+  getAttachmentStyleSummary,
+} from "@/lib/attachmentStyleCopy";
+import { getNeedLabel } from "@/lib/supportLabels";
 import { getSupabase } from "@/lib/supabase";
 
 type Answer = 0 | 1 | 2 | 3 | 4;
@@ -36,49 +41,49 @@ const QUESTIONS: Question[] = [
   {
     id: 1,
     domain: "work",
-    text: "When the laptop closes, the work doesn't. My brain stays on.",
+    text: "When I close the laptop, my mind keeps working.",
   },
   {
     id: 2,
     domain: "work",
-    text: "Even mid-meal or on a walk, I'm still working through something in the background.",
+    text: "Even during dinner or a walk, part of my mind is still working.",
   },
   {
     id: 3,
     domain: "work",
-    text: "A Slack message, Teams notification or unexpected request costs me more than an hour of actual deep work.",
+    text: "One Slack message, Teams notification, or unexpected work message can knock me out of deep work for over an hour.",
   },
   {
     id: 4,
     domain: "work",
-    text: "I sit down to do one thing. My brain opens twelve others.",
+    text: "I sit down to do one thing, and my brain opens ten more.",
   },
   {
     id: 5,
     domain: "work",
-    text: "When things pile up, everything feels equally on fire and nothing gets properly done.",
+    text: "When things pile up, everything feels urgent and nothing gets done properly.",
   },
 
   // B) Spillover & Recovery (6–10)
   {
     id: 6,
     domain: "recovery",
-    text: "My body is done. My brain hasn't got the message yet.",
+    text: "My body is tired, but my mind has not caught up.",
   },
   {
     id: 7,
     domain: "recovery",
-    text: "After a heavy day, it takes hours before I actually feel like I'm off.",
+    text: "After a heavy day, it takes hours before I feel fully off.",
   },
   {
     id: 8,
     domain: "recovery",
-    text: "Scrolling or zoning out is the only thing that reliably turns the noise down.",
+    text: "Scrolling or zoning out is the only thing that reliably quiets my mind.",
   },
   {
     id: 9,
     domain: "recovery",
-    text: "Work follows me into sleep — I wake early, or don't sleep cleanly at all.",
+    text: "Work follows me into sleep. I wake early or do not sleep deeply.",
   },
   {
     id: 10,
@@ -90,17 +95,17 @@ const QUESTIONS: Question[] = [
   {
     id: 11,
     domain: "home",
-    text: "I'm in the room. I'm not really there.",
+    text: "I am in the room, but not fully there.",
   },
   {
     id: 12,
     domain: "home",
-    text: "Heavy weeks turn dinner conversations into status updates.",
+    text: "On hard weeks, dinner conversations turn into logistics.",
   },
   {
     id: 13,
     domain: "home",
-    text: "My patience runs shorter at home after a hard day. My family feel it before I do.",
+    text: "After a hard day, my patience is thinner at home than I want it to be.",
   },
   {
     id: 14,
@@ -110,14 +115,14 @@ const QUESTIONS: Question[] = [
   {
     id: 15,
     domain: "home",
-    text: "I check my phone when no one's looking. I know I shouldn't.",
+    text: "I check my phone when no one is looking, even when I do not want to.",
   },
 
   // D) Conflict Pattern & Connection Style (16–20)
   {
     id: 16,
     domain: "attach",
-    text: "When tension starts at home, I don't engage. I don't have the energy for it.",
+    text: "When tension starts at home, I pull back because I do not have the energy for it.",
   },
   {
     id: 17,
@@ -127,17 +132,17 @@ const QUESTIONS: Question[] = [
   {
     id: 18,
     domain: "attach",
-    text: "When we disagree, I go quiet and need to process alone before I can say anything useful.",
+    text: "When we disagree, I go quiet and need time alone before I can say anything useful.",
   },
   {
     id: 19,
     domain: "attach",
-    text: "In conflict I shut down. Not to be cold — just to stop things from getting worse.",
+    text: "In conflict, I shut down. Not to be cold, but to stop things from getting worse.",
   },
   {
     id: 20,
     domain: "attach",
-    text: "When someone asks how my day was, I give the short version. The full one feels like too much.",
+    text: "When someone asks about my day, I give the short version because the full version feels like too much.",
   },
 ];
 
@@ -147,16 +152,73 @@ type HomeSetup = "Partner/spouse" | "Kids/family" | "Partner + kids" | "Long dis
 type WorkIntensity = "Normal" | "Busy" | "Peak pressure";
 type Spillover = "Work → home" | "Home → work" | "Both ways";
 type Priority = "Clarity at work" | "Closeness at home" | "Both";
+type DomainName = "Work" | "Recovery" | "Home" | "Connection";
+type DomainTone = {
+  accent: string;
+  border: string;
+  glow: string;
+  label: string;
+  mutedGlow: string;
+  soft: string;
+};
+
+const QUESTION_DOMAIN_TONES: Record<Question["domain"], DomainTone> = {
+  work: {
+    accent: "rgba(126, 150, 188, 0.92)",
+    border: "rgba(126, 150, 188, 0.34)",
+    glow: "rgba(126, 150, 188, 0.18)",
+    label: "Work",
+    mutedGlow: "rgba(126, 150, 188, 0.12)",
+    soft: "rgba(126, 150, 188, 0.18)",
+  },
+  recovery: {
+    accent: "rgba(112, 154, 132, 0.9)",
+    border: "rgba(112, 154, 132, 0.34)",
+    glow: "rgba(112, 154, 132, 0.18)",
+    label: "Recovery",
+    mutedGlow: "rgba(112, 154, 132, 0.12)",
+    soft: "rgba(112, 154, 132, 0.18)",
+  },
+  home: {
+    accent: "rgba(194, 122, 92, 0.94)",
+    border: "rgba(194, 122, 92, 0.34)",
+    glow: "rgba(194, 122, 92, 0.18)",
+    label: "Home",
+    mutedGlow: "rgba(194, 122, 92, 0.12)",
+    soft: "rgba(194, 122, 92, 0.18)",
+  },
+  attach: {
+    accent: "rgba(168, 118, 136, 0.9)",
+    border: "rgba(168, 118, 136, 0.32)",
+    glow: "rgba(168, 118, 136, 0.16)",
+    label: "Connection",
+    mutedGlow: "rgba(168, 118, 136, 0.12)",
+    soft: "rgba(168, 118, 136, 0.17)",
+  },
+};
+
+const RESULT_DOMAIN_TO_QUESTION_DOMAIN: Record<DomainName, Question["domain"]> = {
+  Work: "work",
+  Recovery: "recovery",
+  Home: "home",
+  Connection: "attach",
+};
+
+function toneForDomain(domain: Question["domain"]): DomainTone {
+  return QUESTION_DOMAIN_TONES[domain];
+}
+
+function toneForResultDomain(domain: DomainName): DomainTone {
+  return QUESTION_DOMAIN_TONES[RESULT_DOMAIN_TO_QUESTION_DOMAIN[domain]];
+}
+
+function meterPercent(value: number) {
+  return Math.max(0, Math.min(100, Math.round((value / 4) * 100)));
+}
 
 function avg(vals: number[]) {
   if (!vals.length) return 0;
   return vals.reduce((a, b) => a + b, 0) / vals.length;
-}
-
-function band(a: number) {
-  if (a <= 1.4) return "Low";
-  if (a <= 2.7) return "Medium";
-  return "High";
 }
 
 function top2FromMap(map: Record<string, number>) {
@@ -166,20 +228,20 @@ function top2FromMap(map: Record<string, number>) {
 }
 
 const PACK_ID_BY_NAME: Record<string, string> = {
-  "Clear Head Pack": "clear_head_pack",
-  "Wind Down Pack": "wind_down_pack",
-  "Be Here Pack": "be_here_pack",
-  "Come Back Pack": "come_back_pack",
-  "Settle the Spiral Pack": "settle_the_spiral_pack",
-  "Space, Not Distance Pack": "space_not_distance_pack",
+  "Clear Head": "clear_head_pack",
+  "Wind Down": "wind_down_pack",
+  "Be Present": "be_here_pack",
+  "Repair": "come_back_pack",
+  "Overthinking": "settle_the_spiral_pack",
+  "Take Space": "space_not_distance_pack",
 };
 
 function mapNeedToId(priority: Priority, primaryPack: string) {
   if (priority === "Clarity at work") return "regain_clarity";
   if (priority === "Closeness at home") return "be_here";
-  if (primaryPack === "Clear Head Pack") return "regain_clarity";
-  if (primaryPack === "Wind Down Pack") return "wind_down";
-  if (primaryPack === "Be Here Pack") return "be_here";
+  if (primaryPack === "Clear Head") return "regain_clarity";
+  if (primaryPack === "Wind Down") return "wind_down";
+  if (primaryPack === "Be Present") return "be_here";
   return "come_back";
 }
 
@@ -211,6 +273,499 @@ function isSpillover(value: string): value is Spillover {
 function isPriority(value: string): value is Priority {
   return value === "Clarity at work" || value === "Closeness at home" || value === "Both";
 }
+
+type ResultCardCopy = {
+  heading: string;
+  body: string;
+  startHere: string;
+  label: string;
+};
+
+type PersonalizedResultCopy = {
+  summary: string;
+  detail: string;
+  startSummary: string;
+  startDetail: string;
+};
+
+type ResultInsightInput = {
+  homeSetup: HomeSetup;
+  priority: Priority;
+  spillover: Spillover;
+  workIntensity: WorkIntensity;
+  groups: {
+    primaryDomain: DomainName;
+    secondaryDomain: DomainName | null;
+    primaryPack: string;
+    secondaryPack: string | null;
+    style: "Anxious" | "Avoidant" | "Mixed";
+    workTop?: [string, number];
+    recoveryTop?: [string, number];
+    homeTop?: [string, number];
+    attachTop?: [string, number];
+  };
+};
+
+function getTopPatternForDomain(
+  groups: ResultInsightInput["groups"],
+  domain: DomainName,
+) {
+  if (domain === "Work") return groups.workTop?.[0];
+  if (domain === "Recovery") return groups.recoveryTop?.[0];
+  if (domain === "Home") return groups.homeTop?.[0];
+  return groups.attachTop?.[0];
+}
+
+function describePattern(pattern?: string) {
+  if (pattern === "No Off-Switch") return "unfinished work still running in the background";
+  if (pattern === "Context-Switch Drain") return "attention getting pulled in too many directions";
+  if (pattern === "Open Loops Load") return "too many open loops staying active in your head";
+  if (pattern === "Urgency Distortion") return "too many things feeling urgent at once";
+  if (pattern === "Background Processing") return "work continuing in the background even after the day ends";
+  if (pattern === "Wired-Tired") return "a tired body with a mind that still has not come down";
+  if (pattern === "Slow Decompress") return "recovery taking longer than it should";
+  if (pattern === "Numbing Switch-Off") return "switching off by zoning out rather than properly settling";
+  if (pattern === "Sleep Spillover") return "stress carrying through into sleep";
+  if (pattern === "Body Carry") return "stress staying in your body after work";
+  if (pattern === "Mind Elsewhere") return "being home physically but not fully there";
+  if (pattern === "Logistics Mode") return "home slipping toward coordination instead of connection";
+  if (pattern === "Short Fuse") return "less patience at home than you want";
+  if (pattern === "Guilt Loop") return "a sense that work gets the best of you and home gets what is left";
+  if (pattern === "Sneaky Checking") return "difficulty fully putting work down around the people who matter";
+  if (pattern === "Avoid Tension") return "pulling back when tension starts";
+  if (pattern === "Distance Anxiety") return "uncertainty in connection staying active in the background";
+  if (pattern === "Retreat to Process") return "needing space before you can say something useful";
+  if (pattern === "Shutdown Quiet") return "going quiet to stop things from getting worse";
+  if (pattern === "Verbal Depletion") return "having less room for the full conversation after a heavy day";
+  return "pressure showing up in a few connected places";
+}
+
+function getSpilloverSummary(spillover: Spillover, homeSetup: HomeSetup) {
+  if (spillover === "Work → home") {
+    if (homeSetup === "Solo") return "Right now, work pressure looks like it is carrying into the rest of your evening.";
+    if (homeSetup === "Long distance") return "Right now, work pressure looks like it is carrying into your connection across the distance.";
+    return "Right now, work pressure looks like it is carrying into home life.";
+  }
+
+  if (spillover === "Home → work") {
+    if (homeSetup === "Solo") return "Right now, pressure outside work looks like it is lingering after hours and carrying back into the workday.";
+    return "Right now, pressure outside work looks like it is carrying with you into the workday.";
+  }
+
+  if (homeSetup === "Solo") return "Right now, pressure looks like it is moving both ways between work and the rest of your life, so neither side is getting a clean reset.";
+  return "Right now, pressure looks like it is moving both ways between work and home, so neither side is getting a clean reset.";
+}
+
+function getPrimaryDomainImpactLine(primaryDomain: DomainName, homeSetup: HomeSetup) {
+  if (primaryDomain === "Work") {
+    return "The clearest strain shows up at work, where attention and judgment are getting pulled apart before the day is even over.";
+  }
+
+  if (primaryDomain === "Recovery") {
+    if (homeSetup === "Solo") {
+      return "The clearest strain shows up in recovery, where it is taking longer than it should to come down after the day ends.";
+    }
+
+    return "The clearest strain shows up in recovery, where it is taking longer than it should to come down and reset.";
+  }
+
+  if (primaryDomain === "Home") {
+    if (homeSetup === "Partner/spouse") {
+      return "The clearest strain shows up at home, where closeness and steadiness are giving way to tension, logistics, or distance sooner than you want.";
+    }
+
+    if (homeSetup === "Kids/family" || homeSetup === "Partner + kids") {
+      return "The clearest strain shows up at home, where pressure is thinning out patience, presence, and responsiveness before you have had a chance to recover.";
+    }
+
+    if (homeSetup === "Long distance") {
+      return "The clearest strain shows up in your personal life, where pressure is making steadiness and responsiveness across the distance harder to hold onto.";
+    }
+
+    return "The clearest strain shows up outside work, where the evening is carrying more tension and less ease than it should.";
+  }
+
+  if (homeSetup === "Long distance") {
+    return "The clearest strain shows up around closeness and uncertainty, where stress makes silence, delay, or repair feel heavier across the distance.";
+  }
+
+  if (homeSetup === "Solo") {
+    return "The clearest strain shows up in how much you are carrying alone, which makes stress harder to settle because too much of it stays unsupported.";
+  }
+
+  return "The clearest strain shows up around closeness and friction, where stress makes reassurance, space, and repair harder to handle cleanly.";
+}
+
+function getGoalLine(priority: Priority, homeSetup: HomeSetup) {
+  if (priority === "Clarity at work") {
+    return "Because you most want to protect clarity at work, the next job is to lower pressure before it keeps taking focus, judgment, and recovery off the table.";
+  }
+
+  if (priority === "Closeness at home") {
+    if (homeSetup === "Solo") {
+      return "Because you most want to protect life outside work, the next job is to make the evening feel more settled, not just quieter.";
+    }
+
+    if (homeSetup === "Long distance") {
+      return "Because you most want to protect closeness, the next job is to make steadiness and repair easier across the distance without forcing more effort.";
+    }
+
+    return "Because you most want to protect closeness at home, the next job is to make presence, patience, and repair easier without asking you to push through.";
+  }
+
+  if (homeSetup === "Solo") {
+    return "Because you want to protect both work and the rest of your life, the next job is to lower pressure earlier so it stops spilling into both.";
+  }
+
+  return "Because you want to protect both clarity at work and how you show up at home, the next job is to lower pressure before it hardens into distance, urgency, or reactivity.";
+}
+
+function getPackReason(pack: string, groups: ResultInsightInput["groups"]) {
+  if (pack === "Clear Head") return describePattern(groups.workTop?.[0]);
+  if (pack === "Wind Down") return describePattern(groups.recoveryTop?.[0]);
+  if (pack === "Be Present") return describePattern(groups.homeTop?.[0]);
+  if (pack === "Repair") return describePattern(groups.attachTop?.[0]);
+  return "the clearest first pressure point";
+}
+
+function buildPersonalizedResultCopy(input: ResultInsightInput): PersonalizedResultCopy {
+  const primaryPattern = describePattern(getTopPatternForDomain(input.groups, input.groups.primaryDomain));
+  const secondaryPattern = input.groups.secondaryDomain
+    ? describePattern(getTopPatternForDomain(input.groups, input.groups.secondaryDomain))
+    : null;
+  const packReason = getPackReason(input.groups.primaryPack, input.groups);
+  const secondaryPackReason = input.groups.secondaryPack ? getPackReason(input.groups.secondaryPack, input.groups) : null;
+  const workIntro =
+    input.workIntensity === "Peak pressure"
+      ? "With work under peak pressure, "
+      : input.workIntensity === "Busy"
+        ? "With work busy, "
+        : "With work at a more normal pace, ";
+
+  return {
+    summary: `${getSpilloverSummary(input.spillover, input.homeSetup)} ${getPrimaryDomainImpactLine(input.groups.primaryDomain, input.homeSetup)}`,
+    detail: `${workIntro}the clearest patterns look like ${primaryPattern}${secondaryPattern ? ` and ${secondaryPattern}` : ""}. ${getGoalLine(input.priority, input.homeSetup)}`,
+    startSummary: input.groups.secondaryPack
+      ? `Driftlatch will start with ${input.groups.primaryPack}, and keep ${input.groups.secondaryPack} close behind, because ${packReason}, with ${secondaryPackReason} also showing up clearly.`
+      : `Driftlatch will start with ${input.groups.primaryPack} because ${packReason} is the clearest place to lower pressure first.`,
+    startDetail:
+      input.priority === "Clarity at work"
+        ? "This is the best place to begin if you want to protect focus and decision-making without adding more pressure."
+        : input.priority === "Closeness at home"
+          ? input.homeSetup === "Solo"
+            ? "This is the best place to begin if you want evenings to feel more settled and supported."
+            : "This is the best place to begin if you want more room for presence, closeness, and repair."
+          : "This is the best place to begin if you want to protect both clarity at work and how you show up outside it.",
+  };
+}
+
+function getAttachmentContextDetail(style: "Anxious" | "Avoidant" | "Mixed", homeSetup: HomeSetup, attachTop?: string) {
+  const topDetail =
+    attachTop === "Distance Anxiety"
+      ? "That fits with how quickly uncertainty seems to stay active in the background for you."
+      : attachTop === "Retreat to Process"
+        ? "It also looks as though needing space before you can respond clearly is part of the pattern."
+        : attachTop === "Shutdown Quiet"
+          ? "It also looks as though going quiet under strain is part of how you protect yourself."
+          : attachTop === "Verbal Depletion"
+            ? "After a heavy day, having room for the full conversation may be especially hard."
+            : attachTop === "Avoid Tension"
+              ? "When tension starts, part of the pattern seems to be stepping away before you have really settled."
+              : "";
+
+  if (style === "Anxious") {
+    if (homeSetup === "Partner/spouse") {
+      return `When connection feels uncertain, you may feel it quickly and look for reassurance or signs that things are okay. With a partner nearby, that can make small shifts in tone or distance feel harder to settle until there is clear repair.${topDetail ? ` ${topDetail}` : ""}`;
+    }
+
+    if (homeSetup === "Kids/family" || homeSetup === "Partner + kids") {
+      return `When connection feels uncertain, you may feel it quickly and look for reassurance or signs that things are okay. In a busy home, that can narrow your room for patience, presence, or steadiness when pressure is already high.${topDetail ? ` ${topDetail}` : ""}`;
+    }
+
+    if (homeSetup === "Long distance") {
+      return `When connection feels uncertain, you may feel it quickly and look for reassurance or signs that things are okay. In long distance, small delays or silence can leave more room for your mind to fill in the gaps.${topDetail ? ` ${topDetail}` : ""}`;
+    }
+
+    return `When connection feels uncertain, you may feel it quickly and look for reassurance or signs that things are okay. When you are carrying it alone, that uncertainty can stay active internally for longer and be harder to settle cleanly.${topDetail ? ` ${topDetail}` : ""}`;
+  }
+
+  if (style === "Avoidant") {
+    if (homeSetup === "Partner/spouse") {
+      return `When pressure rises, you may protect yourself by stepping back and handling it alone first. With a partner nearby, that can look like distance unless there is a clear way back into conversation.${topDetail ? ` ${topDetail}` : ""}`;
+    }
+
+    if (homeSetup === "Kids/family" || homeSetup === "Partner + kids") {
+      return `When pressure rises, you may protect yourself by stepping back and handling it alone first. Around kids or family demands, that can look like shorter answers, less availability, or being there physically but harder to reach.${topDetail ? ` ${topDetail}` : ""}`;
+    }
+
+    if (homeSetup === "Long distance") {
+      return `When pressure rises, you may protect yourself by stepping back and handling it alone first. In long distance, that can show up as delayed replies, more silence, or longer gaps before repair.${topDetail ? ` ${topDetail}` : ""}`;
+    }
+
+    return `When pressure rises, you may protect yourself by stepping back and handling it alone first. When you are on your own, that can keep stress internal for longer and make support harder to reach.${topDetail ? ` ${topDetail}` : ""}`;
+  }
+
+  if (homeSetup === "Partner/spouse") {
+    return `At times you may want closeness strongly, but also feel overwhelmed by it. With a partner nearby, that can create a push-pull rhythm where you reach in and then pull back when the pressure stays high.${topDetail ? ` ${topDetail}` : ""}`;
+  }
+
+  if (homeSetup === "Kids/family" || homeSetup === "Partner + kids") {
+    return `At times you may want closeness strongly, but also feel overwhelmed by it. In a busy home, that can leave very little room for patience, responsiveness, or clean repair when everyone needs something from you.${topDetail ? ` ${topDetail}` : ""}`;
+  }
+
+  if (homeSetup === "Long distance") {
+    return `At times you may want closeness strongly, but also feel overwhelmed by it. In long distance, that can show up as wanting connection and then feeling flooded by the uncertainty around it.${topDetail ? ` ${topDetail}` : ""}`;
+  }
+
+  return `At times you may want closeness strongly, but also feel overwhelmed by it. When you are carrying it alone, that push-pull can stay mostly internal and feel hard to make sense of.${topDetail ? ` ${topDetail}` : ""}`;
+}
+
+function getWorkCardCopy(topPattern?: string): ResultCardCopy {
+  if (topPattern === "Context-Switch Drain" || topPattern === "Urgency Distortion") {
+    return {
+      label: "AT WORK",
+      heading: "Work is pulling your attention apart",
+      body:
+        "When too many things feel urgent at once, it becomes harder to think clearly and finish one thing well. That pressure often stays with you after the workday ends.",
+      startHere: getNeedLabel("regain_clarity"),
+    };
+  }
+
+  return {
+    label: "AT WORK",
+    heading: "Work is staying with you after the day ends",
+    body:
+      "Even when the day ends, part of your mind is still working in the background. That makes it harder to rest and harder to arrive fully at home.",
+    startHere: getNeedLabel("regain_clarity"),
+  };
+}
+
+function getRecoveryCardCopy(topPattern?: string): ResultCardCopy {
+  if (topPattern === "Sleep Spillover") {
+    return {
+      label: "AFTER WORK RECOVERY",
+      heading: "Stress may still be following you into the night",
+      body:
+        "When pressure carries into sleep, recovery becomes harder. The next day often starts with less energy and less room.",
+      startHere: getNeedLabel("wind_down"),
+    };
+  }
+
+  if (topPattern === "Numbing Switch-Off") {
+    return {
+      label: "AFTER WORK RECOVERY",
+      heading: "Switching off is taking more effort than it should",
+      body:
+        "When the day has taken a lot out of you, zoning out can feel like the easiest way to come down. It may help in the moment, but it does not always leave you feeling restored.",
+      startHere: getNeedLabel("wind_down"),
+    };
+  }
+
+  return {
+    label: "AFTER WORK RECOVERY",
+    heading: "Your system may still be on after the day ends",
+    body:
+      "Stress can stay in your body even when you are trying to rest. That often looks like tension, restlessness, or a long delay before you actually feel off.",
+    startHere: getNeedLabel("wind_down"),
+  };
+}
+
+function getHomeCardCopy(topPattern?: string): ResultCardCopy {
+  if (topPattern === "Logistics Mode") {
+    return {
+      label: "AT HOME",
+      heading: "Home may be slipping into task mode",
+      body:
+        "When pressure is high, connection can quietly turn into coordination. Home starts to feel more functional than restorative.",
+      startHere: getNeedLabel("be_here"),
+    };
+  }
+
+  if (topPattern === "Short Fuse") {
+    return {
+      label: "AT HOME",
+      heading: "Your patience may be thinner than you want it to be",
+      body:
+        "When stress builds up, home is often where it shows first. Small moments start costing more than they should.",
+      startHere: getNeedLabel("be_here"),
+    };
+  }
+
+  if (topPattern === "Guilt Loop") {
+    return {
+      label: "AT HOME",
+      heading: "Work may be taking more of you than feels right",
+      body:
+        "When work gets the best of your attention, it can leave a lingering sense that home is getting what is left. That feeling creates pressure of its own.",
+      startHere: getNeedLabel("be_here"),
+    };
+  }
+
+  return {
+    label: "AT HOME",
+    heading: "It may be harder to arrive fully at home",
+    body:
+      "Part of your attention may still be on work, planning, or whatever needs to happen next. Even when you are there physically, it can be hard to feel settled.",
+    startHere: getNeedLabel("be_here"),
+  };
+}
+
+function getConnectionCardCopy(
+  style: "Anxious" | "Avoidant" | "Mixed",
+  homeSetup: HomeSetup,
+  attachTop?: string,
+): ResultCardCopy {
+  const copy = getAttachmentStyleSummary(style);
+  if (!copy?.startHere) {
+    return {
+      label: "UNDER STRESS",
+      heading: "Relationship stress may need a gentler first step",
+      body: "A calmer first move will usually help more than trying to solve everything at once.",
+      startHere: "Repair",
+    };
+  }
+
+  return {
+    label: "UNDER STRESS",
+    heading: copy.heading,
+    body: getAttachmentContextDetail(style, homeSetup, attachTop),
+    startHere: copy.startHere,
+  };
+}
+
+const ONBOARDING_THEME_STYLES_BASE = `
+  .profile-page { position: relative; min-height: 100dvh; overflow-x: hidden; background: radial-gradient(circle at 50% 0%, rgba(194,122,92,0.12) 0%, rgba(194,122,92,0.05) 18%, rgba(24,24,27,0) 44%), linear-gradient(180deg, #141417 0%, #18181b 42%, #141416 100%); }
+  .profile-atmosphere { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .profile-glow { position: absolute; border-radius: 999px; filter: blur(82px); opacity: 0.9; }
+  .profile-glow-main { top: -180px; left: 50%; width: min(72vw, 920px); height: 420px; transform: translateX(-50%); background: radial-gradient(circle, rgba(194,122,92,0.28) 0%, rgba(194,122,92,0.12) 36%, rgba(24,24,27,0) 76%); }
+  .profile-glow-side { right: -120px; top: 26%; width: 360px; height: 360px; background: radial-gradient(circle, rgba(122,104,92,0.18) 0%, rgba(24,24,27,0) 76%); }
+  .profile-glow-bottom { left: -90px; bottom: 6%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(24,24,27,0) 76%); }
+  .profile-grid-noise { position: absolute; inset: 0; opacity: 0.06; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 4px 4px, 5px 5px; mix-blend-mode: soft-light; }
+  .profile-shell { position: relative; z-index: 1; width: min(1120px, calc(100vw - 36px)); margin: 0 auto; padding: 54px 0 120px; }
+  .profile-section, .profile-stack, .profile-results-block, .profile-results-section-head, .profile-progress-copy, .profile-hero-inner, .profile-primary-pack-content, .profile-content-wrap, .profile-card-content { display: grid; }
+  .profile-section { gap: 24px; }
+  .profile-stack { gap: 22px; }
+  .profile-results-stack { gap: 26px; }
+  .profile-card { position: relative; overflow: hidden; border-radius: 24px; border: 1px solid rgba(255,255,255,0.08); background: linear-gradient(180deg, rgba(45,45,49,0.82) 0%, rgba(29,29,33,0.76) 100%), radial-gradient(circle at top left, rgba(194,122,92,0.08) 0%, rgba(39,39,42,0) 42%); box-shadow: 0 28px 80px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -28px 60px rgba(0,0,0,0.16); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+  .profile-top-rim { position: absolute; top: 0; left: 22px; right: 22px; height: 1px; background: linear-gradient(90deg, rgba(194,122,92,0), rgba(255,255,255,0.16), rgba(194,122,92,0)); pointer-events: none; }
+  .profile-top-rim-strong { background: linear-gradient(90deg, rgba(194,122,92,0), rgba(194,122,92,0.68), rgba(194,122,92,0)); }
+  .profile-hero-card { padding: 34px 34px 32px; }
+  .profile-hero-card-compact { padding-bottom: 28px; }
+  .profile-content-wrap { width: 100%; max-width: 760px; margin-left: 0; justify-items: start; align-content: start; }
+  .profile-content-wrap > *, .profile-card-content > * { min-width: 0; }
+  .profile-card-content { width: 100%; gap: 14px; align-content: start; }
+  .profile-hero-inner { width: 100%; gap: 12px; }
+  .profile-intro-stack { gap: 18px; }
+  .profile-intro-hero-card { padding-bottom: 28px; }
+  .profile-eyebrow-pill, .profile-question-domain { display: inline-flex; align-items: center; width: fit-content; min-height: 30px; padding: 7px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.035); color: rgba(214,214,219,0.78); font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+  .profile-eyebrow { color: rgba(187,187,193,0.72); font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+  .profile-display, .profile-card-display, .profile-primary-pack-title { margin: 0; color: rgba(244,244,245,0.94); font-family: "Zodiak", Georgia, serif; font-weight: 560; letter-spacing: -0.05em; text-wrap: balance; }
+  .profile-display { font-size: clamp(2.1rem, 5.2vw, 3.6rem); line-height: 1; max-width: none; }
+  .profile-display-intro { font-size: clamp(1.95rem, 4.2vw, 3rem); line-height: 1.02; max-width: none; }
+  .profile-display-compact { font-size: clamp(1.85rem, 3.7vw, 2.65rem); line-height: 1.03; max-width: none; }
+  .profile-display-results { max-width: 12ch; }
+  .profile-card-display, .profile-primary-pack-title { font-size: clamp(1.72rem, 3vw, 2.3rem); line-height: 1.02; margin-top: 8px; }
+  .profile-lead, .profile-results-summary { margin: 0; color: rgba(228,228,232,0.88); font-size: 17px; line-height: 1.72; max-width: none; }
+  .profile-results-summary { color: rgba(239,239,242,0.9); }
+  .profile-meta-copy { margin: 0; color: rgba(161,161,170,0.84); font-size: 14px; line-height: 1.78; }
+  .profile-meta-width { max-width: none; }
+  .profile-meta-spaced { margin-top: 12px; }
+  .profile-inline-strong { color: rgba(244,244,245,0.92); }
+  .profile-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+`;
+
+const ONBOARDING_THEME_STYLES_LAYOUT = `
+  .profile-intro-grid, .profile-context-grid { display: grid; gap: 18px; }
+  .profile-intro-content, .profile-context-content, .profile-context-layout { gap: 18px; }
+  .profile-intro-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; width: 100%; }
+  .profile-context-grid, .profile-meter-grid, .profile-domain-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); display: grid; gap: 16px; }
+  .profile-context-grid { align-items: stretch; }
+  .profile-context-layout { display: grid; width: 100%; max-width: none; justify-items: stretch; }
+  .profile-context-content { width: 100%; max-width: none; }
+  .profile-context-actions { width: 100%; align-items: center; justify-self: stretch; }
+  .profile-subcard, .profile-progress-card, .profile-question-card, .profile-domain-card, .profile-meter-card, .profile-primary-pack-card { padding: 24px; }
+  .profile-intro-grid .profile-subcard, .profile-context-grid .profile-subcard { min-height: 100%; }
+  .profile-privacy-card { min-height: 100%; background: linear-gradient(180deg, rgba(43,43,47,0.82) 0%, rgba(28,28,32,0.78) 100%), radial-gradient(circle at 18% 18%, rgba(194,122,92,0.14) 0%, rgba(39,39,42,0) 42%); }
+  .profile-privacy-head { display: inline-flex; align-items: center; gap: 10px; color: rgba(244,244,245,0.9); font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
+  .profile-lock { color: rgba(194,122,92,0.92); filter: drop-shadow(0 0 16px rgba(194,122,92,0.2)); }
+  .profile-input-wrap { display: grid; gap: 12px; width: 100%; }
+  .profile-input { width: 100%; min-height: 56px; padding: 16px 18px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); background: linear-gradient(180deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.018) 100%); color: rgba(244,244,245,0.94); font-size: 15px; outline: none; box-shadow: inset 0 1px 0 rgba(255,255,255,0.04); transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease; }
+  .profile-input::placeholder { color: rgba(161,161,170,0.6); }
+  .profile-input:focus { border-color: rgba(194,122,92,0.34); box-shadow: 0 0 0 4px rgba(194,122,92,0.08), inset 0 1px 0 rgba(255,255,255,0.05); background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.024) 100%); }
+  .profile-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-start; }
+  .profile-intro-actions { width: 100%; align-items: center; }
+  .profile-actions-inline { margin-top: 20px; }
+  .profile-actions-wrap { margin-top: 2px; }
+  .profile-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 14px 18px; border-radius: 16px; border: 1px solid transparent; text-decoration: none; cursor: pointer; font-size: 14px; font-weight: 800; letter-spacing: -0.01em; transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, color 0.18s ease; }
+  .profile-btn:hover { transform: translateY(-1px); }
+  .profile-btn-primary { color: #fff; background: linear-gradient(180deg, rgba(198,128,97,0.98) 0%, rgba(166,96,73,0.96) 100%); border-color: rgba(194,122,92,0.3); box-shadow: 0 18px 40px rgba(194,122,92,0.2), inset 0 1px 0 rgba(255,255,255,0.12); }
+  .profile-btn-secondary { color: rgba(232,232,235,0.84); background: rgba(255,255,255,0.025); border-color: rgba(255,255,255,0.08); box-shadow: inset 0 1px 0 rgba(255,255,255,0.03); }
+  .profile-choice-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; }
+  .profile-choice { min-height: 46px; padding: 11px 16px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(226,226,230,0.82); font-size: 14px; font-weight: 700; letter-spacing: -0.01em; cursor: pointer; transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease, color 0.18s ease; }
+  .profile-choice:hover { transform: translateY(-1px); border-color: rgba(255,255,255,0.16); }
+  .profile-choice.is-selected { color: rgba(244,244,245,0.96); border-color: var(--choice-border); background: linear-gradient(180deg, color-mix(in srgb, var(--choice-accent) 28%, rgba(24,24,27,1)) 0%, color-mix(in srgb, var(--choice-accent) 18%, rgba(24,24,27,1)) 100%); box-shadow: 0 16px 32px color-mix(in srgb, var(--choice-accent) 12%, transparent), inset 0 1px 0 rgba(255,255,255,0.08); }
+  .profile-divider, .profile-soft-divider { height: 1px; margin: 18px 0; background: linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.12), rgba(255,255,255,0.04)); }
+  .profile-results-section-head { gap: 6px; }
+  .profile-section-title { color: rgba(244,244,245,0.9); font-family: "Zodiak", Georgia, serif; font-size: clamp(1.5rem, 3vw, 2.1rem); line-height: 1.08; letter-spacing: -0.04em; }
+  .profile-results-hero { padding: 34px 34px 32px; background: linear-gradient(180deg, rgba(48,48,52,0.86) 0%, rgba(29,29,34,0.82) 100%), radial-gradient(circle at 18% 12%, rgba(194,122,92,0.18) 0%, rgba(39,39,42,0) 48%); }
+  .profile-results-hero-inner { display: grid; gap: 14px; }
+  .profile-meter-card { background: linear-gradient(180deg, rgba(43,43,47,0.84) 0%, rgba(27,27,31,0.78) 100%), radial-gradient(circle at 18% 18%, var(--meter-glow) 0%, rgba(39,39,42,0) 42%); }
+  .profile-meter-top { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; margin-bottom: 14px; }
+  .profile-meter-label { color: rgba(229,229,233,0.9); font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+  .profile-meter-value { color: rgba(161,161,170,0.84); font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+  .profile-meter-track, .profile-progress-rail, .profile-segment-track { position: relative; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,0.07); }
+  .profile-meter-track { height: 10px; }
+  .profile-meter-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var(--meter-accent) 74%, rgba(255,255,255,0.12)) 0%, var(--meter-accent) 100%); box-shadow: 0 0 24px color-mix(in srgb, var(--meter-accent) 18%, transparent); }
+  .profile-domain-card { min-height: 100%; display: grid; gap: 14px; background: linear-gradient(180deg, rgba(43,43,47,0.84) 0%, rgba(27,27,31,0.8) 100%), radial-gradient(circle at 85% 12%, var(--domain-glow) 0%, rgba(39,39,42,0) 42%); }
+  .profile-domain-aura { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 88% 12%, var(--domain-glow) 0%, rgba(39,39,42,0) 40%); }
+  .profile-domain-head, .profile-primary-pack-content { position: relative; z-index: 1; }
+  .profile-card-copy { position: relative; z-index: 1; min-height: 7.6em; }
+  .profile-start-row { position: relative; z-index: 1; display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); }
+  .profile-start-label { color: rgba(161,161,170,0.72); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+  .profile-start-value { color: rgba(244,244,245,0.9); font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+`;
+
+const ONBOARDING_THEME_STYLES_QUESTIONS = `
+  .profile-progress-card { gap: 0; }
+  .profile-progress-wrap { width: 100%; max-width: 860px; gap: 18px; justify-items: stretch; }
+  .profile-progress-copy { gap: 10px; width: 100%; max-width: none; }
+  .profile-progress-helper { max-width: none; }
+  .profile-progress-rail { width: 100%; height: 7px; }
+  .profile-progress-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, rgba(198,128,97,0.9) 0%, rgba(221,165,137,0.96) 100%); box-shadow: 0 0 22px rgba(194,122,92,0.24); }
+  .profile-segment-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; width: 100%; }
+  .profile-segment { display: grid; gap: 8px; }
+  .profile-segment-label { color: rgba(161,161,170,0.76); font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+  .profile-segment-track { height: 5px; }
+  .profile-segment-fill { height: 100%; border-radius: inherit; background: var(--segment-accent); box-shadow: 0 0 18px color-mix(in srgb, var(--segment-accent) 26%, transparent); }
+  .profile-question-card { background: linear-gradient(180deg, rgba(45,45,49,0.84) 0%, rgba(26,26,30,0.78) 100%), radial-gradient(circle at top left, var(--question-soft) 0%, rgba(39,39,42,0) 48%); }
+  .profile-question-wrap { width: 100%; max-width: 860px; gap: 18px; justify-items: stretch; }
+  .profile-question-shell { display: grid; gap: 18px; width: 100%; }
+  .profile-question-meta-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-inline: 2px; }
+  .profile-question-count { color: rgba(161,161,170,0.78); font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+  .profile-question-motion { display: grid; width: 100%; min-width: 0; }
+  .profile-question-surface { width: 100%; min-width: 0; padding: 24px 24px 20px; border-radius: 22px; border-color: rgba(255,255,255,0.06); background: linear-gradient(180deg, rgba(255,255,255,0.032) 0%, rgba(255,255,255,0.01) 100%), radial-gradient(circle at top left, var(--question-soft) 0%, rgba(255,255,255,0) 44%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.04); }
+  .profile-question-content { gap: 18px; width: 100%; }
+  .profile-question-text { color: rgba(244,244,245,0.94); font-family: "Zodiak", Georgia, serif; font-size: clamp(1.5rem, 2.4vw, 2.08rem); line-height: 1.28; letter-spacing: -0.028em; max-width: none; text-wrap: pretty; }
+  .profile-scale-group { display: grid; gap: 12px; width: 100%; max-width: none; min-width: 0; }
+  .profile-scale-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; width: 100%; max-width: none; }
+  .profile-scale-button { width: 100%; min-height: 64px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: rgba(244,244,245,0.88); cursor: pointer; display: grid; place-items: center; box-shadow: inset 0 1px 0 rgba(255,255,255,0.03); transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease; }
+  .profile-scale-button:hover { transform: translateY(-1px); border-color: rgba(255,255,255,0.16); }
+  .profile-scale-button.is-selected { border-color: var(--question-border); background: linear-gradient(180deg, color-mix(in srgb, var(--question-accent) 40%, rgba(26,26,30,1)) 0%, color-mix(in srgb, var(--question-accent) 22%, rgba(26,26,30,1)) 100%); box-shadow: 0 18px 36px var(--question-glow), inset 0 1px 0 rgba(255,255,255,0.12); }
+  .profile-scale-number { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; }
+  .profile-scale-legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; width: 100%; max-width: none; color: rgba(161,161,170,0.76); font-size: 12px; line-height: 1.55; }
+  .profile-scale-legend span:last-child { text-align: right; }
+  .profile-actions-inline { margin-top: 0; width: 100%; align-items: center; justify-self: stretch; }
+  .profile-primary-pack-card { padding: 30px; border-color: rgba(194,122,92,0.22); background: linear-gradient(180deg, rgba(52,43,39,0.92) 0%, rgba(33,28,28,0.88) 100%), radial-gradient(circle at 14% 10%, rgba(194,122,92,0.22) 0%, rgba(39,39,42,0) 48%); box-shadow: 0 32px 90px rgba(0,0,0,0.46), 0 0 0 1px rgba(194,122,92,0.08), inset 0 1px 0 rgba(255,255,255,0.08); }
+  .profile-primary-pack-glow { position: absolute; top: -18px; left: 12%; right: 12%; height: 130px; border-radius: 999px; background: radial-gradient(ellipse at 50% 0%, rgba(194,122,92,0.28) 0%, rgba(194,122,92,0.08) 44%, rgba(24,24,27,0) 74%); filter: blur(22px); pointer-events: none; }
+  @media (max-width: 900px) { .profile-shell { width: min(100vw - 28px, 980px); padding: 34px 0 110px; } .profile-intro-grid, .profile-context-grid, .profile-meter-grid, .profile-domain-grid { grid-template-columns: 1fr; } .profile-segment-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .profile-progress-wrap, .profile-question-wrap { width: 100%; max-width: 100%; } }
+  @media (max-width: 640px) { .profile-shell { width: calc(100vw - 24px); padding: 24px 0 96px; } .profile-card, .profile-hero-card, .profile-results-hero, .profile-subcard, .profile-progress-card, .profile-question-card, .profile-domain-card, .profile-meter-card, .profile-primary-pack-card { border-radius: 22px; } .profile-hero-card, .profile-results-hero, .profile-subcard, .profile-progress-card, .profile-question-card, .profile-domain-card, .profile-meter-card, .profile-primary-pack-card { padding: 20px; } .profile-display { font-size: clamp(1.95rem, 8vw, 2.7rem); } .profile-display-intro { font-size: clamp(1.8rem, 7.2vw, 2.45rem); line-height: 1.04; } .profile-display-compact { font-size: clamp(1.7rem, 6.6vw, 2.25rem); } .profile-question-surface { padding: 22px 20px 20px; } .profile-question-text { font-size: clamp(1.34rem, 5.6vw, 1.72rem); line-height: 1.3; text-wrap: initial; } .profile-actions { display: grid; grid-template-columns: 1fr; } .profile-choice-grid { gap: 10px; } .profile-choice, .profile-btn { width: 100%; } .profile-segment-grid { grid-template-columns: 1fr; } .profile-scale-row { gap: 10px; } .profile-scale-button { min-height: 54px; } .profile-scale-legend { font-size: 11px; } }
+`;
+
+const ONBOARDING_THEME_STYLES = [
+  ONBOARDING_THEME_STYLES_BASE,
+  ONBOARDING_THEME_STYLES_LAYOUT,
+  ONBOARDING_THEME_STYLES_QUESTIONS,
+].join("\n");
 
 export default function OnboardingPage() {
   const pathname = usePathname();
@@ -291,7 +846,7 @@ export default function OnboardingPage() {
     const [homeTop, homeAlso] = top2FromMap(homeSub);
     const [attachTop, attachAlso] = top2FromMap(attachSub);
 
-    const domainScores: Record<string, number> = {
+    const domainScores: Record<DomainName, number> = {
       Work: workAvg,
       Recovery: recoveryAvg,
       Home: homeAvg,
@@ -301,40 +856,41 @@ export default function OnboardingPage() {
 
     const primaryPack =
       primaryDomain === "Work"
-        ? "Clear Head Pack"
+        ? "Clear Head"
         : primaryDomain === "Recovery"
-          ? "Wind Down Pack"
+          ? "Wind Down"
           : primaryDomain === "Home"
-            ? "Be Here Pack"
-            : "Come Back Pack";
+            ? "Be Present"
+            : "Repair";
 
     const microPack =
       style === "Anxious"
-        ? "Settle the Spiral Pack"
+        ? "Overthinking"
         : style === "Avoidant"
-          ? "Space, Not Distance Pack"
-          : "Settle the Spiral Pack + Space, Not Distance Pack";
+          ? "Take Space"
+          : "Overthinking and Take Space";
 
     const sortedDomains = Object.entries(domainScores).sort((a, b) => b[1] - a[1]);
     const second = sortedDomains[1];
+    const secondaryDomain = (second?.[0] as DomainName | undefined) ?? null;
     const secondaryPack =
       spillover === "Both ways" && Math.abs(sortedDomains[0][1] - second[1]) <= 0.25
         ? second[0] === "Work"
-          ? "Clear Head Pack"
+          ? "Clear Head"
           : second[0] === "Recovery"
-            ? "Wind Down Pack"
+            ? "Wind Down"
             : second[0] === "Home"
-              ? "Be Here Pack"
-              : "Come Back Pack"
+              ? "Be Present"
+              : "Repair"
         : null;
 
     const overallAvg = avg(answers);
     const emotionalLine =
       overallAvg > 2.8
-        ? "You're holding a lot — more than you probably let on. Here's where it's concentrated."
+        ? "Stress is asking a lot of you right now. This map shows where it seems to be landing most."
         : overallAvg > 1.8
-          ? "You're navigating it. Not always cleanly, but you're doing it. Here's what the data says."
-          : "Things look relatively stable. That's worth knowing. Here's what to keep an eye on.";
+          ? "Stress is showing up in a few clear places right now. This map shows where to start."
+          : "Some things look fairly steady right now. This map shows what is still worth noticing.";
 
     return {
       workAvg,
@@ -343,6 +899,8 @@ export default function OnboardingPage() {
       attachAvg,
       overallAvg,
       emotionalLine,
+      primaryDomain: primaryDomain as DomainName,
+      secondaryDomain,
       style,
       anxiousIndex,
       avoidantIndex,
@@ -359,6 +917,26 @@ export default function OnboardingPage() {
       microPack,
     };
   }, [answers, spillover]);
+
+  const personalizedResultCopy = useMemo(
+    () =>
+      buildPersonalizedResultCopy({
+        homeSetup,
+        priority,
+        spillover,
+        workIntensity,
+        groups,
+      }),
+    [groups, homeSetup, priority, spillover, workIntensity],
+  );
+
+  const connectionCardCopy = useMemo(
+    () => getConnectionCardCopy(groups.style, homeSetup, groups.attachTop?.[0]),
+    [groups.attachTop, groups.style, homeSetup],
+  );
+  const workCardCopy = useMemo(() => getWorkCardCopy(groups.workTop?.[0]), [groups.workTop]);
+  const recoveryCardCopy = useMemo(() => getRecoveryCardCopy(groups.recoveryTop?.[0]), [groups.recoveryTop]);
+  const homeCardCopy = useMemo(() => getHomeCardCopy(groups.homeTop?.[0]), [groups.homeTop]);
 
   const primaryPackIds = useMemo(
     () =>
@@ -468,6 +1046,38 @@ export default function OnboardingPage() {
   const currentQuestion = QUESTIONS[currentQuestionIndex];
   const withinGroupIndex = (currentQuestionIndex % 5) + 1;
   const totalProgressPct = ((currentQuestionIndex + 1) / 20) * 100;
+  const currentQuestionTone = toneForDomain(currentQuestion.domain);
+  const pageGroupIndex = Math.floor(currentQuestionIndex / 5);
+  const groupedProgress = useMemo(
+    () =>
+      ([
+        { label: "Work", value: pageGroupIndex > 0 ? 100 : pageGroupIndex === 0 ? (withinGroupIndex / 5) * 100 : 0 },
+        { label: "Recovery", value: pageGroupIndex > 1 ? 100 : pageGroupIndex === 1 ? (withinGroupIndex / 5) * 100 : 0 },
+        { label: "Home", value: pageGroupIndex > 2 ? 100 : pageGroupIndex === 2 ? (withinGroupIndex / 5) * 100 : 0 },
+        { label: "Connection", value: pageGroupIndex > 3 ? 100 : pageGroupIndex === 3 ? (withinGroupIndex / 5) * 100 : 0 },
+      ]) satisfies { label: DomainName; value: number }[],
+    [pageGroupIndex, withinGroupIndex],
+  );
+  const pressureMeters = useMemo(
+    () =>
+      ([
+        { domain: "Work", value: groups.workAvg },
+        { domain: "Recovery", value: groups.recoveryAvg },
+        { domain: "Home", value: groups.homeAvg },
+        { domain: "Connection", value: groups.attachAvg },
+      ]) satisfies { domain: DomainName; value: number }[],
+    [groups.attachAvg, groups.homeAvg, groups.recoveryAvg, groups.workAvg],
+  );
+  const domainCards = useMemo(
+    () =>
+      ([
+        { copy: workCardCopy, domain: "Work" },
+        { copy: recoveryCardCopy, domain: "Recovery" },
+        { copy: homeCardCopy, domain: "Home" },
+        { copy: connectionCardCopy, domain: "Connection" },
+      ]) satisfies { copy: ResultCardCopy; domain: DomainName }[],
+    [connectionCardCopy, homeCardCopy, recoveryCardCopy, workCardCopy],
+  );
 
   const goToQuestion = (idx: number) => {
     const safeIdx = Math.max(0, Math.min(19, idx));
@@ -511,27 +1121,31 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (!isPublicFlow) return;
 
-    const storedAnswers = readStoredPublicProfileAnswers();
-    if (storedAnswers && storedAnswers.length === 20) {
-      const nextAnswers = storedAnswers.map(
-        (answer) => Math.max(0, Math.min(4, Math.round(answer))) as Answer,
-      );
-      setAnswers(nextAnswers);
-    }
+    const restoreTimer = window.setTimeout(() => {
+      const storedAnswers = readStoredPublicProfileAnswers();
+      if (storedAnswers && storedAnswers.length === 20) {
+        const nextAnswers = storedAnswers.map(
+          (answer) => Math.max(0, Math.min(4, Math.round(answer))) as Answer,
+        );
+        setAnswers(nextAnswers);
+      }
 
-    const storedContext = readStoredPublicProfileContext();
-    if (storedContext) {
-      setDisplayNameInput(storedContext.display_name ?? "");
-      if (isHomeSetup(storedContext.home_setup)) setHomeSetup(storedContext.home_setup);
-      if (isWorkIntensity(storedContext.work_intensity)) setWorkIntensity(storedContext.work_intensity);
-      if (isSpillover(storedContext.spillover)) setSpillover(storedContext.spillover);
-      if (isPriority(storedContext.priority)) setPriority(storedContext.priority);
-    }
+      const storedContext = readStoredPublicProfileContext();
+      if (storedContext) {
+        setDisplayNameInput(storedContext.display_name ?? "");
+        if (isHomeSetup(storedContext.home_setup)) setHomeSetup(storedContext.home_setup);
+        if (isWorkIntensity(storedContext.work_intensity)) setWorkIntensity(storedContext.work_intensity);
+        if (isSpillover(storedContext.spillover)) setSpillover(storedContext.spillover);
+        if (isPriority(storedContext.priority)) setPriority(storedContext.priority);
+      }
 
-    if (readStoredPublicProfileResult()) {
-      setCurrentQuestionIndex(19);
-      setPage("results");
-    }
+      if (readStoredPublicProfileResult()) {
+        setCurrentQuestionIndex(19);
+        setPage("results");
+      }
+    }, 0);
+
+    return () => window.clearTimeout(restoreTimer);
   }, [isPublicFlow]);
 
   useEffect(() => {
@@ -590,373 +1204,472 @@ export default function OnboardingPage() {
   ]);
 
   return (
-    <main className="container">
-      <section className="section">
+    <main className="profile-page">
+      <div className="profile-atmosphere" aria-hidden>
+        <div className="profile-glow profile-glow-main" />
+        <div className="profile-glow profile-glow-side" />
+        <div className="profile-glow profile-glow-bottom" />
+        <div className="profile-grid-noise" />
+      </div>
 
-        {/* ── INTRO ── */}
-        {page === "intro" && (
-          <>
-            <div className="kicker">PRESSURE PROFILE</div>
-            <h1 style={{ marginBottom: 10 }}>Two minutes. You'll see exactly where it's leaking.</h1>
-            <p style={{ maxWidth: "78ch" }}>
-              20 statements about your real life — work, evenings, home, how you handle friction. We'll map where pressure is costing you most and match the right support to your specific patterns.
-            </p>
+      <div className="profile-shell">
+        <section className="profile-section">
 
-            <div className="card" style={{ marginTop: 18, maxWidth: 460 }}>
-              <div className="kicker">WHAT SHOULD WE CALL YOU? (OPTIONAL)</div>
-              <label style={{ display: "grid", gap: 10, marginTop: 12 }}>
-                <span className="sr-only">Display name</span>
-                <input
-                  type="text"
-                  value={displayNameInput}
-                  onChange={handleDisplayNameChange}
-                  placeholder="Display name"
-                  autoComplete="nickname"
-                  style={{
-                    width: "100%",
-                    minHeight: 52,
-                    padding: "14px 16px",
-                    borderRadius: 14,
-                    border: "1px solid var(--line)",
-                    background: "rgba(255,255,255,0.03)",
-                    color: "var(--text)",
-                    fontSize: 15,
-                    outline: "none",
-                  }}
-                />
-              </label>
-            </div>
-
-            <div className="stamp" style={{ marginTop: 18 }}>
-              <div className="stampTitle">
-                <span style={{ color: "var(--accent)" }}>🔒</span>
-                <span>Private by design</span>
-              </div>
-              <p className="small" style={{ marginTop: 10, maxWidth: "78ch" }}>
-                No message reading. No behavioural tracking. Only what you choose to type here.
-              </p>
-            </div>
-
-            <div className="btnRow" style={{ marginTop: 18 }}>
-              <button className="btn primary" type="button" onClick={() => setPage("context")}>
-                Start
-              </button>
-              <Link className="btn ghost" href="/">
-                Back to site
-              </Link>
-            </div>
-          </>
-        )}
-
-        {/* ── CONTEXT ── */}
-        {page === "context" && (
-          <>
-            <div className="kicker">CONTEXT</div>
-            <h1 style={{ marginBottom: 10 }}>Tell us what your life actually looks like.</h1>
-            <p className="small" style={{ maxWidth: "78ch" }}>
-              This shapes which next steps Driftlatch puts in front of you first. No wrong answers.
-            </p>
-
-            <div className="grid two" style={{ marginTop: 18 }}>
-              <div className="card">
-                <div className="kicker">Who's at home?</div>
-                <div className="btnRow" style={{ marginTop: 12 }}>
-                  {(["Partner/spouse", "Kids/family", "Partner + kids", "Long distance", "Solo"] as HomeSetup[]).map((v) => (
-                    <button
-                      key={v}
-                      type="button"
-                      className={`btn ${homeSetup === v ? "primary" : "ghost"}`}
-                      style={{ padding: "10px 14px" }}
-                      onClick={() => setHomeSetup(v)}
-                    >
-                      {v}
-                    </button>
-                  ))}
+          {/* ── INTRO ── */}
+          {page === "intro" && (
+            <div className="profile-stack profile-intro-stack">
+              <div className="profile-card profile-hero-card profile-intro-hero-card">
+                <div className="profile-top-rim" />
+                <div className="profile-hero-inner profile-content-wrap">
+                  <span className="profile-eyebrow-pill">Pressure Profile</span>
+                  <h1 className="profile-display profile-display-intro">Two minutes to see where pressure is landing.</h1>
+                  <p className="profile-lead profile-meta-width">
+                    You will answer 20 short statements about work, recovery, home, and how you handle tension. Driftlatch uses that to show where pressure is landing and where to begin.
+                  </p>
                 </div>
               </div>
 
-              <div className="card">
-                <div className="kicker">How's work right now?</div>
-                <div className="btnRow" style={{ marginTop: 12 }}>
-                  {(["Normal", "Busy", "Peak pressure"] as WorkIntensity[]).map((v) => (
-                    <button
-                      key={v}
-                      type="button"
-                      className={`btn ${workIntensity === v ? "primary" : "ghost"}`}
-                      style={{ padding: "10px 14px" }}
-                      onClick={() => setWorkIntensity(v)}
-                    >
-                      {v}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="hr" />
-
-                <div className="kicker">Where does it spill?</div>
-                <div className="btnRow" style={{ marginTop: 12 }}>
-                  {(["Work → home", "Home → work", "Both ways"] as Spillover[]).map((v) => (
-                    <button
-                      key={v}
-                      type="button"
-                      className={`btn ${spillover === v ? "primary" : "ghost"}`}
-                      style={{ padding: "10px 14px" }}
-                      onClick={() => setSpillover(v)}
-                    >
-                      {v}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="card" style={{ marginTop: 18 }}>
-              <div className="kicker">What do you most want to protect?</div>
-              <div className="btnRow" style={{ marginTop: 12 }}>
-                {(["Clarity at work", "Closeness at home", "Both"] as Priority[]).map((v) => (
-                  <button
-                    key={v}
-                    type="button"
-                    className={`btn ${priority === v ? "primary" : "ghost"}`}
-                    style={{ padding: "10px 14px" }}
-                    onClick={() => setPriority(v)}
-                  >
-                    {v}
-                  </button>
-                ))}
-              </div>
-              <p className="small" style={{ marginTop: 12 }}>
-                This determines which pack leads your experience.
-              </p>
-            </div>
-
-            <div className="btnRow" style={{ marginTop: 18 }}>
-              <button className="btn primary" type="button" onClick={() => goToQuestion(0)}>
-                Continue
-              </button>
-              <button className="btn ghost" type="button" onClick={() => setPage("intro")}>
-                Back
-              </button>
-            </div>
-          </>
-        )}
-
-        {/* ── QUESTIONS ── */}
-        {(page === "q1" || page === "q2" || page === "q3" || page === "q4") && (
-          <>
-            <div
-              aria-label="Overall progress"
-              style={{
-                width: "100%",
-                height: 6,
-                borderRadius: 999,
-                background: "rgba(255,255,255,0.08)",
-                overflow: "hidden",
-                marginBottom: 14,
-              }}
-            >
-              <motion.div
-                style={{ height: "100%", background: "var(--accent)" }}
-                animate={{ width: `${totalProgressPct}%` }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
-              />
-            </div>
-            <div className="kicker">PRESSURE PROFILE · {progressLabel(page)}</div>
-            <h1 style={{ marginBottom: 8 }}>Be honest. Nobody's watching.</h1>
-            <p className="small" style={{ maxWidth: "78ch" }}>
-              Rate each statement based on the last two weeks. Not your best weeks — your typical ones.
-            </p>
-
-            <div className="card" style={{ marginTop: 18 }}>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentQuestionIndex}
-                  initial={{ x: 40, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: -40, opacity: 0 }}
-                  transition={{ duration: 0.3, ease: "easeOut" }}
-                >
-                  <div className="small" style={{ marginBottom: 12 }}>
-                    {withinGroupIndex} of 5
-                  </div>
-                  <div className="card" style={{ boxShadow: "none" }}>
-                    <div style={{ fontWeight: 650, marginBottom: 12 }}>
-                      {currentQuestion.id}. {currentQuestion.text}
+              <div className="profile-content-wrap profile-intro-content">
+                <div className="profile-intro-grid">
+                  <div className="profile-card profile-subcard">
+                    <div className="profile-card-content">
+                      <div className="profile-eyebrow">WHAT SHOULD WE CALL YOU? (OPTIONAL)</div>
+                      <label className="profile-input-wrap">
+                        <span className="profile-sr-only">Display name</span>
+                        <input
+                          className="profile-input"
+                          type="text"
+                          value={displayNameInput}
+                          onChange={handleDisplayNameChange}
+                          placeholder="Display name"
+                          autoComplete="nickname"
+                        />
+                      </label>
                     </div>
+                  </div>
 
-                    <div style={{ display: "flex", gap: 10, justifyContent: "space-between", maxWidth: 320 }}>
-                      {SCALE.map((opt, i) => {
-                        const selected = answers[currentQuestionIndex] === opt.value;
+                  <div className="profile-card profile-subcard profile-privacy-card">
+                    <div className="profile-card-content">
+                      <div className="profile-privacy-head">
+                        <span className="profile-lock" aria-hidden>
+                          🔒
+                        </span>
+                        <span>Private by design</span>
+                      </div>
+                      <p className="profile-meta-copy">
+                        No message reading. No behavior tracking. Only what you choose to enter here.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="profile-actions profile-intro-actions">
+                  <button className="profile-btn profile-btn-primary" type="button" onClick={() => setPage("context")}>
+                    Start
+                  </button>
+                  <Link className="profile-btn profile-btn-secondary" href="/">
+                    Back to site
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── CONTEXT ── */}
+          {page === "context" && (
+            <div className="profile-stack">
+              <div className="profile-card profile-hero-card profile-hero-card-compact">
+                <div className="profile-top-rim" />
+                <div className="profile-hero-inner profile-content-wrap">
+                  <span className="profile-eyebrow-pill">Context</span>
+                  <h1 className="profile-display profile-display-compact">Tell us what your life actually looks like.</h1>
+                  <p className="profile-meta-copy profile-meta-width">
+                    These answers help Driftlatch choose the most useful place to start. There are no right answers.
+                  </p>
+                </div>
+              </div>
+
+              <div className="profile-context-layout">
+                <div className="profile-context-grid">
+                  <div className="profile-card profile-subcard">
+                    <div className="profile-card-content">
+                      <div className="profile-eyebrow">Who is at home with you most days?</div>
+                      <div className="profile-choice-grid">
+                        {(["Partner/spouse", "Kids/family", "Partner + kids", "Long distance", "Solo"] as HomeSetup[]).map((v) => {
+                          const selected = homeSetup === v;
+                          return (
+                            <button
+                              key={v}
+                              type="button"
+                              className={`profile-choice ${selected ? "is-selected" : ""}`}
+                              style={
+                                {
+                                  "--choice-accent": "rgba(194, 122, 92, 0.94)",
+                                  "--choice-border": "rgba(194, 122, 92, 0.34)",
+                                } as CSSProperties
+                              }
+                              onClick={() => setHomeSetup(v)}
+                            >
+                              {v}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="profile-card profile-subcard">
+                    <div className="profile-card-content">
+                      <div className="profile-eyebrow">How intense is work right now?</div>
+                      <div className="profile-choice-grid">
+                        {(["Normal", "Busy", "Peak pressure"] as WorkIntensity[]).map((v) => {
+                          const selected = workIntensity === v;
+                          return (
+                            <button
+                              key={v}
+                              type="button"
+                              className={`profile-choice ${selected ? "is-selected" : ""}`}
+                              style={
+                                {
+                                  "--choice-accent": "rgba(126, 150, 188, 0.92)",
+                                  "--choice-border": "rgba(126, 150, 188, 0.34)",
+                                } as CSSProperties
+                              }
+                              onClick={() => setWorkIntensity(v)}
+                            >
+                              {v}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div className="profile-divider" />
+
+                      <div className="profile-eyebrow">Where is pressure spilling over?</div>
+                      <div className="profile-choice-grid">
+                        {(["Work → home", "Home → work", "Both ways"] as Spillover[]).map((v) => {
+                          const selected = spillover === v;
+                          return (
+                            <button
+                              key={v}
+                              type="button"
+                              className={`profile-choice ${selected ? "is-selected" : ""}`}
+                              style={
+                                {
+                                  "--choice-accent": "rgba(168, 118, 136, 0.9)",
+                                  "--choice-border": "rgba(168, 118, 136, 0.32)",
+                                } as CSSProperties
+                              }
+                              onClick={() => setSpillover(v)}
+                            >
+                              {v}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="profile-card profile-subcard">
+                  <div className="profile-card-content">
+                    <div className="profile-eyebrow">What do you most want to protect?</div>
+                    <div className="profile-choice-grid">
+                      {(["Clarity at work", "Closeness at home", "Both"] as Priority[]).map((v) => {
+                        const selected = priority === v;
                         return (
                           <button
-                            key={opt.label}
+                            key={v}
                             type="button"
-                            aria-label={`${i + 1}`}
-                            onClick={() => setAnswer(currentQuestionIndex, opt.value)}
-                            style={{
-                              width: 44,
-                              height: 44,
-                              borderRadius: "50%",
-                              border: selected ? "1px solid var(--accent)" : "1px solid var(--line)",
-                              background: selected ? "var(--accent)" : "transparent",
-                              color: selected ? "#fff" : "var(--text)",
-                              fontWeight: 700,
-                              cursor: "pointer",
-                            }}
+                            className={`profile-choice ${selected ? "is-selected" : ""}`}
+                            style={
+                              {
+                                "--choice-accent": "rgba(194, 122, 92, 0.94)",
+                                "--choice-border": "rgba(194, 122, 92, 0.34)",
+                              } as CSSProperties
+                            }
+                            onClick={() => setPriority(v)}
                           >
-                            {i + 1}
+                            {v}
                           </button>
                         );
                       })}
                     </div>
-                    <div
-                      className="small"
-                      style={{ marginTop: 10, display: "flex", justifyContent: "space-between", maxWidth: 320 }}
-                    >
-                      <span>1 = Never</span>
-                      <span>5 = Almost always</span>
-                    </div>
+                    <p className="profile-meta-copy profile-meta-spaced">
+                      This helps Driftlatch choose the kind of support most likely to help first.
+                    </p>
                   </div>
-                </motion.div>
-              </AnimatePresence>
+                </div>
 
-              <div className="btnRow" style={{ marginTop: 18 }}>
-                {currentQuestionIndex > 0 && (
-                  <button className="btn ghost" type="button" onClick={goBackQuestion}>
+                <div className="profile-actions profile-context-actions">
+                  <button className="profile-btn profile-btn-primary" type="button" onClick={() => goToQuestion(0)}>
+                    Continue
+                  </button>
+                  <button className="profile-btn profile-btn-secondary" type="button" onClick={() => setPage("intro")}>
                     Back
                   </button>
-                )}
-                <button className="btn primary" type="button" onClick={goNextQuestion}>
-                  {currentQuestionIndex === 19 ? "See my map" : "Next"}
-                </button>
+                </div>
               </div>
             </div>
-          </>
-        )}
+          )}
 
-        {/* ── RESULTS ── */}
-        {page === "results" && (
-          <>
-            <div className="kicker">YOUR DRIFTLATCH MAP</div>
-            <h1 style={{ marginBottom: 8 }}>Where pressure is showing up</h1>
-            <p style={{ maxWidth: "78ch" }}>{groups.emotionalLine}</p>
-            <p className="small" style={{ maxWidth: "78ch" }}>
-              This isn't a diagnosis. It's a practical map — so Driftlatch can put the right next step in front of you with less effort on your part.
-            </p>
-            <p className="small" style={{ maxWidth: "78ch" }}>
-              This is part of building emotional intelligence under pressure — noticing your pattern before it runs the moment.
-            </p>
+          {/* ── QUESTIONS ── */}
+          {(page === "q1" || page === "q2" || page === "q3" || page === "q4") && (
+            <div className="profile-stack">
+              <div className="profile-card profile-progress-card">
+                <div className="profile-top-rim" />
+                <div className="profile-content-wrap profile-progress-wrap">
+                  <div className="profile-progress-copy">
+                    <span className="profile-eyebrow-pill">Pressure Profile · {progressLabel(page)}</span>
+                    <h1 className="profile-display profile-display-compact">Answer based on the last two weeks.</h1>
+                    <p className="profile-meta-copy profile-meta-width profile-progress-helper">
+                      Choose what has been most true lately, not what would be true on your best week.
+                    </p>
+                  </div>
 
-            <div className="grid two" style={{ marginTop: 18 }}>
-              {/* Card 1: Work */}
-              <div className="card">
-                <div className="kicker">At work · {band(groups.workAvg)}</div>
-                <h2 style={{ marginTop: 10 }}>{groups.workTop?.[0]}</h2>
-                <p className="small">
-                  Also present: <span style={{ color: "var(--text)" }}>{groups.workAlso?.[0]}</span>
-                </p>
-                <div className="hr" />
-                <p className="small">
-                  Suggested pack: <span style={{ color: "var(--text)" }}>Clear Head</span>
-                </p>
+                  <div className="profile-progress-rail" aria-label="Overall progress">
+                    <motion.div
+                      className="profile-progress-fill"
+                      animate={{ width: `${totalProgressPct}%` }}
+                      transition={{ duration: 0.3, ease: "easeOut" }}
+                    />
+                  </div>
+
+                  <div className="profile-segment-grid">
+                    {groupedProgress.map((segment) => {
+                      const tone = toneForResultDomain(segment.label);
+                      return (
+                        <div key={segment.label} className="profile-segment">
+                          <div className="profile-segment-label">{segment.label}</div>
+                          <div className="profile-segment-track">
+                            <div
+                              className="profile-segment-fill"
+                              style={
+                                {
+                                  width: `${segment.value}%`,
+                                  "--segment-accent": tone.accent,
+                                } as CSSProperties
+                              }
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
 
-              {/* Card 2: Recovery */}
-              <div className="card">
-                <div className="kicker">Switching off · {band(groups.recoveryAvg)}</div>
-                <h2 style={{ marginTop: 10 }}>{groups.recoveryTop?.[0]}</h2>
-                <p className="small">
-                  Also present: <span style={{ color: "var(--text)" }}>{groups.recoveryAlso?.[0]}</span>
-                </p>
-                <div className="hr" />
-                <p className="small">
-                  Suggested pack: <span style={{ color: "var(--text)" }}>Wind Down</span>
-                </p>
+              <div
+                className="profile-card profile-question-card"
+                style={
+                  {
+                    "--question-accent": currentQuestionTone.accent,
+                    "--question-border": currentQuestionTone.border,
+                    "--question-glow": currentQuestionTone.glow,
+                    "--question-soft": currentQuestionTone.soft,
+                  } as CSSProperties
+                }
+              >
+                <div className="profile-content-wrap profile-question-wrap">
+                  <div className="profile-question-shell">
+                    <div className="profile-question-meta-row">
+                      <span className="profile-question-domain">{currentQuestionTone.label}</span>
+                      <span className="profile-question-count">{withinGroupIndex} of 5</span>
+                    </div>
+
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        className="profile-question-motion"
+                        key={currentQuestionIndex}
+                        initial={{ x: 40, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: -40, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
+                      >
+                        <div className="profile-card profile-question-surface">
+                          <div className="profile-card-content profile-question-content">
+                            <div className="profile-question-text">
+                              {currentQuestion.id}. {currentQuestion.text}
+                            </div>
+
+                            <div className="profile-scale-group">
+                              <div className="profile-scale-row">
+                                {SCALE.map((opt, i) => {
+                                  const selected = answers[currentQuestionIndex] === opt.value;
+                                  return (
+                                    <button
+                                      key={opt.label}
+                                      type="button"
+                                      aria-label={`${i + 1}`}
+                                      className={`profile-scale-button ${selected ? "is-selected" : ""}`}
+                                      onClick={() => setAnswer(currentQuestionIndex, opt.value)}
+                                    >
+                                      <span className="profile-scale-number">{i + 1}</span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                              <div className="profile-scale-legend">
+                                <span>1 = Never</span>
+                                <span>5 = Almost always</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    </AnimatePresence>
+                  </div>
+
+                  <div className="profile-actions profile-actions-inline">
+                    {currentQuestionIndex > 0 && (
+                      <button className="profile-btn profile-btn-secondary" type="button" onClick={goBackQuestion}>
+                        Back
+                      </button>
+                    )}
+                    <button className="profile-btn profile-btn-primary" type="button" onClick={goNextQuestion}>
+                      {currentQuestionIndex === 19 ? "See my map" : "Next"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── RESULTS ── */}
+          {page === "results" && (
+            <div className="profile-stack profile-results-stack">
+              <div className="profile-card profile-results-hero">
+                <div className="profile-top-rim profile-top-rim-strong" />
+                <div className="profile-results-hero-inner">
+                  <span className="profile-eyebrow-pill">Pressure Profile</span>
+                  <h1 className="profile-display profile-display-results">Your Pressure Profile</h1>
+                  <p className="profile-lead profile-meta-width">
+                    This profile shows where pressure is landing most often right now and where Driftlatch can help first.
+                  </p>
+                  <p className="profile-results-summary profile-meta-width">{personalizedResultCopy.summary}</p>
+                  <p className="profile-meta-copy profile-meta-width">{personalizedResultCopy.detail}</p>
+                  <p className="profile-meta-copy profile-meta-width">{getAttachmentStyleQualifier()}</p>
+                </div>
               </div>
 
-              {/* Card 3: Home */}
-              <div className="card">
-                <div className="kicker">At home · {band(groups.homeAvg)}</div>
-                <h2 style={{ marginTop: 10 }}>{groups.homeTop?.[0]}</h2>
-                <p className="small">
-                  Also present: <span style={{ color: "var(--text)" }}>{groups.homeAlso?.[0]}</span>
-                </p>
-                <div className="hr" />
-                <p className="small">
-                  Suggested pack: <span style={{ color: "var(--text)" }}>Be Here</span>
-                </p>
+              <div className="profile-results-block">
+                <div className="profile-results-section-head">
+                  <div className="profile-eyebrow">PRESSURE METERS</div>
+                  <div className="profile-section-title">Where pressure is landing</div>
+                </div>
+                <div className="profile-meter-grid">
+                  {pressureMeters.map((meter) => {
+                    const tone = toneForResultDomain(meter.domain);
+                    return (
+                      <div
+                        key={meter.domain}
+                        className="profile-card profile-meter-card"
+                        style={
+                          {
+                            "--meter-accent": tone.accent,
+                            "--meter-glow": tone.mutedGlow,
+                          } as CSSProperties
+                        }
+                      >
+                        <div className="profile-meter-top">
+                          <span className="profile-meter-label">{meter.domain}</span>
+                          <span className="profile-meter-value">{meterPercent(meter.value)}%</span>
+                        </div>
+                        <div className="profile-meter-track">
+                          <div className="profile-meter-fill" style={{ width: `${meterPercent(meter.value)}%` }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
-              {/* Card 4: Attachment */}
-              <div className="card">
-                <div className="kicker">Under friction · {band(groups.attachAvg)}</div>
-                <h2 style={{ marginTop: 10 }}>{groups.style}</h2>
-                <p className="small">
-                  Most present: <span style={{ color: "var(--text)" }}>{groups.attachTop?.[0]}</span>
-                  {groups.attachAlso?.[0] ? (
-                    <> · also: <span style={{ color: "var(--text)" }}>{groups.attachAlso?.[0]}</span></>
+              <div className="profile-results-block">
+                <div className="profile-results-section-head">
+                  <div className="profile-eyebrow">DOMAIN CARDS</div>
+                  <div className="profile-section-title">How pressure is showing up</div>
+                </div>
+                <div className="profile-domain-grid">
+                  {domainCards.map(({ copy, domain }) => {
+                    const tone = toneForResultDomain(domain);
+                    return (
+                      <div
+                        key={domain}
+                        className="profile-card profile-domain-card"
+                        style={
+                          {
+                            "--domain-glow": tone.mutedGlow,
+                          } as CSSProperties
+                        }
+                      >
+                        <div className="profile-domain-aura" />
+                        <div className="profile-domain-head">
+                          <div className="profile-eyebrow">{copy.label}</div>
+                          <h2 className="profile-card-display">{copy.heading}</h2>
+                        </div>
+                        <p className="profile-meta-copy profile-card-copy">{copy.body}</p>
+                        <div className="profile-soft-divider" />
+                        <div className="profile-start-row">
+                          <span className="profile-start-label">Start here</span>
+                          <span className="profile-start-value">{copy.startHere}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="profile-card profile-primary-pack-card">
+                <div className="profile-top-rim profile-top-rim-strong" />
+                <div className="profile-primary-pack-glow" />
+                <div className="profile-primary-pack-content">
+                  <div className="profile-eyebrow">DRIFTLATCH WILL START HERE</div>
+                  <h2 className="profile-primary-pack-title">{groups.primaryPack}</h2>
+                  <p className="profile-meta-copy profile-meta-width">{personalizedResultCopy.startSummary}</p>
+                  <p className="profile-meta-copy profile-meta-width profile-meta-spaced">{personalizedResultCopy.startDetail}</p>
+                  <div className="profile-soft-divider" />
+                  <div className="profile-actions profile-actions-wrap">
+                    {isPublicFlow && !isLoggedIn ? (
+                      <>
+                        <Link className="profile-btn profile-btn-primary" href="/pricing">
+                          See pricing →
+                        </Link>
+                        <Link className="profile-btn profile-btn-secondary" href="/buy?plan=annual">
+                          Start annual
+                        </Link>
+                        <Link className="profile-btn profile-btn-secondary" href="/buy?plan=monthly">
+                          Start monthly
+                        </Link>
+                      </>
+                    ) : (
+                      <Link className="profile-btn profile-btn-primary" href="/app/checkin">
+                        Open your first step →
+                      </Link>
+                    )}
+                    <button className="profile-btn profile-btn-secondary" type="button" onClick={handleRetakeProfile}>
+                      Retake
+                    </button>
+                    <Link className="profile-btn profile-btn-secondary" href="/">
+                      Back to site
+                    </Link>
+                  </div>
+                  {isPublicFlow && !isLoggedIn ? (
+                    <p className="profile-meta-copy profile-meta-spaced">
+                      This result is saved in this browser until you log in or start a plan. If you return on another device first, you may need to take the profile again.
+                    </p>
                   ) : null}
-                </p>
-                <div className="hr" />
-                <p className="small">
-                  Micro-pack: <span style={{ color: "var(--text)" }}>{groups.microPack}</span>
-                </p>
+                  <p className="profile-meta-copy profile-meta-spaced">
+                    This read is based on home looking like <span className="profile-inline-strong">{homeSetup}</span>, your main priority being{" "}
+                    <span className="profile-inline-strong">{priority}</span>, work feeling <span className="profile-inline-strong">{workIntensity}</span>, and pressure moving{" "}
+                    <span className="profile-inline-strong">{spillover.toLowerCase()}</span>.
+                  </p>
+                </div>
               </div>
             </div>
-
-            <div className="card premium" style={{ marginTop: 18 }}>
-              <div className="kicker">YOUR STARTING PACK</div>
-              <h2 style={{ marginTop: 10 }}>{groups.primaryPack}</h2>
-              <p className="small" style={{ maxWidth: "78ch" }}>
-                Based on your scores and your goal —{" "}
-                <span style={{ color: "var(--text)" }}>{priority}</span> — this is where Driftlatch will start you.
-              </p>
-              {groups.secondaryPack && (
-                <p className="small" style={{ marginTop: 8 }}>
-                  Because pressure runs <span style={{ color: "var(--text)" }}>{spillover}</span>, you'll also have access to:{" "}
-                  <span style={{ color: "var(--text)" }}>{groups.secondaryPack}</span>.
-                </p>
-              )}
-              <div className="hr" />
-              <div className="btnRow">
-                {isPublicFlow && !isLoggedIn ? (
-                  <>
-                    <Link className="btn primary" href="/pricing">
-                      See pricing →
-                    </Link>
-                    <Link className="btn ghost" href="/buy?plan=annual">
-                      Start annual
-                    </Link>
-                    <Link className="btn ghost" href="/buy?plan=monthly">
-                      Start monthly
-                    </Link>
-                  </>
-                ) : (
-                  <Link className="btn primary" href="/app/checkin">
-                    Open your first step →
-                  </Link>
-                )}
-                <button className="btn ghost" type="button" onClick={handleRetakeProfile}>
-                  Retake
-                </button>
-                <Link className="btn ghost" href="/">
-                  Back to site
-                </Link>
-              </div>
-              {isPublicFlow && !isLoggedIn ? (
-                <p className="small" style={{ marginTop: 12 }}>
-                  This result is saved on this browser until you log in or buy. If you use another device later, you may need to retake it.
-                </p>
-              ) : null}
-              <p className="small" style={{ marginTop: 12 }}>
-                Home: <span style={{ color: "var(--text)" }}>{homeSetup}</span> · Work:{" "}
-                <span style={{ color: "var(--text)" }}>{workIntensity}</span> · Spillover:{" "}
-                <span style={{ color: "var(--text)" }}>{spillover}</span>
-              </p>
-            </div>
-          </>
-        )}
-      </section>
+          )}
+        </section>
+      </div>
+      <style jsx>{ONBOARDING_THEME_STYLES}</style>
     </main>
   );
 }

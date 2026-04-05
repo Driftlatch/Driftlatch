@@ -79,10 +79,11 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           return;
         }
 
-        const setupComplete = hasCompletedSetup(authState.profile);
+        const setupComplete = hasCompletedSetup(authState.profile, authState.session);
         if (!setupComplete && pathname !== SETUP_ROUTE) {
           logAppGuard("Setup incomplete. Redirecting to setup.", {
             pathname,
+            sessionEmail: authState.session.user.email ?? null,
             profilePresent: Boolean(authState.profile),
             username: authState.profile?.username ?? null,
           });

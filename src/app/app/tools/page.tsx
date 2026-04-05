@@ -397,7 +397,7 @@ export default function ToolsPage() {
           >
             {([
               { href: "/app/checkin", label: "Check in", sub: "Get a new tool" },
-              { href: "/app/packs", label: "Packs", sub: "Browse the library" },
+              { href: "/app/packs", label: "Supports", sub: "Browse the library" },
             ] as const).map(({ href, label, sub }) => (
               <MotionLink
                 key={href}

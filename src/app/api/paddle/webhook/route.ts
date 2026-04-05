@@ -131,6 +131,115 @@ function buildTransactionPayload(
   };
 }
 
+function buildCanceledSubscriptionPayload(
+  event: PaddleWebhookEvent<PaddleSubscriptionData>,
+  userId: string,
+  existing: EntitlementRow | null,
+): TablesInsert<"user_entitlements"> {
+  const currentPeriodEnd = getCurrentPeriodEnd(event.data);
+  return {
+    cancel_at_period_end: true,
+    current_period_end: currentPeriodEnd ?? existing?.current_period_end ?? null,
+    last_event_at: event.occurred_at,
+    last_event_id: event.event_id,
+    last_event_type: event.event_type,
+    paddle_customer_id: event.data.customer_id ?? existing?.paddle_customer_id ?? null,
+    paddle_subscription_id: event.data.id ?? existing?.paddle_subscription_id ?? null,
+    paddle_transaction_id: existing?.paddle_transaction_id ?? null,
+    plan: resolvePlanFromData(event.data) ?? existing?.plan ?? null,
+    status: "canceled",
+    updated_at: new Date().toISOString(),
+    user_id: userId,
+  };
+}
+
+function buildPastDueSubscriptionPayload(
+  event: PaddleWebhookEvent<PaddleSubscriptionData>,
+  userId: string,
+  existing: EntitlementRow | null,
+): TablesInsert<"user_entitlements"> {
+  const currentPeriodEnd = getCurrentPeriodEnd(event.data);
+  return {
+    cancel_at_period_end: existing?.cancel_at_period_end ?? false,
+    current_period_end: currentPeriodEnd ?? existing?.current_period_end ?? null,
+    last_event_at: event.occurred_at,
+    last_event_id: event.event_id,
+    last_event_type: event.event_type,
+    paddle_customer_id: event.data.customer_id ?? existing?.paddle_customer_id ?? null,
+    paddle_subscription_id: event.data.id ?? existing?.paddle_subscription_id ?? null,
+    paddle_transaction_id: existing?.paddle_transaction_id ?? null,
+    plan: resolvePlanFromData(event.data) ?? existing?.plan ?? null,
+    status: "past_due",
+    updated_at: new Date().toISOString(),
+    user_id: userId,
+  };
+}
+
+function buildPausedSubscriptionPayload(
+  event: PaddleWebhookEvent<PaddleSubscriptionData>,
+  userId: string,
+  existing: EntitlementRow | null,
+): TablesInsert<"user_entitlements"> {
+  const currentPeriodEnd = getCurrentPeriodEnd(event.data);
+  return {
+    cancel_at_period_end: existing?.cancel_at_period_end ?? false,
+    current_period_end: currentPeriodEnd ?? existing?.current_period_end ?? null,
+    last_event_at: event.occurred_at,
+    last_event_id: event.event_id,
+    last_event_type: event.event_type,
+    paddle_customer_id: event.data.customer_id ?? existing?.paddle_customer_id ?? null,
+    paddle_subscription_id: event.data.id ?? existing?.paddle_subscription_id ?? null,
+    paddle_transaction_id: existing?.paddle_transaction_id ?? null,
+    plan: resolvePlanFromData(event.data) ?? existing?.plan ?? null,
+    status: "inactive",
+    updated_at: new Date().toISOString(),
+    user_id: userId,
+  };
+}
+
+function buildResumedSubscriptionPayload(
+  event: PaddleWebhookEvent<PaddleSubscriptionData>,
+  userId: string,
+  existing: EntitlementRow | null,
+): TablesInsert<"user_entitlements"> {
+  const currentPeriodEnd = getCurrentPeriodEnd(event.data);
+  return {
+    cancel_at_period_end: existing?.cancel_at_period_end ?? false,
+    current_period_end: currentPeriodEnd ?? existing?.current_period_end ?? null,
+    last_event_at: event.occurred_at,
+    last_event_id: event.event_id,
+    last_event_type: event.event_type,
+    paddle_customer_id: event.data.customer_id ?? existing?.paddle_customer_id ?? null,
+    paddle_subscription_id: event.data.id ?? existing?.paddle_subscription_id ?? null,
+    paddle_transaction_id: existing?.paddle_transaction_id ?? null,
+    plan: resolvePlanFromData(event.data) ?? existing?.plan ?? null,
+    status: "active",
+    updated_at: new Date().toISOString(),
+    user_id: userId,
+  };
+}
+
+function buildPaymentFailedPayload(
+  event: PaddleWebhookEvent<PaddleTransactionData>,
+  userId: string,
+  existing: EntitlementRow | null,
+): TablesInsert<"user_entitlements"> {
+  return {
+    cancel_at_period_end: existing?.cancel_at_period_end ?? false,
+    current_period_end: existing?.current_period_end ?? null,
+    last_event_at: event.occurred_at,
+    last_event_id: event.event_id,
+    last_event_type: event.event_type,
+    paddle_customer_id: event.data.customer_id ?? existing?.paddle_customer_id ?? null,
+    paddle_subscription_id: event.data.subscription_id ?? existing?.paddle_subscription_id ?? null,
+    paddle_transaction_id: event.data.id,
+    plan: resolvePlanFromData(event.data) ?? existing?.plan ?? null,
+    status: "past_due",
+    updated_at: new Date().toISOString(),
+    user_id: userId,
+  };
+}
+
 export async function POST(request: Request) {
   const secret = process.env.PADDLE_WEBHOOK_SECRET;
   if (!secret) {
@@ -198,7 +307,17 @@ export async function POST(request: Request) {
     const payload =
       event.event_type === "transaction.completed"
         ? buildTransactionPayload(event as PaddleWebhookEvent<PaddleTransactionData>, userId, existing)
-        : buildSubscriptionPayload(event as PaddleWebhookEvent<PaddleSubscriptionData>, userId, existing);
+        : event.event_type === "transaction.payment_failed"
+          ? buildPaymentFailedPayload(event as PaddleWebhookEvent<PaddleTransactionData>, userId, existing)
+          : event.event_type === "subscription.canceled"
+            ? buildCanceledSubscriptionPayload(event as PaddleWebhookEvent<PaddleSubscriptionData>, userId, existing)
+            : event.event_type === "subscription.past_due"
+              ? buildPastDueSubscriptionPayload(event as PaddleWebhookEvent<PaddleSubscriptionData>, userId, existing)
+              : event.event_type === "subscription.paused"
+                ? buildPausedSubscriptionPayload(event as PaddleWebhookEvent<PaddleSubscriptionData>, userId, existing)
+                : event.event_type === "subscription.resumed"
+                  ? buildResumedSubscriptionPayload(event as PaddleWebhookEvent<PaddleSubscriptionData>, userId, existing)
+                  : buildSubscriptionPayload(event as PaddleWebhookEvent<PaddleSubscriptionData>, userId, existing);
 
     const supabase = getSupabaseAdmin();
     const { error } = await supabase.from("user_entitlements").upsert(payload, {

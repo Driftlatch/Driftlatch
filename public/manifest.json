@@ -1,0 +1,30 @@
+{
+  "name": "Driftlatch",
+  "short_name": "Driftlatch",
+  "description": "Closeness at home. Clarity at work.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B0B0E",
+  "theme_color": "#0B0B0E",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "prefer_related_applications": false
+}

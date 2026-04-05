@@ -6,13 +6,13 @@ import { motion, AnimatePresence } from "framer-motion";
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const WHAT_YOU_GET = [
-  "State-matched tools — picked for how you feel right now",
-  "Pressure Profile — 2-minute setup, used every session",
+  "State-matched tools picked for how you feel right now",
+  "Pressure Profile, 2-minute setup, used every session",
   "6 tool packs across emotional states and home situations",
   "Partner, kids, long-distance, and solo situation support",
-  "Weekly pattern read — spots what's building before it costs you",
-  "Pinned moments — save the tools that actually work for you",
-  "Clear-light mode — tools for when you're good, not just struggling",
+  "Weekly pattern read, spots what's building before it costs you",
+  "Pinned moments, save the tools that actually work for you",
+  "Clear-light mode, tools for when you're good, not just struggling",
 ];
 
 export default function PricingPage() {
@@ -75,11 +75,11 @@ export default function PricingPage() {
 
           <h1 style={{
             margin: "0 0 18px",
-            fontSize: "clamp(3.2rem, 9vw, 6rem)",
-            lineHeight: 0.92,
-            letterSpacing: "-0.058em",
+            fontSize: "clamp(2.8rem, 7.8vw, 5rem)",
+            lineHeight: 0.98,
+            letterSpacing: "-0.05em",
             color: "rgba(244,244,245,0.93)",
-            fontWeight: 700,
+            fontWeight: 650,
             fontFamily: "Zodiak, Georgia, serif",
           }}>
             One system.<br />No compromise.
@@ -220,11 +220,11 @@ export default function PricingPage() {
                 {/* Price */}
                 <div style={{ marginBottom: 8, display: "flex", alignItems: "baseline", gap: 8 }}>
                   <span style={{
-                    fontSize: "clamp(4rem, 12vw, 6.5rem)",
-                    lineHeight: 0.9,
-                    fontWeight: 750,
-                    letterSpacing: "-0.06em",
-                    color: "rgba(244,244,245,0.94)",
+                    fontSize: "clamp(3.35rem, 10vw, 5.25rem)",
+                    lineHeight: 0.94,
+                    fontWeight: 700,
+                    letterSpacing: "-0.052em",
+                    color: "rgba(244,244,245,0.9)",
                     fontFamily: "Zodiak, Georgia, serif",
                   }}>
                     {billing === "annual" ? "$59" : "$9.99"}

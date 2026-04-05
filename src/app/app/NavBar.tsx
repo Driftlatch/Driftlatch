@@ -18,7 +18,7 @@ const navItems: NavItem[] = [
   { href: "/app/checkin", label: "Check-in", Icon: CheckInIcon },
   { href: "/app/tools", label: "Tools", Icon: ToolsIcon },
   { href: "/app/weekly", label: "Weekly", Icon: WeeklyIcon },
-  { href: "/app/packs", label: "Packs", Icon: PacksIcon },
+  { href: "/app/packs", label: "Supports", Icon: PacksIcon },
   { href: "/app/account", label: "Account", Icon: AccountIcon },
 ];
 

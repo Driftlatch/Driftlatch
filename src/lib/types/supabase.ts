@@ -20,6 +20,8 @@ export type Database = {
           did_complete: boolean | null
           id: string
           need: string | null
+          room_tone: string | null
+          source: string | null
           situation: string | null
           state: string | null
           time_minutes: number | null
@@ -31,6 +33,8 @@ export type Database = {
           did_complete?: boolean | null
           id?: string
           need?: string | null
+          room_tone?: string | null
+          source?: string | null
           situation?: string | null
           state?: string | null
           time_minutes?: number | null
@@ -42,6 +46,8 @@ export type Database = {
           did_complete?: boolean | null
           id?: string
           need?: string | null
+          room_tone?: string | null
+          source?: string | null
           situation?: string | null
           state?: string | null
           time_minutes?: number | null
@@ -125,7 +131,6 @@ export type Database = {
           created_at: string | null
           display_name: string | null
           defaults: Json | null
-          primary_pack_ids: string[] | null
           updated_at: string | null
           user_id: string
           username: string | null
@@ -135,7 +140,6 @@ export type Database = {
           created_at?: string | null
           display_name?: string | null
           defaults?: Json | null
-          primary_pack_ids?: string[] | null
           updated_at?: string | null
           user_id: string
           username?: string | null
@@ -145,7 +149,6 @@ export type Database = {
           created_at?: string | null
           display_name?: string | null
           defaults?: Json | null
-          primary_pack_ids?: string[] | null
           updated_at?: string | null
           user_id?: string
           username?: string | null

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getSessionUserEmail, loadAuthState, signOut, syncUserProfileIdentity } from "@/lib/auth";
+import { getSessionUserEmail, loadAuthState, resolveUserDisplayName, signOut, syncUserProfileIdentity } from "@/lib/auth";
 
 const inputStyle = {
   width: "100%",
@@ -40,7 +40,7 @@ export default function SetupPage() {
         }
 
         setEmail(getSessionUserEmail(session));
-        setDisplayName(profile?.display_name?.trim() ?? "");
+        setDisplayName(resolveUserDisplayName(profile?.display_name, session.user));
         setLoading(false);
       } catch (setupError) {
         console.error("Failed to load setup state:", setupError);
@@ -83,6 +83,11 @@ export default function SetupPage() {
     setSigningOut(true);
     await signOut();
     router.replace("/login");
+  }
+
+  function handleSkip() {
+    setError(null);
+    router.replace("/app");
   }
 
   if (loading) {
@@ -147,7 +152,7 @@ export default function SetupPage() {
             </div>
           ) : (
             <p className="small" style={{ marginTop: 14 }}>
-              Driftlatch will show your display name when available, otherwise your email.
+              Driftlatch will show your display name when available, otherwise keep the greeting simple.
             </p>
           )}
 
@@ -164,7 +169,7 @@ export default function SetupPage() {
             <button
               className="btn ghost"
               style={{ flex: 1 }}
-              onClick={() => router.replace("/app")}
+              onClick={handleSkip}
               disabled={saving || signingOut}
             >
               Skip for now

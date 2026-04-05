@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -73,7 +74,7 @@ export default function ThanksPage() {
 
         if (hasAppAccess(entitlement?.status)) {
           router.replace(
-            hasCompletedSetup(profile) ? getPostAuthRedirectPath() : "/app/setup",
+            hasCompletedSetup(profile, session) ? getPostAuthRedirectPath() : "/app/setup",
           );
           return;
         }
@@ -203,6 +204,18 @@ export default function ThanksPage() {
           transition={{ duration: 0.6, ease: EASE }}
           style={{ textAlign: "center", marginBottom: 42 }}
         >
+          <Image
+            src="/icon.png"
+            alt="Driftlatch"
+            width={60}
+            height={60}
+            priority
+            style={{
+              borderRadius: 16,
+              display: "block",
+              margin: "0 auto 24px",
+            }}
+          />
           <motion.div
             initial={{ scale: 0.85, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}

@@ -11,6 +11,7 @@ import {
   type Pack,
   type Tool,
 } from "@/lib/toolLibrary";
+import { getPackPurpose as getSupportPurpose } from "@/lib/supportLabels";
 
 const MotionLink = motion(Link);
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -51,6 +52,21 @@ const CLEAR_LIGHT_PACK_IDS = new Set([
   "maintain_light_pack",
 ]);
 
+const META_SEPARATOR = " \u00b7 ";
+
+const PACK_FLAGSHIP_TOOL_IDS: Record<string, string> = {
+  clear_head_pack: "CH-01",
+  wind_down_pack: "WD-35",
+  be_here_pack: "BH-39",
+  come_back_pack: "CB-38",
+  settle_the_spiral_pack: "SS-01",
+  space_not_distance_pack: "SN-22",
+  sharp_pack: "SH-08",
+  warm_pack: "WA-16",
+  expansive_pack: "EX-23",
+  maintain_light_pack: "ML-09",
+};
+
 function safeReadJSON<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
   try {
@@ -83,7 +99,7 @@ function readLastState(): DriftState | null {
 }
 
 function getPackPurpose(pack: Pack): string {
-  return pack.purpose || PURPOSE_FALLBACK[pack.id] || "Grounded tools for real pressure.";
+  return getSupportPurpose(pack.id, pack.purpose || PURPOSE_FALLBACK[pack.id]);
 }
 
 function inferNeedFromPackId(packId: string): DriftNeed {
@@ -126,6 +142,16 @@ function pickFirstMove(packTools: Tool[], lastState: DriftState | null): Tool | 
   if (fastBroad.length > 0) return sortFirstMoveTools(fastBroad, lastState)[0] ?? null;
 
   return sortFirstMoveTools(packTools, lastState)[0] ?? null;
+}
+
+function pickFlagship(pack: Pack, packTools: Tool[], lastState: DriftState | null): Tool | null {
+  const flagshipId = PACK_FLAGSHIP_TOOL_IDS[pack.id];
+  if (flagshipId) {
+    const flagshipTool = packTools.find((tool) => tool.id === flagshipId);
+    if (flagshipTool) return flagshipTool;
+  }
+
+  return pickFirstMove(packTools, lastState);
 }
 
 function pickShuffle(packTools: Tool[], currentId: string, lastState: DriftState | null): Tool | null {
@@ -209,6 +235,25 @@ function glowForPack(packId: string): string {
   return "radial-gradient(circle at 80% 20%, rgba(194,122,92,0.16) 0%, rgba(194,122,92,0.03) 54%, transparent 76%)";
 }
 
+function normalizeSearchText(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+function matchesSearch(pack: Pack, packTools: Tool[], query: string): boolean {
+  if (!query) return true;
+
+  const haystacks = [
+    pack.name,
+    getPackName(pack.id),
+    pack.id,
+    pack.purpose,
+    getPackPurpose(pack),
+    ...packTools.flatMap((tool) => [tool.title, tool.do, tool.why ?? ""]),
+  ];
+
+  return haystacks.some((value) => value.toLowerCase().includes(query));
+}
+
 function PackCard({
   pack,
   index,
@@ -228,7 +273,13 @@ function PackCard({
   const toolCount = packTools.length;
   const stateChips = useMemo(() => getStateChips(packTools), [packTools]);
   const distribution = useMemo(() => getToolDistribution(packTools), [packTools]);
-  const firstMove = packTools.find((tool) => tool.id === toolId) ?? pickFirstMove(packTools, lastState);
+  const bestForStates = stateChips.slice(0, 2);
+  const firstMove = packTools.find((tool) => tool.id === toolId) ?? pickFlagship(pack, packTools, lastState);
+  const paceLine = [
+    `Fast ${distribution.fast}`,
+    `Standard ${distribution.standard}`,
+    `Deep ${distribution.deep}`,
+  ].join(META_SEPARATOR);
 
   return (
     <motion.section
@@ -274,35 +325,23 @@ function PackCard({
             {getPackPurpose(pack)}
           </p>
 
-          <div className="pack-chips">
-            <span
-              className={
-                isClearLight
-                  ? "pack-chip pack-chip-accent pack-chip-accent-light"
-                  : "pack-chip pack-chip-accent"
-              }
+          <div className="pack-meta">
+            <div
+              className={isClearLight ? "pack-meta-count pack-meta-count-light" : "pack-meta-count"}
             >
               {toolCount} tools
-            </span>
-            <span className="pack-chip">Fast {distribution.fast}</span>
-            <span className="pack-chip">Standard {distribution.standard}</span>
-            <span className="pack-chip">Deep {distribution.deep}</span>
-            {stateChips.slice(0, 2).map((chip) => (
-              <span
-                key={chip}
-                className={
-                  isClearLight
-                    ? "pack-chip pack-chip-state pack-chip-state-light"
-                    : "pack-chip pack-chip-state"
-                }
-              >
-                {chip}
-              </span>
-            ))}
+            </div>
+            <div className="pack-meta-detail">
+              {paceLine}
+            </div>
+            <div className="pack-meta-detail">
+              <span className="pack-meta-label">Best for:</span>{" "}
+              {bestForStates.join(", ")}
+            </div>
           </div>
         </div>
 
-        {/* First move */}
+        {/* Start here */}
         <div className="glass-row" style={{ padding: 16, display: "grid", gap: 8 }}>
           <div
             style={{
@@ -313,7 +352,7 @@ function PackCard({
               textTransform: "uppercase",
             }}
           >
-            First move
+            Start here
           </div>
           <AnimatePresence mode="wait">
             <motion.div
@@ -330,7 +369,7 @@ function PackCard({
               <p style={{ margin: 0, color: "var(--muted)", fontSize: 14, lineHeight: 1.65 }}>
                 {firstMove
                   ? firstSentence(firstMove.do)
-                  : "This pack does not have a tool ready yet."}
+                  : "This support does not have a tool ready yet."}
               </p>
             </motion.div>
           </AnimatePresence>
@@ -351,7 +390,7 @@ function PackCard({
             href={`/app/packs/${pack.id}`}
             className={isClearLight ? "btn-primary btn-primary-light" : "btn-primary"}
           >
-            Open pack →
+            Open support →
           </MotionLink>
           {firstMove ? (
             <MotionLink
@@ -417,21 +456,38 @@ function SectionDivider({ label, sub }: { label: string; sub: string }) {
 
 export default function PacksPage() {
   const [lastState] = useState<DriftState | null>(() => readLastState());
+  const [searchQuery, setSearchQuery] = useState("");
   const [startToolByPack, setStartToolByPack] = useState<Record<string, string>>(() =>
     LIBRARY.packs.reduce<Record<string, string>>((acc, pack) => {
       const packTools = LIBRARY.tools.filter((t) => t.pack_id === pack.id);
-      acc[pack.id] = pickFirstMove(packTools, readLastState())?.id ?? "";
+      acc[pack.id] = pickFlagship(pack, packTools, readLastState())?.id ?? "";
       return acc;
     }, {})
   );
+  const normalizedSearchQuery = useMemo(() => normalizeSearchText(searchQuery), [searchQuery]);
+  const packToolsById = useMemo(
+    () =>
+      LIBRARY.packs.reduce<Record<string, Tool[]>>((acc, pack) => {
+        acc[pack.id] = LIBRARY.tools.filter((tool) => tool.pack_id === pack.id);
+        return acc;
+      }, {}),
+    []
+  );
+  const filteredPacks = useMemo(
+    () =>
+      LIBRARY.packs.filter((pack) => matchesSearch(pack, packToolsById[pack.id] ?? [], normalizedSearchQuery)),
+    [normalizedSearchQuery, packToolsById]
+  );
+  const hasActiveSearch = normalizedSearchQuery.length > 0;
+  const matchCount = filteredPacks.length;
 
-  const hardPacks = LIBRARY.packs.filter((p) => !CLEAR_LIGHT_PACK_IDS.has(p.id));
-  const lightPacks = LIBRARY.packs.filter((p) => CLEAR_LIGHT_PACK_IDS.has(p.id));
+  const hardPacks = filteredPacks.filter((p) => !CLEAR_LIGHT_PACK_IDS.has(p.id));
+  const lightPacks = filteredPacks.filter((p) => CLEAR_LIGHT_PACK_IDS.has(p.id));
 
   function renderPackCard(pack: Pack, index: number, isClearLight: boolean) {
-    const packTools = LIBRARY.tools.filter((t) => t.pack_id === pack.id);
+    const packTools = packToolsById[pack.id] ?? [];
     const selectedToolId = startToolByPack[pack.id];
-    const fallbackTool = pickFirstMove(packTools, lastState);
+    const fallbackTool = pickFlagship(pack, packTools, lastState);
     const activeToolId = selectedToolId || fallbackTool?.id || "";
 
     return (
@@ -482,10 +538,10 @@ export default function PacksPage() {
                 fontWeight: 700,
               }}
             >
-              Packs
+              Supports
             </div>
             <p style={{ margin: 0, color: "rgba(161,161,170,0.85)", fontSize: 17, lineHeight: 1.68 }}>
-              Choose the system you need.
+              Choose where to start.
             </p>
             <motion.div
               initial={{ scaleX: 0, opacity: 0 }}
@@ -496,17 +552,93 @@ export default function PacksPage() {
           </div>
         </motion.section>
 
-        {/* Hard-state packs */}
-        <div style={{ display: "grid", gap: 16, marginBottom: 10 }}>
-          <SectionDivider label="When things are hard" sub="Reduce load, come back, settle down" />
-          {hardPacks.map((pack, i) => renderPackCard(pack, i, false))}
-        </div>
+        <motion.section
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.36, delay: 0.06, ease: EASE }}
+          style={{ marginBottom: 20 }}
+        >
+          <div className="search-shell">
+            <div className="search-field">
+              <span className="search-icon" aria-hidden>
+                <svg viewBox="0 0 20 20" width="15" height="15" fill="none">
+                  <path
+                    d="M13.75 13.75L17 17M15.5 9.125C15.5 12.6468 12.6468 15.5 9.125 15.5C5.60318 15.5 2.75 12.6468 2.75 9.125C2.75 5.60318 5.60318 2.75 9.125 2.75C12.6468 2.75 15.5 5.60318 15.5 9.125Z"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search packs or steps"
+                aria-label="Search supports or steps"
+                className="search-input"
+              />
+              {hasActiveSearch ? (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="search-clear"
+                  aria-label="Clear search"
+                >
+                  Clear
+                </button>
+              ) : null}
+            </div>
+            {hasActiveSearch ? (
+              <div className="search-meta">
+                {matchCount === 0 ? "No supports match yet." : `${matchCount} support${matchCount === 1 ? "" : "s"} matched`}
+              </div>
+            ) : null}
+          </div>
+        </motion.section>
 
-        {/* Clear-light packs */}
-        <div style={{ display: "grid", gap: 16, marginTop: 24 }}>
-          <SectionDivider label="When things are clear" sub="Use the window before it closes" />
-          {lightPacks.map((pack, i) => renderPackCard(pack, i + hardPacks.length, true))}
-        </div>
+        {/* Hard-state packs */}
+        {matchCount === 0 ? (
+          <motion.section
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.34, ease: EASE }}
+            className="glass"
+            style={{ position: "relative", overflow: "hidden", padding: 22 }}
+          >
+            <div aria-hidden className="top-highlight" />
+            <div style={{ position: "relative", zIndex: 1, display: "grid", gap: 10 }}>
+              <div style={{ color: "rgba(244,244,245,0.9)", fontSize: 22, lineHeight: 1.12, fontWeight: 650 }}>
+                No supports matched that search.
+              </div>
+              <p style={{ margin: 0, color: "rgba(161,161,170,0.82)", fontSize: 14, lineHeight: 1.7 }}>
+                Try a support name, a step title, or a short phrase from the step you remember.
+              </p>
+              <div>
+                <button type="button" onClick={() => setSearchQuery("")} className="btn-ghost search-empty-clear">
+                  Clear search
+                </button>
+              </div>
+            </div>
+          </motion.section>
+        ) : (
+          <>
+            {hardPacks.length > 0 ? (
+              <div style={{ display: "grid", gap: 16, marginBottom: lightPacks.length > 0 ? 10 : 0 }}>
+                <SectionDivider label="When things are hard" sub="Reduce load, come back, settle down" />
+                {hardPacks.map((pack, i) => renderPackCard(pack, i, false))}
+              </div>
+            ) : null}
+
+            {lightPacks.length > 0 ? (
+              <div style={{ display: "grid", gap: 16, marginTop: hardPacks.length > 0 ? 24 : 0 }}>
+                <SectionDivider label="When things are clear" sub="Use the window before it closes" />
+                {lightPacks.map((pack, i) => renderPackCard(pack, i + hardPacks.length, true))}
+              </div>
+            ) : null}
+          </>
+        )}
       </div>
 
       <style jsx>{`
@@ -543,6 +675,68 @@ export default function PacksPage() {
             0 24px 70px rgba(0, 0, 0, 0.38),
             0 0 0 1px rgba(140, 190, 150, 0.06),
             inset 0 1px 0 rgba(140, 190, 150, 0.08);
+        }
+
+        .search-shell {
+          display: grid;
+          gap: 8px;
+        }
+
+        .search-field {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          min-height: 50px;
+          padding: 0 14px;
+          background: rgba(39, 39, 42, 0.52);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 16px;
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          box-shadow: 0 14px 36px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .search-icon {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          color: rgba(161, 161, 170, 0.7);
+          flex-shrink: 0;
+        }
+
+        .search-input {
+          flex: 1;
+          min-width: 0;
+          border: none;
+          background: transparent;
+          color: rgba(244, 244, 245, 0.9);
+          font-size: 14px;
+          line-height: 1.4;
+          letter-spacing: 0.01em;
+          outline: none;
+        }
+
+        .search-input::placeholder {
+          color: rgba(161, 161, 170, 0.62);
+        }
+
+        .search-clear {
+          border: none;
+          background: transparent;
+          color: rgba(194, 122, 92, 0.84);
+          font-size: 12px;
+          font-weight: 800;
+          letter-spacing: 0.04em;
+          cursor: pointer;
+          padding: 0;
+          flex-shrink: 0;
+        }
+
+        .search-meta {
+          color: rgba(161, 161, 170, 0.68);
+          font-size: 12px;
+          line-height: 1.5;
+          padding-left: 2px;
         }
 
         .glass-row {
@@ -583,69 +777,38 @@ export default function PacksPage() {
           min-width: 0;
         }
 
-        .pack-chips {
-          display: flex;
-          flex-wrap: wrap;
-          align-content: flex-start;
-          gap: 8px;
-          margin-top: 12px;
+        .pack-meta {
+          display: grid;
+          gap: 5px;
+          margin-top: 16px;
           max-width: 100%;
           min-width: 0;
         }
 
-        .pack-chip {
-          position: relative;
-          z-index: 1;
-          display: inline-flex;
-          align-items: center;
-          min-height: 30px;
-          padding: 6px 10px;
-          border-radius: 999px;
-          font-size: 12px;
-          font-weight: 800;
-          line-height: 1;
-          white-space: normal;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          background: rgba(255, 255, 255, 0.04);
-          color: var(--muted);
-          max-width: 100%;
-          word-break: break-word;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        .pack-meta-count {
+          color: rgba(244, 244, 245, 0.9);
+          font-size: 13px;
+          font-weight: 700;
+          letter-spacing: 0.01em;
+          line-height: 1.45;
         }
 
-        .pack-chip-accent {
-          color: rgba(244, 244, 245, 0.92);
-          border-color: rgba(194, 122, 92, 0.26);
-          background: linear-gradient(
-            180deg,
-            rgba(194, 122, 92, 0.2) 0%,
-            rgba(194, 122, 92, 0.1) 100%
-          );
-          box-shadow: 0 10px 24px rgba(194, 122, 92, 0.1),
-            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        .pack-meta-count-light {
+          color: rgba(212, 235, 220, 0.9);
         }
 
-        .pack-chip-accent-light {
-          border-color: rgba(120, 190, 150, 0.3);
-          background: linear-gradient(
-            180deg,
-            rgba(120, 190, 150, 0.22) 0%,
-            rgba(120, 190, 150, 0.1) 100%
-          );
-          box-shadow: 0 10px 24px rgba(120, 190, 150, 0.1),
-            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        .pack-meta-detail {
+          color: rgba(161, 161, 170, 0.82);
+          font-size: 12.5px;
+          font-weight: 500;
+          line-height: 1.62;
+          letter-spacing: 0.01em;
+          text-wrap: balance;
         }
 
-        .pack-chip-state {
-          border-color: rgba(194, 122, 92, 0.14);
-          background: rgba(194, 122, 92, 0.06);
-          color: rgba(244, 244, 245, 0.84);
-        }
-
-        .pack-chip-state-light {
-          border-color: rgba(120, 190, 150, 0.16);
-          background: rgba(120, 190, 150, 0.07);
-          color: rgba(200, 235, 215, 0.84);
+        .pack-meta-label {
+          color: rgba(244, 244, 245, 0.72);
+          font-weight: 600;
         }
 
         .btn-primary,
@@ -702,9 +865,19 @@ export default function PacksPage() {
           white-space: nowrap;
         }
 
+        .search-empty-clear {
+          min-height: 44px;
+          padding: 0 16px;
+        }
+
         @media (max-width: 640px) {
           .px-wrap {
             width: min(560px, calc(100vw - 32px));
+          }
+
+          .search-field {
+            min-height: 48px;
+            padding: 0 12px;
           }
 
           .card-actions {

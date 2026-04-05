@@ -13,6 +13,8 @@ import {
   type ToolContext,
   type ValidToolTime,
 } from "@/lib/quickFlow";
+import { getRoomToneLabel, getRoomToneOptions, isRoomToneForSituation, type RoomTone } from "@/lib/roomTone";
+import { getNeedLabel, getNeedSubtitle } from "@/lib/supportLabels";
 import { getSupabase } from "@/lib/supabase";
 import type { AttachmentStyle, DriftNeed, DriftSituation, DriftState } from "@/lib/toolLibrary";
 
@@ -25,7 +27,7 @@ const CHECKIN_MODE_KEY = "driftlatch_checkin_mode";
 const CHECKIN_PREFERENCES_KEY = "driftlatch_checkin_preferences";
 
 const STATES: { id: DriftState; label: string; hint: string }[] = [
-  { id: "clear_light", label: "Clear & light", hint: "Sharp, warm, rare window" },
+  { id: "clear_light", label: "Clear & light", hint: "Clear window, open energy, room to use it well" },
   { id: "carrying_work", label: "Carrying work", hint: "Open loops, mental residue" },
   { id: "wired", label: "Wired", hint: "Alert body, restless mind" },
   { id: "drained", label: "Drained", hint: "Low battery, low words" },
@@ -48,10 +50,10 @@ const SITUATIONS: { id: DriftSituation; label: string }[] = [
 ];
 
 const NEEDS: { id: DriftNeed; label: string; sub: string }[] = [
-  { id: "regain_clarity", label: "Regain clarity", sub: "Work focus + cognitive load" },
-  { id: "wind_down", label: "Wind down", sub: "Nervous system reset" },
-  { id: "be_here", label: "Be here", sub: "Presence at home" },
-  { id: "come_back", label: "Come back", sub: "Repair after tension" },
+  { id: "regain_clarity", label: getNeedLabel("regain_clarity"), sub: getNeedSubtitle("regain_clarity") },
+  { id: "wind_down", label: getNeedLabel("wind_down"), sub: getNeedSubtitle("wind_down") },
+  { id: "be_here", label: getNeedLabel("be_here"), sub: getNeedSubtitle("be_here") },
+  { id: "come_back", label: getNeedLabel("come_back"), sub: getNeedSubtitle("come_back") },
 ];
 
 const STATE_ATMOSPHERE: Record<DriftState, string> = {
@@ -173,7 +175,13 @@ function readLastCtx(): LastCtx | null {
   const obj = raw as Record<string, unknown>;
   const time = toValidToolTime(obj.time);
   if (!isDriftState(obj.state) || !isDriftNeed(obj.need) || !isDriftSituation(obj.situation) || !time) return null;
-  return { state: obj.state, need: obj.need, time, situation: obj.situation };
+  return {
+    state: obj.state,
+    need: obj.need,
+    roomTone: isRoomToneForSituation(obj.situation, obj.roomTone) ? obj.roomTone : null,
+    time,
+    situation: obj.situation,
+  };
 }
 
 function readCheckinMode() {
@@ -278,6 +286,7 @@ export default function CheckinPage() {
   const [profileDefaults, setProfileDefaults] = useState<StoredProfileDefaults>({});
   const [timeVal, setTimeVal] = useState<ValidToolTime>(initialPreferences?.time ?? 3);
   const [situationVal, setSituationVal] = useState<DriftSituation>(initialPreferences?.situation ?? "alone");
+  const [roomToneVal, setRoomToneVal] = useState<RoomTone | null>(null);
   const [needVal, setNeedVal] = useState<DriftNeed>(initialPreferences?.need ?? "wind_down");
   const [attachmentStyle, setAttachmentStyle] = useState<AttachmentStyle>(readAttachmentStyle());
   const [preferredPackIds, setPreferredPackIds] = useState<string[]>(readPreferredPackIds);
@@ -298,6 +307,15 @@ export default function CheckinPage() {
   }, [quickMode, needVal, situationVal, timeVal]);
 
   useEffect(() => {
+    if (situationVal === "alone") {
+      setRoomToneVal(null);
+      return;
+    }
+
+    setRoomToneVal((current) => (isRoomToneForSituation(situationVal, current) ? current : null));
+  }, [situationVal]);
+
+  useEffect(() => {
     const supabase = getSupabase();
     let cancelled = false;
 
@@ -307,7 +325,7 @@ export default function CheckinPage() {
 
       const { data } = await supabase
         .from("user_profile")
-        .select("attachment_style, defaults, primary_pack_ids")
+        .select("attachment_style, defaults")
         .eq("user_id", authData.user.id)
         .maybeSingle();
 
@@ -316,7 +334,6 @@ export default function CheckinPage() {
       const profile = data as {
         attachment_style?: unknown;
         defaults?: unknown;
-        primary_pack_ids?: unknown;
       };
 
       if (isAttachmentStyle(profile.attachment_style)) {
@@ -333,11 +350,9 @@ export default function CheckinPage() {
         setSituationVal(defaults.default_situation ?? "alone");
       }
 
-      const rawPackIds: unknown[] = Array.isArray(profile.primary_pack_ids)
-        ? profile.primary_pack_ids
-        : profile.defaults && typeof profile.defaults === "object" && !Array.isArray(profile.defaults) && Array.isArray((profile.defaults as Record<string, unknown>).primary_pack_ids)
-          ? ((profile.defaults as Record<string, unknown>).primary_pack_ids as unknown[])
-          : [];
+      const rawPackIds: unknown[] = profile.defaults && typeof profile.defaults === "object" && !Array.isArray(profile.defaults) && Array.isArray((profile.defaults as Record<string, unknown>).primary_pack_ids)
+        ? ((profile.defaults as Record<string, unknown>).primary_pack_ids as unknown[])
+        : [];
 
       const nextPreferredPackIds = rawPackIds.filter((item: unknown): item is string => typeof item === "string");
       setPreferredPackIds(nextPreferredPackIds);
@@ -360,6 +375,7 @@ export default function CheckinPage() {
       attachmentStyle,
       defaults: {
         need: nextCtx.need,
+        roomTone: nextCtx.roomTone,
         time: nextCtx.time,
         situation: nextCtx.situation,
       },
@@ -374,9 +390,16 @@ export default function CheckinPage() {
   }
 
   function handleQuickStateSelect(state: DriftState) {
-    const nextCtx: LastCtx = { state, need: quickDefaults.need, time: quickDefaults.time, situation: quickDefaults.situation };
+    const nextCtx: LastCtx = {
+      state,
+      need: quickDefaults.need,
+      roomTone: null,
+      time: quickDefaults.time,
+      situation: quickDefaults.situation,
+    };
     setSelectedState(state);
     setNeedVal(nextCtx.need);
+    setRoomToneVal(nextCtx.roomTone ?? null);
     setTimeVal(nextCtx.time);
     setSituationVal(nextCtx.situation);
     routeToTool(nextCtx, "quick", []);
@@ -385,9 +408,16 @@ export default function CheckinPage() {
   function handleUseLatestCheckin() {
     const ctx = readLastCtx();
     if (ctx) {
-      const nextCtx: LastCtx = { state: ctx.state, need: ctx.need, time: ctx.time, situation: ctx.situation };
+      const nextCtx: LastCtx = {
+        state: ctx.state,
+        need: ctx.need,
+        roomTone: ctx.roomTone ?? null,
+        time: ctx.time,
+        situation: ctx.situation,
+      };
       setSelectedState(nextCtx.state);
       setNeedVal(nextCtx.need);
+      setRoomToneVal(nextCtx.roomTone ?? null);
       setTimeVal(nextCtx.time);
       setSituationVal(nextCtx.situation);
       routeToTool(nextCtx, quickMode ? "quick" : "standard", []);
@@ -399,13 +429,20 @@ export default function CheckinPage() {
 
   function handleAdjustDetails() {
     setNeedVal(quickDefaults.need);
+    setRoomToneVal(null);
     setTimeVal(quickDefaults.time);
     setSituationVal(quickDefaults.situation);
     setQuickMode(false);
   }
 
   function handleAdjustSubmit() {
-    const nextCtx: LastCtx = { state: selectedState, need: needVal, time: timeVal, situation: situationVal };
+    const nextCtx: LastCtx = {
+      state: selectedState,
+      need: needVal,
+      roomTone: situationVal === "alone" ? null : roomToneVal,
+      time: timeVal,
+      situation: situationVal,
+    };
     writeCheckinPreferences({ time: timeVal, situation: situationVal, need: needVal });
     routeToTool(nextCtx, "standard", []);
   }
@@ -525,7 +562,7 @@ export default function CheckinPage() {
                 <div className="checkin-glass" style={{ position: "relative", padding: 18 }}>
                   <div className="top-highlight" />
                   <p style={{ ...subtextStyle, margin: 0, maxWidth: "none" }}>
-                    Override your defaults for this check-in. Right now your defaults are {quickDefaultsSummary}.
+                    Adjust this check-in. Right now Driftlatch will start with {quickDefaultsSummary}.
                   </p>
                 </div>
 
@@ -593,10 +630,42 @@ export default function CheckinPage() {
                   </div>
                 </div>
 
+                {situationVal !== "alone" ? (
+                  <div className="checkin-glass" style={{ position: "relative", padding: 18 }}>
+                    <div className="top-highlight" />
+                    <div style={{ display: "grid", gap: 12 }}>
+                      <div style={{ display: "grid", gap: 6 }}>
+                        <span style={panelLabelStyle}>How does the room feel?</span>
+                        <p style={{ ...subtextStyle, margin: 0, maxWidth: "none", fontSize: 13 }}>
+                          Only answer if it helps. This is about the atmosphere, not whether anyone is &ldquo;right.&rdquo;
+                        </p>
+                      </div>
+                      <div className="need-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
+                        {getRoomToneOptions(situationVal).map((roomTone) => (
+                          <motion.button
+                            key={roomTone.id}
+                            whileTap={{ scale: 0.97 }}
+                            type="button"
+                            onClick={() => setRoomToneVal((current) => (current === roomTone.id ? null : roomTone.id))}
+                            style={gridChoiceStyle(roomTone.id === roomToneVal)}
+                          >
+                            <div style={{ color: roomTone.id === roomToneVal ? "var(--accent)" : "var(--text)", fontSize: 14, fontWeight: 800 }}>
+                              {roomTone.label}
+                            </div>
+                            <div style={{ color: "var(--muted)", fontSize: 11, marginTop: 4 }}>
+                              {roomTone.id === roomToneVal ? "Selected" : "Optional"}
+                            </div>
+                          </motion.button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
                 <div className="checkin-glass" style={{ position: "relative", padding: 18 }}>
                   <div className="top-highlight" />
                   <div style={{ display: "grid", gap: 12 }}>
-                    <span style={panelLabelStyle}>Need</span>
+                    <span style={panelLabelStyle}>Support</span>
                     <div className="need-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
                       {NEEDS.map((need) => (
                         <motion.button
@@ -640,9 +709,9 @@ export default function CheckinPage() {
                 <span style={{ color: "var(--text)", fontSize: 15, fontWeight: 800 }}>Use latest check-in</span>
                 <span style={{ color: "var(--muted)", fontSize: 13 }}>
                   {lastCtx
-                    ? `Latest saved context: ${labelForState(lastCtx.state).toLowerCase()} | ${lastCtx.time} min | ${SITUATIONS.find((item) => item.id === lastCtx.situation)?.label.toLowerCase() ?? "alone"}`
+                    ? `Latest saved check-in: ${labelForState(lastCtx.state)} · ${lastCtx.time} min · ${SITUATIONS.find((item) => item.id === lastCtx.situation)?.label ?? "Alone"}${lastCtx.roomTone ? ` · ${getRoomToneLabel(lastCtx.roomTone)}` : ""} · ${getNeedLabel(lastCtx.need)}`
                     : lastState
-                      ? `Latest state: ${labelForState(lastState).toLowerCase()}`
+                      ? `Latest state: ${labelForState(lastState)}`
                       : "No saved check-in yet"}
                 </span>
               </span>

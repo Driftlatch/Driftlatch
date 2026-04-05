@@ -197,6 +197,9 @@ export const PADDLE_WEBHOOK_EVENTS = new Set([
   "subscription.updated",
   "subscription.canceled",
   "subscription.past_due",
+  "subscription.paused",
+  "subscription.resumed",
   "subscription.trialing",
   "transaction.completed",
+  "transaction.payment_failed",
 ]);

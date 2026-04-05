@@ -3,53 +3,53 @@
   "packs": [
     {
       "id": "clear_head_pack",
-      "name": "Clear Head Pack",
-      "purpose": "Work focus + cognitive load"
+      "name": "Clear Head",
+      "purpose": "Cut the mental noise and find the next clear step."
     },
     {
       "id": "wind_down_pack",
-      "name": "Wind Down Pack",
-      "purpose": "Recovery + nervous system"
+      "name": "Wind Down",
+      "purpose": "Come down after pressure without carrying it through the night."
     },
     {
       "id": "be_here_pack",
-      "name": "Be Here Pack",
-      "purpose": "Home presence, partner, kids"
+      "name": "Be Present",
+      "purpose": "Come back to the people and moment in front of you."
     },
     {
       "id": "come_back_pack",
-      "name": "Come Back Pack",
-      "purpose": "Repair and re-entry after tension"
+      "name": "Repair",
+      "purpose": "Find your way back after tension, distance, or a hard moment."
     },
     {
       "id": "settle_the_spiral_pack",
-      "name": "Settle the Spiral Pack",
-      "purpose": "Anxious pattern micro-tools"
+      "name": "Overthinking",
+      "purpose": "Settle overthinking before it takes over the moment."
     },
     {
       "id": "space_not_distance_pack",
-      "name": "Space, Not Distance Pack",
-      "purpose": "Avoidant pattern micro-tools"
+      "name": "Take Space",
+      "purpose": "Take the space you need without creating more distance."
     },
     {
       "id": "sharp_pack",
-      "name": "Sharp",
-      "purpose": "Brain is fast — use it."
+      "name": "Use the Window",
+      "purpose": "Use a clear stretch of energy well while it is here."
     },
     {
       "id": "warm_pack",
-      "name": "Warm",
-      "purpose": "Home feels good — pour into it."
+      "name": "Stay Close",
+      "purpose": "Turn a good moment into real closeness."
     },
     {
       "id": "expansive_pack",
-      "name": "Expansive",
-      "purpose": "Rare window — don't waste it."
+      "name": "Make It Count",
+      "purpose": "Use available energy on something that matters."
     },
     {
       "id": "maintain_light_pack",
-      "name": "Maintain",
-      "purpose": "Keep the good state stable."
+      "name": "Stay Steady",
+      "purpose": "Protect a good state before it slips away."
     }
   ],
   "tools": [
@@ -7014,6 +7014,2704 @@
       "emotional_difficulty": 1,
       "social_friction": 1,
       "selector_priority": "high"
+    },
+    {
+      "id": "CH-38",
+      "pack_id": "clear_head_pack",
+      "title": "Inbox Amnesty",
+      "do": "Do not clear it. Just mark the three things that actually matter and leave the rest untouched.",
+      "why": "This is triage, not productivity. You are reducing cognitive drag without trying to finish the whole world tonight.",
+      "need": [
+        "regain_clarity"
+      ],
+      "best_for_state": [
+        "carrying_work",
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "alone",
+        "partner_nearby"
+      ],
+      "time_min_minutes": 2,
+      "time_max_minutes": 5,
+      "tags": [
+        "triage",
+        "open_loops",
+        "prioritization",
+        "work"
+      ],
+      "tool_family": "triage",
+      "depth": "standard",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "CH-39",
+      "pack_id": "clear_head_pack",
+      "title": "Decision Parking Slip",
+      "do": "Write the decision you are not making tonight and the earliest time you will return to it.",
+      "why": "This is decision deferral, not avoidance. A clear return point lets your mind stop trying to solve it on the way to sleep.",
+      "need": [
+        "regain_clarity"
+      ],
+      "best_for_state": [
+        "carrying_work",
+        "overloaded",
+        "wired"
+      ],
+      "best_for_situation": [
+        "alone"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 3,
+      "tags": [
+        "decision",
+        "containment",
+        "return_time",
+        "closure"
+      ],
+      "tool_family": "decision_deferral",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "CH-40",
+      "pack_id": "clear_head_pack",
+      "title": "Work Doorway",
+      "do": "Before entering home mode, say one sentence that closes the work version of you for today.",
+      "why": "This is an identity transition, not task management. You are marking the handoff before work keeps following you home.",
+      "need": [
+        "regain_clarity",
+        "wind_down"
+      ],
+      "best_for_state": [
+        "carrying_work"
+      ],
+      "best_for_situation": [
+        "alone",
+        "partner_nearby",
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "closure",
+        "transition",
+        "identity_shift",
+        "home_mode"
+      ],
+      "tool_family": "transition_signal",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "WD-35",
+      "pack_id": "wind_down_pack",
+      "title": "Temperature Shift",
+      "do": "Wash your hands, face, or feet in cool or warm water to tell your body the pace is changing.",
+      "why": "This is a sensory reset, distinct from breathing or journaling. It uses the body to signal that the tempo has changed.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "wired",
+        "carrying_work",
+        "drained"
+      ],
+      "best_for_situation": [
+        "alone",
+        "partner_nearby",
+        "kids_around"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 3,
+      "tags": [
+        "temperature",
+        "sensory",
+        "downshift",
+        "transition"
+      ],
+      "tool_family": "sensory_grounding",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "WD-36",
+      "pack_id": "wind_down_pack",
+      "title": "Last Word of the Day",
+      "do": "Write one sentence that names what today was, then do not explain it further.",
+      "why": "This is symbolic closure, not list-making. One clean line gives the day a shape without reopening it.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "carrying_work",
+        "wired",
+        "drained"
+      ],
+      "best_for_situation": [
+        "alone"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 2,
+      "tags": [
+        "closure",
+        "symbolic",
+        "transition",
+        "write"
+      ],
+      "tool_family": "transition_signal",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "medium",
+      "energy_demand": "very_low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "WD-37",
+      "pack_id": "wind_down_pack",
+      "title": "Borrowed Quiet",
+      "do": "Sit near someone calm, or beside a quiet object or place, and let your body copy the pace.",
+      "why": "This is co-regulation or environmental regulation. You are borrowing steadiness instead of trying to manufacture it from scratch.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "wired",
+        "drained",
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "alone",
+        "partner_nearby",
+        "kids_around"
+      ],
+      "time_min_minutes": 2,
+      "time_max_minutes": 5,
+      "tags": [
+        "quiet_presence",
+        "co_regulation",
+        "environment",
+        "pace"
+      ],
+      "tool_family": "quiet_presence",
+      "depth": "standard",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "WD-38",
+      "pack_id": "wind_down_pack",
+      "title": "No More Processing",
+      "do": "For the next ten minutes, you are allowed to settle, not solve.",
+      "why": "This gives anti-processing permission to a wired mind. Settling is allowed even when the problem is still unsolved.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "wired",
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "alone",
+        "partner_nearby"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "permission",
+        "containment",
+        "stop_processing",
+        "low_words"
+      ],
+      "tool_family": "anti_processing",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "WD-39",
+      "pack_id": "wind_down_pack",
+      "title": "Side-by-Side Silence",
+      "do": "Sit beside them for two minutes without starting a conversation. Let the quiet do the work.",
+      "why": "This makes closeness available without asking your tired system to perform. Quiet can reconnect the room before words do.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "drained"
+      ],
+      "best_for_situation": [
+        "partner_nearby"
+      ],
+      "time_min_minutes": 2,
+      "time_max_minutes": 3,
+      "tags": [
+        "quiet_presence",
+        "side_by_side",
+        "low_words",
+        "re_entry"
+      ],
+      "tool_family": "quiet_presence",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "WD-40",
+      "pack_id": "wind_down_pack",
+      "title": "Borrow Their Calm",
+      "do": "Move closer to the calmest part of the room, or the calmest person in it, and let your body follow that pace.",
+      "why": "This uses co-regulation instead of effort. When you are drained or overloaded, borrowed steadiness is often more realistic than self-generated calm.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "drained",
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "partner_nearby"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 3,
+      "tags": [
+        "co_regulation",
+        "quiet_presence",
+        "pace",
+        "re_entry"
+      ],
+      "tool_family": "co_regulation",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "WD-41",
+      "pack_id": "wind_down_pack",
+      "title": "No Talking Yet",
+      "do": "Say, \"I'm tired. Can we just be quiet for two minutes first?\"",
+      "why": "This protects the bond before fatigue turns into distance. A short line now prevents the quiet from being misread later.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "drained"
+      ],
+      "best_for_situation": [
+        "partner_nearby"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "boundary",
+        "low_words",
+        "name_state",
+        "misread_prevent"
+      ],
+      "tool_family": "boundary_signal",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "WD-42",
+      "pack_id": "wind_down_pack",
+      "title": "Rest Near, Not Away",
+      "do": "Stay in the same space, but stop trying to be socially \"on.\" Just let your body land.",
+      "why": "This is low-demand togetherness. You stay connected to the room without forcing yourself into a version of you that is not available right now.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "drained"
+      ],
+      "best_for_situation": [
+        "partner_nearby"
+      ],
+      "time_min_minutes": 2,
+      "time_max_minutes": 3,
+      "tags": [
+        "quiet_presence",
+        "low_words",
+        "re_entry",
+        "regulate"
+      ],
+      "tool_family": "warm_withdrawal",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "WD-43",
+      "pack_id": "wind_down_pack",
+      "title": "Water Break Together",
+      "do": "Get a glass of water for yourself and them. Stand or sit nearby while you drink it slowly.",
+      "why": "This adds a tiny shared ritual without making conversation the task. The water gives your body something simple to do while you come down.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "drained",
+        "carrying_work"
+      ],
+      "best_for_situation": [
+        "partner_nearby"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 3,
+      "tags": [
+        "shared_ritual",
+        "micro_connection",
+        "re_entry",
+        "downshift"
+      ],
+      "tool_family": "shared_ritual",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "WD-44",
+      "pack_id": "wind_down_pack",
+      "title": "Lower the Room",
+      "do": "Dim one light, lower one sound, or turn one thing off before trying to talk or connect.",
+      "why": "Reducing one input can drop the pressure faster than trying to talk through it. Change the room first, then ask your nervous system to follow.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "drained",
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "partner_nearby"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 2,
+      "tags": [
+        "environment",
+        "downshift",
+        "re_entry",
+        "fast"
+      ],
+      "tool_family": "environment_reset",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "WD-45",
+      "pack_id": "wind_down_pack",
+      "title": "Shoulder Drop Check",
+      "do": "Sit down, exhale once, and physically drop your shoulders before you answer anything else.",
+      "why": "A physical release is often more available than a mental reset when you are tired. One exhale and one shoulder drop can lower the next interaction cost.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "drained",
+        "wired"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "alone"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "somatic",
+        "body_carry",
+        "fast",
+        "re_entry"
+      ],
+      "tool_family": "body_release",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "WD-46",
+      "pack_id": "wind_down_pack",
+      "title": "Ten-Word Update",
+      "do": "Give a 10-word version of where you are: \"I'm tired, not distant. I just need to land first.\"",
+      "why": "This is a tiny clarification, not a full conversation. It protects against the tired-distance misread without asking you to explain everything.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "drained"
+      ],
+      "best_for_situation": [
+        "partner_nearby"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "name_state",
+        "misread_prevent",
+        "low_words",
+        "re_entry"
+      ],
+      "tool_family": "naming_repair",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "BH-37",
+      "pack_id": "be_here_pack",
+      "title": "Narrate the Moment",
+      "do": "Name out loud what is happening right now instead of what is wrong.",
+      "why": "This grounds people through shared reality. It replaces private overwhelm with a simple picture of the moment you are actually in.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "carrying_work",
+        "drained",
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "kids_around"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 3,
+      "tags": [
+        "shared_reality",
+        "presence",
+        "name_state",
+        "kids"
+      ],
+      "tool_family": "shared_presence",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 3,
+      "selector_priority": "medium",
+      "energy_demand": "low",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "BH-38",
+      "pack_id": "be_here_pack",
+      "title": "Follow Their Lead",
+      "do": "For two minutes, do not introduce a topic. Join the one already in front of you.",
+      "why": "This is responsive presence, especially with kids. You are lowering the bar for connection by joining instead of steering.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "drained",
+        "carrying_work",
+        "steady"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "kids_around"
+      ],
+      "time_min_minutes": 2,
+      "time_max_minutes": 3,
+      "tags": [
+        "responsive",
+        "presence",
+        "kids",
+        "low_bar"
+      ],
+      "tool_family": "micro_connection",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "BH-39",
+      "pack_id": "be_here_pack",
+      "title": "Hands First",
+      "do": "Before words, do one physical act that makes presence easier: sit down, put the phone away, turn toward them, hand something over, make space.",
+      "why": "This is behavioral presence, not verbal presence. The body can arrive before the conversation does.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "drained",
+        "overloaded",
+        "carrying_work"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 2,
+      "tags": [
+        "nonverbal",
+        "physical_presence",
+        "re_entry",
+        "ease"
+      ],
+      "tool_family": "quiet_presence",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "BH-40",
+      "pack_id": "be_here_pack",
+      "title": "Stay in the Room",
+      "do": "Do not optimise, fix, or redirect yet. Just remain there long enough for your nervous system to catch up.",
+      "why": "This is anti-escape presence. Staying long enough matters more than saying something clever.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "drained",
+        "carrying_work"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "kids_around"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 5,
+      "tags": [
+        "quiet_presence",
+        "low_words",
+        "anti_escape",
+        "re_entry"
+      ],
+      "tool_family": "quiet_presence",
+      "depth": "standard",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "CB-37",
+      "pack_id": "come_back_pack",
+      "title": "Repair the Guess",
+      "do": "Say what they may have assumed from your behavior, then correct it gently.",
+      "why": "This repairs the misread without reopening the whole history. It is especially useful after withdrawal or distance.",
+      "need": [
+        "come_back"
+      ],
+      "best_for_state": [
+        "drained",
+        "steady",
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "long_distance"
+      ],
+      "time_min_minutes": 2,
+      "time_max_minutes": 5,
+      "tags": [
+        "repair",
+        "misread_prevent",
+        "correction",
+        "soft_start"
+      ],
+      "tool_family": "misread_repair",
+      "depth": "standard",
+      "emotional_difficulty": 2,
+      "social_friction": 3,
+      "selector_priority": "medium",
+      "energy_demand": "medium",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "CB-38",
+      "pack_id": "come_back_pack",
+      "title": "Name the Break, Not the Whole Story",
+      "do": "Only name what went off. Do not explain the whole history.",
+      "why": "This contains the repair scope. You are naming the break without turning the moment into a full case file.",
+      "need": [
+        "come_back"
+      ],
+      "best_for_state": [
+        "drained",
+        "overloaded",
+        "steady"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "kids_around",
+        "long_distance"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 3,
+      "tags": [
+        "repair",
+        "containment",
+        "low_words",
+        "name_state"
+      ],
+      "tool_family": "naming_repair",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 3,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "CB-39",
+      "pack_id": "come_back_pack",
+      "title": "Late Repair",
+      "do": "If the moment is too tired to fix, say when you will come back and what tone you want to come back with.",
+      "why": "This is low-capacity repair containment. It keeps care visible without forcing a full conversation at the wrong hour.",
+      "need": [
+        "come_back"
+      ],
+      "best_for_state": [
+        "drained",
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "long_distance"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "repair",
+        "return_time",
+        "pause",
+        "containment"
+      ],
+      "tool_family": "return_time",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "CB-40",
+      "pack_id": "come_back_pack",
+      "title": "Repair Without Eye Contact",
+      "do": "Repair side by side while walking, folding, cleaning, or driving if face to face feels too intense.",
+      "why": "Changing the social geometry makes repair more realistic for tired or overloaded moments.",
+      "need": [
+        "come_back"
+      ],
+      "best_for_state": [
+        "drained",
+        "overloaded",
+        "steady"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "kids_around"
+      ],
+      "time_min_minutes": 2,
+      "time_max_minutes": 10,
+      "tags": [
+        "repair",
+        "side_by_side",
+        "low_words",
+        "normality"
+      ],
+      "tool_family": "side_by_side_repair",
+      "depth": "standard",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "SS-29",
+      "pack_id": "settle_the_spiral_pack",
+      "title": "Evidence Audit",
+      "do": "What do you actually know, and what did your mind add?",
+      "why": "This is cognitive sorting, not generic calming. It separates facts from the story that attached itself to them.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "wired",
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "alone",
+        "long_distance"
+      ],
+      "time_min_minutes": 3,
+      "time_max_minutes": 5,
+      "tags": [
+        "evidence",
+        "reframe",
+        "story_check",
+        "certainty"
+      ],
+      "tool_family": "story_check",
+      "depth": "standard",
+      "emotional_difficulty": 2,
+      "social_friction": 1,
+      "selector_priority": "medium",
+      "energy_demand": "medium",
+      "social_demand": "solo"
+    },
+    {
+      "id": "SS-30",
+      "pack_id": "settle_the_spiral_pack",
+      "title": "Future Scene Cut",
+      "do": "Stop the imagined scene before it finishes. You are not required to watch the whole movie.",
+      "why": "This is imagery interruption. The mind does not need to run the scene to the end for it to count as a thought.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "wired",
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "alone"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 2,
+      "tags": [
+        "interrupt",
+        "imagery",
+        "defusion",
+        "fast"
+      ],
+      "tool_family": "anxious_pause",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "SS-31",
+      "pack_id": "settle_the_spiral_pack",
+      "title": "Ask a Smaller Question",
+      "do": "Replace the impossible question with one your mind can answer tonight.",
+      "why": "This is scale reduction. A smaller question gives the mind somewhere real to stand instead of letting it roam.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "wired",
+        "drained",
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "alone",
+        "long_distance"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 3,
+      "tags": [
+        "scale_down",
+        "question",
+        "containment",
+        "reframe"
+      ],
+      "tool_family": "question_shift",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "SS-32",
+      "pack_id": "settle_the_spiral_pack",
+      "title": "Second Thought Ban",
+      "do": "You get the first thought. You do not have to build the second, third, and fourth.",
+      "why": "This is a loop interruption rule. The first thought can arrive without permission, but the rest are optional labor.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "wired",
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "alone",
+        "partner_nearby"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "interrupt",
+        "micro_rule",
+        "defusion",
+        "spiral"
+      ],
+      "tool_family": "anxious_pause",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "SN-35",
+      "pack_id": "space_not_distance_pack",
+      "title": "Visible Exit",
+      "do": "Leave in a way that can be seen and understood, not interpreted.",
+      "why": "This is exit choreography. A visible exit creates less damage than disappearing into unreadable space.",
+      "need": [
+        "come_back"
+      ],
+      "best_for_state": [
+        "overloaded",
+        "drained"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 2,
+      "tags": [
+        "boundary",
+        "visible_exit",
+        "return_time",
+        "repair"
+      ],
+      "tool_family": "exit_choreography",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 3,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "SN-36",
+      "pack_id": "space_not_distance_pack",
+      "title": "Do Not Disappear Digitally",
+      "do": "If you need space, leave one visible line before you go quiet.",
+      "why": "This is highly relevant for modern withdrawal. One line can keep distance from turning into alarm.",
+      "need": [
+        "come_back"
+      ],
+      "best_for_state": [
+        "overloaded",
+        "wired",
+        "drained"
+      ],
+      "best_for_situation": [
+        "long_distance",
+        "partner_nearby"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "text_safe",
+        "signal",
+        "visible",
+        "return_time"
+      ],
+      "tool_family": "distance_signal",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "SN-37",
+      "pack_id": "space_not_distance_pack",
+      "title": "Short Distance",
+      "do": "Take less space than you want first. See if that is enough.",
+      "why": "This helps prevent avoidant escalation. Sometimes a smaller step buys the same relief without creating the same rupture.",
+      "need": [
+        "wind_down",
+        "come_back"
+      ],
+      "best_for_state": [
+        "overloaded",
+        "drained"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "long_distance"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 3,
+      "tags": [
+        "boundary",
+        "enough_space",
+        "partial_space",
+        "regulate"
+      ],
+      "tool_family": "warm_withdrawal",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "medium",
+      "energy_demand": "low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "SN-38",
+      "pack_id": "space_not_distance_pack",
+      "title": "Return Window",
+      "do": "Set a return window that is real enough to trust and short enough to hold.",
+      "why": "This gives space temporal structure. The promise becomes believable because it is specific and small enough to keep.",
+      "need": [
+        "come_back"
+      ],
+      "best_for_state": [
+        "overloaded",
+        "drained"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "long_distance"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "return_time",
+        "trust",
+        "containment",
+        "repair"
+      ],
+      "tool_family": "return_time",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "SH-08",
+      "pack_id": "sharp_pack",
+      "title": "Catch Yourself Saying Later",
+      "do": "If you are about to postpone something that would take under five minutes, do it while the window is open.",
+      "why": "This is an immediate anti-delay tool. It turns a clear moment into action before hesitation grows back.",
+      "need": [
+        "regain_clarity"
+      ],
+      "best_for_state": [
+        "clear_light",
+        "steady"
+      ],
+      "best_for_situation": [
+        "alone",
+        "partner_nearby"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 5,
+      "tags": [
+        "momentum",
+        "starter",
+        "anti_delay",
+        "fast"
+      ],
+      "tool_family": "starter",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "SH-09",
+      "pack_id": "sharp_pack",
+      "title": "Use the Clear Yes",
+      "do": "If something feels like an honest yes right now, lock it in before hesitation returns.",
+      "why": "This is yes-energy capture. The job is not to over-explain the clarity. The job is to use it.",
+      "need": [
+        "regain_clarity"
+      ],
+      "best_for_state": [
+        "clear_light",
+        "steady"
+      ],
+      "best_for_situation": [
+        "alone",
+        "partner_nearby",
+        "long_distance"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 2,
+      "tags": [
+        "confidence",
+        "yes_energy",
+        "decision",
+        "momentum"
+      ],
+      "tool_family": "decision_capture",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "SH-10",
+      "pack_id": "sharp_pack",
+      "title": "Move Before Meaning",
+      "do": "Take the physical first step before your brain starts negotiating.",
+      "why": "This is action before interpretation. The body can begin before the mind turns the moment into a debate.",
+      "need": [
+        "regain_clarity"
+      ],
+      "best_for_state": [
+        "clear_light"
+      ],
+      "best_for_situation": [
+        "alone"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 3,
+      "tags": [
+        "momentum",
+        "starter",
+        "action_first",
+        "anti_analysis"
+      ],
+      "tool_family": "starter",
+      "depth": "micro",
+      "emotional_difficulty": 2,
+      "social_friction": 1,
+      "selector_priority": "medium",
+      "energy_demand": "medium",
+      "social_demand": "solo"
+    },
+    {
+      "id": "WA-15",
+      "pack_id": "warm_pack",
+      "title": "Private Joke Revival",
+      "do": "Bring back one small shared language only the two of you or your family would recognise.",
+      "why": "This builds intimacy through familiarity. Shared language can warm the moment without turning it into a big performance.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "clear_light",
+        "steady"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "kids_around",
+        "long_distance"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 2,
+      "tags": [
+        "warmth",
+        "shared_language",
+        "play",
+        "connection_deposit"
+      ],
+      "tool_family": "private_ritual",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "WA-16",
+      "pack_id": "warm_pack",
+      "title": "Soft Touchpoint",
+      "do": "Create one small touchpoint you do not need to build on.",
+      "why": "This is low-pressure contact. The point is a warm signal, not a bigger interaction.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "clear_light",
+        "steady"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "long_distance",
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "warmth",
+        "touchpoint",
+        "low_pressure",
+        "connection_deposit"
+      ],
+      "tool_family": "micro_connection",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "WA-17",
+      "pack_id": "warm_pack",
+      "title": "Repeat the Good Thing",
+      "do": "If something felt warm once this week, repeat it on purpose.",
+      "why": "This creates closeness by repetition instead of novelty. Warmth becomes more trustworthy when it is repeatable.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "clear_light",
+        "steady"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "kids_around",
+        "long_distance"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 5,
+      "tags": [
+        "repeatability",
+        "warmth",
+        "pattern_lock",
+        "connection_deposit"
+      ],
+      "tool_family": "shared_ritual",
+      "depth": "standard",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "EX-21",
+      "pack_id": "expansive_pack",
+      "title": "Choose the Thing With Emotional Weight",
+      "do": "Do the small thing that will matter disproportionately once it is done.",
+      "why": "This is emotional ROI. The best use of a good hour is not always the biggest task. It is the one with the most felt weight.",
+      "need": [
+        "regain_clarity"
+      ],
+      "best_for_state": [
+        "clear_light",
+        "steady"
+      ],
+      "best_for_situation": [
+        "alone"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 5,
+      "tags": [
+        "choose_well",
+        "emotional_roi",
+        "meaning",
+        "momentum"
+      ],
+      "tool_family": "choose_well",
+      "depth": "standard",
+      "emotional_difficulty": 2,
+      "social_friction": 1,
+      "selector_priority": "medium",
+      "energy_demand": "medium",
+      "social_demand": "solo"
+    },
+    {
+      "id": "EX-22",
+      "pack_id": "expansive_pack",
+      "title": "Make a Memory, Not a Dent",
+      "do": "Use the energy on something you will remember, not just something you can tick off.",
+      "why": "This chooses meaning over admin. A good stretch of energy can become a memory instead of just another dent in the list.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "clear_light"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "kids_around",
+        "long_distance",
+        "alone"
+      ],
+      "time_min_minutes": 2,
+      "time_max_minutes": 10,
+      "tags": [
+        "meaning",
+        "memory",
+        "choose_well",
+        "connection_deposit"
+      ],
+      "tool_family": "meaningful_choice",
+      "depth": "standard",
+      "emotional_difficulty": 2,
+      "social_friction": 2,
+      "selector_priority": "medium",
+      "energy_demand": "medium",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "EX-23",
+      "pack_id": "expansive_pack",
+      "title": "Spend the Good Hour Well",
+      "do": "Choose deliberately between progress, connection, rest, or joy. Do not drift into default.",
+      "why": "This is deliberate allocation. A good hour is easy to waste when you let habit choose for you.",
+      "need": [
+        "regain_clarity"
+      ],
+      "best_for_state": [
+        "clear_light",
+        "steady"
+      ],
+      "best_for_situation": [
+        "alone",
+        "partner_nearby"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 3,
+      "tags": [
+        "choose_well",
+        "protect_state",
+        "deliberate_use",
+        "priority"
+      ],
+      "tool_family": "choose_well",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "EX-24",
+      "pack_id": "expansive_pack",
+      "title": "Use It Before It Turns Into Admin",
+      "do": "Do the thing while it still feels alive, before it becomes another obligation.",
+      "why": "This preserves meaning. Some good ideas die because they sit long enough to become chores.",
+      "need": [
+        "regain_clarity"
+      ],
+      "best_for_state": [
+        "clear_light"
+      ],
+      "best_for_situation": [
+        "alone",
+        "partner_nearby",
+        "long_distance"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 5,
+      "tags": [
+        "momentum",
+        "meaning",
+        "anti_admin",
+        "protect_meaning"
+      ],
+      "tool_family": "starter",
+      "depth": "standard",
+      "emotional_difficulty": 2,
+      "social_friction": 1,
+      "selector_priority": "medium",
+      "energy_demand": "medium",
+      "social_demand": "solo"
+    },
+    {
+      "id": "ML-09",
+      "pack_id": "maintain_light_pack",
+      "title": "Do Not Invite a Problem In",
+      "do": "Notice the one thing most likely to tip the state and leave it outside the next hour.",
+      "why": "This is a prevention lens. A good state is easier to protect than to rebuild.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "clear_light",
+        "steady"
+      ],
+      "best_for_situation": [
+        "alone",
+        "partner_nearby",
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 2,
+      "tags": [
+        "protect_state",
+        "boundary_preempt",
+        "threshold",
+        "prevent_trigger"
+      ],
+      "tool_family": "boundary_signal",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "ML-10",
+      "pack_id": "maintain_light_pack",
+      "title": "Stop While It Still Feels Good",
+      "do": "End the activity, conversation, or plan before your body tells you too late.",
+      "why": "This is threshold awareness. Ending on time protects the state better than trying to recover it afterward.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "steady",
+        "clear_light"
+      ],
+      "best_for_situation": [
+        "alone",
+        "partner_nearby",
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 2,
+      "tags": [
+        "threshold",
+        "protect_state",
+        "body_signal",
+        "stop_early"
+      ],
+      "tool_family": "threshold_guard",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "ML-11",
+      "pack_id": "maintain_light_pack",
+      "title": "Keep One Thing Unchanged",
+      "do": "When the day is shifting, keep one steady anchor exactly as it is.",
+      "why": "This creates a continuity anchor. One unchanged thing can keep the rest of the day from sliding too far.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "steady",
+        "clear_light"
+      ],
+      "best_for_situation": [
+        "alone",
+        "partner_nearby",
+        "kids_around"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 3,
+      "tags": [
+        "continuity",
+        "repeatability",
+        "anchor",
+        "protect_state"
+      ],
+      "tool_family": "shared_ritual",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "ML-12",
+      "pack_id": "maintain_light_pack",
+      "title": "Protect the Landing",
+      "do": "If the day has gone well, do not hand the final stretch to noise, scrolling, or friction.",
+      "why": "This is end-of-day state protection. The last stretch of the day decides what tone you carry into the next one.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "clear_light",
+        "steady"
+      ],
+      "best_for_situation": [
+        "alone",
+        "partner_nearby"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 3,
+      "tags": [
+        "protect_state",
+        "transition",
+        "landing",
+        "boundary_preempt"
+      ],
+      "tool_family": "transition_signal",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "WD-47",
+      "pack_id": "wind_down_pack",
+      "title": "Shoulder to Shoulder",
+      "do": "Sit or stand side-by-side instead of face-to-face for a minute.",
+      "why": "Changing the social angle lowers the pressure fast. Side-by-side contact can feel safer than direct attention when your battery is low.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "drained"
+      ],
+      "best_for_situation": [
+        "partner_nearby"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 2,
+      "tags": [
+        "quiet_presence",
+        "side_by_side",
+        "low_words",
+        "re_entry"
+      ],
+      "tool_family": "quiet_presence",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "WD-48",
+      "pack_id": "wind_down_pack",
+      "title": "Touch the Room, Then the Child",
+      "do": "Straighten one thing, soften one thing, then turn toward them.",
+      "why": "A small room reset helps your body arrive before your parenting voice does. You are lowering the room first so your next contact lands softer.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "drained",
+        "carrying_work"
+      ],
+      "best_for_situation": [
+        "kids_around"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 3,
+      "tags": [
+        "kids",
+        "environment",
+        "re_entry",
+        "low_words"
+      ],
+      "tool_family": "environment_reset",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "WD-49",
+      "pack_id": "wind_down_pack",
+      "title": "Match a Slower Pace",
+      "do": "Walk, move, or answer 20 percent slower than your body wants to.",
+      "why": "This uses pace as regulation. Slowing the outside edge of you gives your nervous system a speed it can actually follow.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "wired"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "kids_around"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 3,
+      "tags": [
+        "pace",
+        "downshift",
+        "kids",
+        "re_entry"
+      ],
+      "tool_family": "transition_signal",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "BH-41",
+      "pack_id": "be_here_pack",
+      "title": "Low Battery Line",
+      "do": "Say: \"I'm low, not far. I just need to land.\"",
+      "why": "This keeps tiredness from getting translated into distance. One clean line can protect closeness without creating a bigger conversation.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "drained"
+      ],
+      "best_for_situation": [
+        "partner_nearby"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "name_state",
+        "misread_prevent",
+        "low_words",
+        "re_entry"
+      ],
+      "tool_family": "shared_presence",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "BH-42",
+      "pack_id": "be_here_pack",
+      "title": "Warm Hand Check",
+      "do": "If it fits your relationship, hold a hand for one full breath in and out.",
+      "why": "A single welcomed touch can say 'I'm here' without asking you to come up with anything verbal. The point is contact, not escalation.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "drained"
+      ],
+      "best_for_situation": [
+        "partner_nearby"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "touch_if_welcome",
+        "warmth",
+        "micro_connection",
+        "nonverbal"
+      ],
+      "tool_family": "micro_connection",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "BH-43",
+      "pack_id": "be_here_pack",
+      "title": "Kneel to Their Level",
+      "do": "Lower your body before you answer or redirect.",
+      "why": "Dropping to their level changes the whole tone of the moment. It helps your attention arrive before your instruction does.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "drained"
+      ],
+      "best_for_situation": [
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "kids",
+        "nonverbal",
+        "quiet_presence",
+        "re_entry"
+      ],
+      "tool_family": "quiet_presence",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "BH-44",
+      "pack_id": "be_here_pack",
+      "title": "One Full Minute of Attention",
+      "do": "Give one child one uninterrupted minute with your full face and attention.",
+      "why": "A single clean minute can land bigger than ten scattered ones. The felt difference is the lack of divided attention.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "drained"
+      ],
+      "best_for_situation": [
+        "kids_around"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 2,
+      "tags": [
+        "kids",
+        "presence",
+        "micro_connection",
+        "low_bar"
+      ],
+      "tool_family": "micro_connection",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "BH-45",
+      "pack_id": "be_here_pack",
+      "title": "Story Voice",
+      "do": "Answer in a softer, slower tone than your default.",
+      "why": "A softer tone can do the regulating before the content even lands. This is often the fastest way to make the moment feel safer for everyone.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "drained"
+      ],
+      "best_for_situation": [
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 2,
+      "tags": [
+        "kids",
+        "tone",
+        "low_words",
+        "quiet_presence"
+      ],
+      "tool_family": "quiet_presence",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "BH-46",
+      "pack_id": "be_here_pack",
+      "title": "Landing Sentence",
+      "do": "Say: \"Part of me is still at work. I'm coming back.\"",
+      "why": "This makes the transition visible without dumping the day onto them. It tells the truth while keeping the room warm.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "carrying_work"
+      ],
+      "best_for_situation": [
+        "partner_nearby"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "name_state",
+        "re_entry",
+        "home_mode",
+        "low_words"
+      ],
+      "tool_family": "shared_presence",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "BH-47",
+      "pack_id": "be_here_pack",
+      "title": "Home Signal",
+      "do": "Do one visible thing that says you are home now.",
+      "why": "Presence often becomes real through something visible first. A simple home cue can help your people feel your arrival before you say much.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "carrying_work"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "kids_around"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 3,
+      "tags": [
+        "re_entry",
+        "home_mode",
+        "kids",
+        "nonverbal"
+      ],
+      "tool_family": "transition_signal",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "CH-41",
+      "pack_id": "clear_head_pack",
+      "title": "Put One Work Thing Down Physically",
+      "do": "Take off the badge, close the laptop, move the bag, then turn toward them.",
+      "why": "A physical shutdown cue helps the work part of your brain stop arguing that it is still on duty. It is a visible handoff, not just a thought.",
+      "need": [
+        "regain_clarity"
+      ],
+      "best_for_state": [
+        "carrying_work"
+      ],
+      "best_for_situation": [
+        "partner_nearby"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 2,
+      "tags": [
+        "closure",
+        "home_mode",
+        "re_entry",
+        "visible_reset"
+      ],
+      "tool_family": "next_step_closure",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "CH-42",
+      "pack_id": "clear_head_pack",
+      "title": "One Honest Update, No Download",
+      "do": "Give one sentence about your state, not the whole day.",
+      "why": "This is selective clarity, not a full debrief. It gets the truth into the room without making your partner carry the whole mental backlog.",
+      "need": [
+        "regain_clarity"
+      ],
+      "best_for_state": [
+        "carrying_work"
+      ],
+      "best_for_situation": [
+        "partner_nearby"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "offload",
+        "name_state",
+        "low_words",
+        "re_entry"
+      ],
+      "tool_family": "offload",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "SN-39",
+      "pack_id": "space_not_distance_pack",
+      "title": "No Big Topic Yet",
+      "do": "Say: \"Give me two calmer minutes before we talk properly.\"",
+      "why": "This buys a little regulation without making the bond disappear. It turns delay into something visible and kind instead of abrupt.",
+      "need": [
+        "come_back"
+      ],
+      "best_for_state": [
+        "wired"
+      ],
+      "best_for_situation": [
+        "partner_nearby"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "boundary",
+        "return_time",
+        "low_words",
+        "misread_prevent"
+      ],
+      "tool_family": "boundary_signal",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "SN-40",
+      "pack_id": "space_not_distance_pack",
+      "title": "Pause the Evening, Not the Bond",
+      "do": "Ask for ten quiet minutes without disappearing emotionally.",
+      "why": "This puts structure around space so it does not feel like withdrawal. The bond stays named even while you ask the evening to slow down.",
+      "need": [
+        "come_back"
+      ],
+      "best_for_state": [
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "partner_nearby"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "boundary",
+        "return_time",
+        "repair",
+        "misread_prevent"
+      ],
+      "tool_family": "return_time",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "ML-13",
+      "pack_id": "maintain_light_pack",
+      "title": "Softer Voice First",
+      "do": "Lower your voice before you say the next thing.",
+      "why": "A softer voice keeps stress from spreading across the room. It protects the moment before it turns into a tone problem.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "drained",
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "kids",
+        "protect_state",
+        "tone",
+        "threshold"
+      ],
+      "tool_family": "threshold_guard",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "ML-14",
+      "pack_id": "maintain_light_pack",
+      "title": "Smaller Contact",
+      "do": "Stay connected in the smallest possible way for one minute.",
+      "why": "When contact feels expensive, smaller contact keeps the bridge intact. The goal is not intensity. It is continuity.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "overloaded",
+        "drained"
+      ],
+      "best_for_situation": [
+        "partner_nearby"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 2,
+      "tags": [
+        "micro_connection",
+        "re_entry",
+        "protect_state",
+        "low_bar"
+      ],
+      "tool_family": "micro_connection",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "ML-15",
+      "pack_id": "maintain_light_pack",
+      "title": "Keep the Good Moment Open",
+      "do": "Do not rush to the next task when the room feels good. Stay one beat longer.",
+      "why": "Protecting a good moment often means not interrupting it too early. One extra beat lets the warmth register instead of getting clipped.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "clear_light",
+        "steady"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "kids_around"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 3,
+      "tags": [
+        "protect_state",
+        "warmth",
+        "repeatability",
+        "connection_deposit"
+      ],
+      "tool_family": "shared_ritual",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "WA-18",
+      "pack_id": "warm_pack",
+      "title": "One Soft Sentence",
+      "do": "Say one kind sentence and stop there.",
+      "why": "A single warm line can change the feel of the room without turning the moment into a whole production. Small warmth is still warmth.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "drained",
+        "steady"
+      ],
+      "best_for_situation": [
+        "partner_nearby"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "warmth",
+        "low_words",
+        "connection_deposit",
+        "re_entry"
+      ],
+      "tool_family": "appreciation",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "WA-19",
+      "pack_id": "warm_pack",
+      "title": "Say What Feels Good",
+      "do": "Say one thing out loud that feels good about this moment.",
+      "why": "Naming the good thing helps the room keep it. It turns a passing feeling into something shared and real.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "clear_light",
+        "steady"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "warmth",
+        "connection_deposit",
+        "name_state",
+        "good_moment"
+      ],
+      "tool_family": "appreciation",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "WA-20",
+      "pack_id": "warm_pack",
+      "title": "Hype Them a Little",
+      "do": "Say one specific thing they did well today.",
+      "why": "Specific praise lands warmer than general positivity. It makes the person feel seen, not just liked.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "clear_light",
+        "steady"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "kids_around",
+        "long_distance"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "warmth",
+        "specificity",
+        "connection_deposit",
+        "praise"
+      ],
+      "tool_family": "appreciation",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "WA-21",
+      "pack_id": "warm_pack",
+      "title": "Good Energy Forward",
+      "do": "Use the good mood to make one person feel more seen.",
+      "why": "Good energy gets stronger when it turns outward. This takes a clear moment and turns it into warmth someone else can actually feel.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "clear_light"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "kids_around",
+        "long_distance"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 3,
+      "tags": [
+        "warmth",
+        "connection_deposit",
+        "momentum",
+        "seen"
+      ],
+      "tool_family": "appreciation",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "WA-22",
+      "pack_id": "warm_pack",
+      "title": "Catch the Laugh",
+      "do": "If the laugh is there, stay with it instead of moving on too fast.",
+      "why": "A laugh can be a doorway to closeness if you do not rush past it. Staying with it for one beat longer makes the warmth more usable.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "clear_light",
+        "steady"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 2,
+      "tags": [
+        "play",
+        "warmth",
+        "connection_deposit",
+        "good_moment"
+      ],
+      "tool_family": "micro_connection",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "WA-23",
+      "pack_id": "warm_pack",
+      "title": "Keep the Win Visible",
+      "do": "Name one thing this person brings into your life that you do not want to take for granted.",
+      "why": "This makes appreciation more durable than a passing compliment. You are naming value, not just a pleasant detail.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "clear_light"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "long_distance"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "warmth",
+        "gratitude",
+        "specificity",
+        "connection_deposit"
+      ],
+      "tool_family": "appreciation",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "EX-25",
+      "pack_id": "expansive_pack",
+      "title": "Tiny Celebration",
+      "do": "Mark something small that went right today.",
+      "why": "A small win becomes more real when it is marked on purpose. Tiny celebration keeps good energy from passing through unnoticed.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "clear_light"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "kids_around",
+        "long_distance"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 3,
+      "tags": [
+        "meaning",
+        "celebration",
+        "connection_deposit",
+        "choose_well"
+      ],
+      "tool_family": "shared_ritual",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "EX-26",
+      "pack_id": "expansive_pack",
+      "title": "Make Home Feel Lit Up",
+      "do": "Change one thing that makes the room feel warmer or more alive.",
+      "why": "Good energy becomes more shareable when you let it touch the environment. One small shift can make the whole room feel more welcoming.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "clear_light"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "kids_around"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 3,
+      "tags": [
+        "meaning",
+        "environment",
+        "warmth",
+        "choose_well"
+      ],
+      "tool_family": "meaningful_choice",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "SH-11",
+      "pack_id": "sharp_pack",
+      "title": "Let Them Feel Your Yes",
+      "do": "When you genuinely want to do something together, say yes warmly instead of neutrally.",
+      "why": "Clear energy gets diluted when it comes out flat. A warm yes lets the other person actually feel the openness that is there.",
+      "need": [
+        "be_here"
+      ],
+      "best_for_state": [
+        "clear_light",
+        "steady"
+      ],
+      "best_for_situation": [
+        "partner_nearby",
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "yes_energy",
+        "warmth",
+        "momentum",
+        "connection_deposit"
+      ],
+      "tool_family": "decision_capture",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "WD-50",
+      "pack_id": "wind_down_pack",
+      "title": "Lower the Volume",
+      "do": "Turn one sound down before you say the next thing.",
+      "why": "Reducing one input can settle the room faster than adding more words. When you are overloaded, less sound is sometimes the cleanest first move.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "kids",
+        "environment",
+        "fast",
+        "reduce_input"
+      ],
+      "tool_family": "environment_reset",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "ML-16",
+      "pack_id": "maintain_light_pack",
+      "title": "Softer Face First",
+      "do": "Relax your forehead, jaw, and eyes before you respond.",
+      "why": "Your face often speaks before your words do. Softening it first lowers the chance that overload lands on them as threat.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "overloaded",
+        "drained"
+      ],
+      "best_for_situation": [
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "kids",
+        "somatic",
+        "protect_state",
+        "tone"
+      ],
+      "tool_family": "threshold_guard",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "ML-17",
+      "pack_id": "maintain_light_pack",
+      "title": "Fewer Words",
+      "do": "Use half the words you were about to use.",
+      "why": "When you are overloaded, extra language often adds pressure instead of clarity. Shorter can stay kinder and land better.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "kids",
+        "low_words",
+        "protect_state",
+        "brevity"
+      ],
+      "tool_family": "threshold_guard",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "WD-51",
+      "pack_id": "wind_down_pack",
+      "title": "Sit Before You Speak",
+      "do": "Sit down first, then answer.",
+      "why": "Sitting changes the pace of your nervous system before the interaction begins. It makes the next response less likely to come out sharp.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "kids",
+        "somatic",
+        "fast",
+        "re_entry"
+      ],
+      "tool_family": "body_release",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "ML-18",
+      "pack_id": "maintain_light_pack",
+      "title": "One Calm Instruction",
+      "do": "Give only one next instruction, not three.",
+      "why": "Overload tends to stack commands. One clear next step is easier for them to follow and easier for you to say without escalating.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "kids",
+        "low_words",
+        "protect_state",
+        "one_step"
+      ],
+      "tool_family": "threshold_guard",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "WD-52",
+      "pack_id": "wind_down_pack",
+      "title": "Quiet Hands",
+      "do": "Put one object down more slowly than usual.",
+      "why": "A slower hand can interrupt the whole overloaded rhythm. Tiny physical quiet can soften the next moment before it spreads.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "kids",
+        "somatic",
+        "slow_down",
+        "fast"
+      ],
+      "tool_family": "body_release",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "WD-53",
+      "pack_id": "wind_down_pack",
+      "title": "Reset the Room",
+      "do": "Change one thing that makes the room easier on your nervous system.",
+      "why": "When the room is helping the overload, self-control gets expensive fast. A small environmental change can do more than another internal pep talk.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "kids_around"
+      ],
+      "time_min_minutes": 1,
+      "time_max_minutes": 3,
+      "tags": [
+        "kids",
+        "environment",
+        "reduce_input",
+        "re_entry"
+      ],
+      "tool_family": "environment_reset",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "ML-19",
+      "pack_id": "maintain_light_pack",
+      "title": "Warm and Brief",
+      "do": "Be kind, but keep it short.",
+      "why": "Warmth does not need a long explanation. In an overloaded moment, brief kindness is often more usable than a careful speech.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "kids",
+        "kindness",
+        "low_words",
+        "protect_state"
+      ],
+      "tool_family": "threshold_guard",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "BH-48",
+      "pack_id": "be_here_pack",
+      "title": "Kneel, Then Answer",
+      "do": "Lower your body before correcting or redirecting.",
+      "why": "Changing your level changes your tone before the words arrive. It makes correction feel more like contact and less like pressure.",
+      "need": [
+        "wind_down",
+        "be_here"
+      ],
+      "best_for_state": [
+        "overloaded",
+        "drained"
+      ],
+      "best_for_situation": [
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "kids",
+        "nonverbal",
+        "re_entry",
+        "quiet_presence"
+      ],
+      "tool_family": "quiet_presence",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "light_contact"
+    },
+    {
+      "id": "WD-54",
+      "pack_id": "wind_down_pack",
+      "title": "Touch the Doorframe",
+      "do": "Pause at the edge of the room and exhale once before entering back in.",
+      "why": "A doorway can become a reset line. One exhale there gives you a cleaner re-entry than charging straight back into the room.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "kids",
+        "threshold",
+        "breath",
+        "re_entry"
+      ],
+      "tool_family": "transition_signal",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "solo"
+    },
+    {
+      "id": "SN-41",
+      "pack_id": "space_not_distance_pack",
+      "title": "Buy One Quiet Minute",
+      "do": "Say: \"Give me one minute, then I'm with you.\"",
+      "why": "This asks for a tiny pause without disappearing from them. One minute is often enough to stop overload from spilling straight into the next exchange.",
+      "need": [
+        "wind_down",
+        "come_back"
+      ],
+      "best_for_state": [
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "kids",
+        "return_time",
+        "boundary",
+        "low_words"
+      ],
+      "tool_family": "return_time",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 2,
+      "selector_priority": "high",
+      "energy_demand": "low",
+      "social_demand": "active_conversation"
+    },
+    {
+      "id": "ML-20",
+      "pack_id": "maintain_light_pack",
+      "title": "Calm the Pace, Not the People",
+      "do": "Slow yourself down before trying to slow anyone else down.",
+      "why": "Trying to regulate the room before regulating yourself usually backfires. A steadier pace in you is often the first thing the room can actually copy.",
+      "need": [
+        "wind_down"
+      ],
+      "best_for_state": [
+        "overloaded"
+      ],
+      "best_for_situation": [
+        "kids_around"
+      ],
+      "time_min_minutes": 0,
+      "time_max_minutes": 1,
+      "tags": [
+        "kids",
+        "pace",
+        "protect_state",
+        "regulate"
+      ],
+      "tool_family": "threshold_guard",
+      "depth": "micro",
+      "emotional_difficulty": 1,
+      "social_friction": 1,
+      "selector_priority": "high",
+      "energy_demand": "very_low",
+      "social_demand": "solo"
     }
   ]
 }

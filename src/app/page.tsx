@@ -4,63 +4,72 @@ export default function Home() {
   return (
     <main className="container">
       {/* 01 HERO */}
-      <FadeIn>
-      <section className="section">
-        <div className="kicker">DRIFTLATCH</div>
-        <h1>Closeness at home. Clarity at work. Kept intact.</h1>
-        <p style={{ maxWidth: "68ch" }}>
-          Driftlatch is a privacy-first system for founders and high-drive professionals.
-          It helps you build emotional intelligence under pressure, so work does not follow you home and home tension does not take your edge at work.
-        </p>
+      <section className="section landingHero">
+        <div className="landingHeroContent">
+          <div className="landingHeroCopy">
+            <FadeIn delay={0.04} duration={0.55} distance={10}>
+              <div className="kicker">DRIFTLATCH</div>
+            </FadeIn>
+            <FadeIn delay={0.12} duration={0.62} distance={16}>
+              <h1>Closeness at home. Clarity at work.</h1>
+            </FadeIn>
+            <FadeIn delay={0.22} duration={0.62} distance={18}>
+              <p className="landingHeroSupport">
+                Driftlatch is a privacy-first system for founders and high-drive professionals. It helps you manage your cognitive state under pressure so work does not follow you home and home tension does not take your focus at work.
+              </p>
+            </FadeIn>
+          </div>
 
-        <HeroVisual />
+          <div className="landingHeroActions">
+            <FadeIn delay={0.3} duration={0.58} distance={14}>
+              <div className="landingHeroActionRow">
+                <a className="btn primary" href="/pressure-profile">
+                  Take the Pressure Profile
+                </a>
+                <a className="heroSecondaryCta" href="/pricing">
+                  See pricing
+                </a>
+              </div>
 
-        <div className="btnRow" style={{ marginTop: 26 }}>
-  <a className="btn primary" href="/pressure-profile">
-    Take the Pressure Profile (2 min)
-  </a>
-  <a className="btn ghost" href="/buy?plan=annual">
-    Start Annual
-  </a>
-  <a className="btn ghost" href="/buy?plan=monthly">
-    Start Monthly
-  </a>
-  <a className="btn ghost" href="/pricing">
-    Pricing
-  </a>
-</div>
+              <p className="landingHeroMeta">
+                2-minute profile. One clear step. Under 10 minutes a day. Private by default.
+              </p>
+            </FadeIn>
+          </div>
+        </div>
 
-        <p className="small" style={{ marginTop: 14 }}>
-          Start with a 2-minute profile. Then choose a pack. 14-day refund guarantee. No message reading. No activity tracking.
-        </p>
+        <div className="landingHeroVisual">
+          <div className="landingHeroStage">
+            <HeroVisual />
+          </div>
+        </div>
       </section>
-      </FadeIn>
       {/* 01B PRESSURE PROFILE (Liven-style structure, Driftlatch wording) */}
-<FadeIn>
+<FadeIn className="landingHeroFollowup">
 <section className="section">
   <h2>Start with a Pressure Profile</h2>
   <p className="small" style={{ maxWidth: "78ch" }}>
-    A short check that identifies your carryover, drift pattern and attachment style (Anxious/Avoidant) —so Driftlatch can match the right kind of support to your state.
+    Start with a 2-minute profile. Then Driftlatch turns that into a short daily system: check in, get one clear step, and build a steadier week in under 10 minutes a day.
     No tracking. No message reading. Just what you choose to enter.
   </p>
 
   <div className="grid three" style={{ marginTop: 18 }}>
     <div className="card">
       <div className="badge">1</div>
-      <h3 style={{ marginTop: 12 }}>Take a 2-minute profile</h3>
-      <p className="small">Answer a few questions about carryover, sleep, and stress response.</p>
+      <h3 style={{ marginTop: 12 }}>Take the 2-minute profile</h3>
+      <p className="small">Answer 20 short statements about work, recovery, home, and how you handle tension.</p>
     </div>
 
     <div className="card">
       <div className="badge">2</div>
-      <h3 style={{ marginTop: 12 }}>Get your pattern</h3>
-      <p className="small">You’ll see what’s stealing clarity at work and closeness at home—without labels.</p>
+      <h3 style={{ marginTop: 12 }}>Check in and get one step</h3>
+      <p className="small">Driftlatch reads the moment and gives you one clear step that fits your time, energy, and situation.</p>
     </div>
 
     <div className="card">
       <div className="badge">3</div>
-      <h3 style={{ marginTop: 12 }}>Receive your first support pack</h3>
-      <p className="small">Late-night shutdown, low-sleep day, overloaded &amp; reactive, clean re-entry, and more.</p>
+      <h3 style={{ marginTop: 12 }}>Build a steadier week</h3>
+      <p className="small">A few short check-ins give you a clearer read on your patterns and a steadier way to respond to them.</p>
     </div>
   </div>
 
@@ -90,10 +99,10 @@ export default function Home() {
           </ul>
 
           <p className="small" style={{ marginTop: 12 }}>
-            Most people don’t lose it suddenly — they lose it slowly when days pass without having the cognitive load managed cleanly.
+            Most people do not hit a wall all at once. Pressure builds slowly when work, recovery, and home life never fully reset.
           </p>
           <p className="small" style={{ marginTop: 10 }}>
-  Driftlatch breaks this pattern by lowering pressure first — then giving one clean next step that protects both.
+  Driftlatch helps you lower pressure sooner, then take one clear next step that protects both home and work.
 </p>
         </div>
       </section>
@@ -103,37 +112,38 @@ export default function Home() {
       <FadeIn>
       <section className="section">
         <h2>How it works</h2>
+        <p className="small" style={{ maxWidth: "78ch", marginTop: 10 }}>
+          Driftlatch is built to work in under 10 minutes a day. Most days it is a quick check-in, one matched step, and a cleaner reset into the rest of your life.
+        </p>
 
         <div className="grid three" style={{ marginTop: 18 }}>
           <div className="card">
             <div className="badge">Step 1</div>
-            <h3 style={{ marginTop: 12 }}>Presence check</h3>
+            <h3 style={{ marginTop: 12 }}>Check in</h3>
             <p className="small">
-              10 seconds to mark what’s true right now: carrying work, drained, wired, overloaded.
+              Take ten seconds to name what is true right now: carrying work, drained, wired, or overloaded.
             </p>
           </div>
 
           <div className="card">
             <div className="badge">Step 2</div>
-            <h3 style={{ marginTop: 12 }}>One grounded action</h3>
+            <h3 style={{ marginTop: 12 }}>Get one step</h3>
             <p className="small">
-              Driftlatch chooses one action that fits your energy, time, and situation—closure,
-              downshift, or clean re-entry.
+              Driftlatch suggests one action that fits your time, energy, and situation, so you do not have to figure it out from scratch.
             </p>
           </div>
 
           <div className="card">
             <div className="badge">Step 3</div>
-            <h3 style={{ marginTop: 12 }}>Re-entry + closure</h3>
+            <h3 style={{ marginTop: 12 }}>Steadier week</h3>
             <p className="small">
-              End the day in a way that protects recovery and protects connection—without emotional
-              performance.
+              Over time, those short steps make it easier to close the day, settle your body, and come back into conversation with less friction.
             </p>
           </div>
         </div>
 
         <p className="small" style={{ marginTop: 14 }}>
-          No streaks. No guilt. Use it when life is busy.
+          No streaks. No guilt. Just a short system you can actually keep using.
         </p>
       </section>
       </FadeIn>
@@ -156,18 +166,20 @@ export default function Home() {
             <div>
               <div className="kicker">Closeness at home</div>
               <ul style={{ color: "var(--muted)" }}>
-                <li>Less misinterpretation of silence or distance</li>
-                <li>Less “space vs reassurance” friction on heavy weeks</li>
-                <li>More steadiness in small moments</li>
+                <li>A conversation that does not turn into a fight</li>
+                <li>Being present when your kid wants to show you something</li>
+                <li>Knowing when you need space and how to ask for it clearly</li>
+                <li>Your partner feeling your attention, not just your body in the room</li>
               </ul>
             </div>
 
             <div>
               <div className="kicker">Clarity at work</div>
               <ul style={{ color: "var(--muted)" }}>
-                <li>Cleaner mental shutdowns</li>
-                <li>Better sleep and recovery</li>
-                <li>More consistent focus and decision-making</li>
+                <li>Ending the day without carrying tomorrow into tonight</li>
+                <li>Sleeping without solving problems in your head</li>
+                <li>Making decisions from a clear head, not a depleted one</li>
+                <li>Knowing when to stop and being able to stop</li>
               </ul>
             </div>
           </div>
@@ -175,7 +187,7 @@ export default function Home() {
           <div className="hr" />
 
           <p className="small">
-            High performance isn’t the problem. <span style={{ color: "var(--text)" }}>Unclosed days</span> are.
+            Work is not the problem. <span style={{ color: "var(--text)" }}>What unmanaged pressure does to everything else</span> is.
           </p>
         </div>
       </section>
@@ -186,58 +198,56 @@ export default function Home() {
       <section className="section">
         <h2>A calmer system for hard days.</h2>
         <p className="small" style={{ maxWidth: "78ch" }}>
-          Driftlatch turns proven practices into short resets and grounded next steps, without turning your life into homework.
+          Driftlatch turns proven practices into short, usable steps so support still works when you are tired, busy, or overloaded. The point is not to add more self-management. It is to give you one clear move you can actually use.
         </p>
 
         <div className="grid two" style={{ marginTop: 18 }}>
           <div className="card">
-            <div className="kicker">Work clarity support</div>
+            <div className="kicker">Clear Head support</div>
             <ul style={{ color: "var(--muted)" }}>
               <li>
-                <span style={{ color: "var(--text)" }}>Shutdown ritual</span>: capture open loops → set tomorrow’s first
-                step → close the day
+                <span style={{ color: "var(--text)" }}>Shutdown ritual</span>: capture open loops, choose tomorrow&apos;s first step, and close the day
               </li>
               <li>
-                <span style={{ color: "var(--text)" }}>Worry container</span>: give rumination a time slot so it stops
-                hijacking nights
+                <span style={{ color: "var(--text)" }}>Worry container</span>: give rumination a place so it stops taking over the night
               </li>
               <li>
-                <span style={{ color: "var(--text)" }}>If–then plans</span>: tiny rules that hold under pressure
+                <span style={{ color: "var(--text)" }}>If-then plans</span>: simple decisions you can still follow under pressure
               </li>
             </ul>
           </div>
 
           <div className="card">
-            <div className="kicker">Nervous system resets</div>
+            <div className="kicker">Wind Down support</div>
             <ul style={{ color: "var(--muted)" }}>
               <li>
-                <span style={{ color: "var(--text)" }}>STOP pause</span>: interrupt reactive replies before they happen
+                <span style={{ color: "var(--text)" }}>STOP pause</span>: interrupt a reactive reply before it leaves your mouth
               </li>
               <li>
-                <span style={{ color: "var(--text)" }}>Downshift resets</span>: breath / movement / temperature—fast calm
+                <span style={{ color: "var(--text)" }}>Downshift resets</span>: use breath, movement, or temperature to help your body come down fast
               </li>
               <li>
-                <span style={{ color: "var(--text)" }}>Grounding</span>: a simple reset when you feel overloaded
+                <span style={{ color: "var(--text)" }}>Grounding</span>: a simple reset when everything feels too loud
               </li>
             </ul>
           </div>
         </div>
 
         <div style={{ marginTop: 24 }} className="card">
-          <div className="kicker">Interaction support</div>
+          <div className="kicker">Connection support</div>
           <ul style={{ color: "var(--muted)" }}>
             <li>
-              <span style={{ color: "var(--text)" }}>Name the state</span>: “I’m overloaded, not upset.”
+              <span style={{ color: "var(--text)" }}>Name the state</span>: say what is happening without turning it into blame
             </li>
             <li>
-              <span style={{ color: "var(--text)" }}>Time-out with return time</span>: space without disappearing
+              <span style={{ color: "var(--text)" }}>Time-out with return time</span>: take space without disappearing
             </li>
             <li>
-              <span style={{ color: "var(--text)" }}>Re-entry language</span>: a clean way back in after distance
+              <span style={{ color: "var(--text)" }}>Re-entry language</span>: a clear way back after tension or distance
             </li>
           </ul>
           <p className="small" style={{ marginTop: 12 }}>
-            Driftlatch doesn’t diagnose. It helps you find the right next step at the right moment.
+            Driftlatch is not therapy. It is a private support system that helps you take the right next step in a hard moment.
           </p>
         </div>
       </section>
@@ -247,9 +257,9 @@ export default function Home() {
       <FadeIn>
       <section className="section" id="pricing">
         <h2>Founding Access</h2>
-        <p className="small">No free tier. Driftlatch is built to be a system you keep.</p>
+        <p className="small">No free tier. Driftlatch is designed as an ongoing support system, not a trial app you outgrow.</p>
         <p className="small" style={{ marginTop: 8 }}>
-          Both plans include full access. Annual just costs less.
+          Both plans include full access. Annual is simply the lower price.
         </p>
 
         <div className="grid two" style={{ marginTop: 18 }}>
@@ -266,7 +276,7 @@ export default function Home() {
               <strong>$59 / year</strong>
             </p>
             <p className="small">
-              Full access. Best for building consistency under pressure.
+              Full access. Best for people who want a steady system they can keep using under pressure.
             </p>
 
             <div className="btnRow">
@@ -278,7 +288,7 @@ export default function Home() {
             </p>
 
             <p className="small" style={{ marginTop: 12 }}>
-              14-day refund guarantee—no questions asked.
+              14-day refund guarantee. No questions asked.
             </p>
           </div>
 
@@ -299,7 +309,7 @@ export default function Home() {
             </p>
 
             <p className="small" style={{ marginTop: 12 }}>
-              Includes the same system—just billed monthly.
+              Includes the same support system, billed monthly.
             </p>
           </div>
         </div>
@@ -315,11 +325,11 @@ export default function Home() {
             <span>Privacy-first guarantee</span>
           </div>
           <p className="small" style={{ marginTop: 10 }}>
-            Driftlatch does not read your messages, emails, or calls. Driftlatch does not track your phone activity.
-            It works only from what you choose to enter. Export or delete your data anytime.
+            Driftlatch does not read your messages, emails, or calls. It does not track your phone activity.
+            It works only from what you choose to enter. You can export or delete your data anytime.
           </p>
           <div style={{ marginTop: 12 }} className="badge">
-            Trust isn’t a feature. It’s the baseline.
+            Privacy is the baseline.
           </div>
         </div>
       </section>
@@ -338,7 +348,7 @@ export default function Home() {
       <details>
         <summary><strong>Is Driftlatch therapy?</strong></summary>
         <p className="small" style={{ marginTop: 12 }}>
-          No. Driftlatch is a daily pressure and presence system for cleaner shutdowns, steadier evenings, and better re-entry.
+          No. Driftlatch is a private support system for stress spillover, recovery, and cleaner re-entry into home life and work.
         </p>
       </details>
     </div>
@@ -347,7 +357,7 @@ export default function Home() {
       <details>
         <summary><strong>Why would I pay for this?</strong></summary>
         <p className="small" style={{ marginTop: 12 }}>
-          You’re paying for structure: the right next step for your state, a tailored library, and weekly reflection that makes the whole system easier to use over time. In real life, that helps you build emotional intelligence under pressure.
+          You are paying for a clear structure: quick check-ins, a tailored support library, and weekly reflection that help you use the right step at the right time.
         </p>
       </details>
     </div>
@@ -365,7 +375,7 @@ export default function Home() {
       <details>
         <summary><strong>Is this a relationship app?</strong></summary>
         <p className="small" style={{ marginTop: 12 }}>
-          No. Driftlatch protects two outcomes: closeness at home and clarity at work. It is built to reduce spillover, especially on heavy weeks.
+          Not exactly. Driftlatch is for the pressure that spills between work and home. It helps you protect closeness at home and clarity at work.
         </p>
       </details>
     </div>

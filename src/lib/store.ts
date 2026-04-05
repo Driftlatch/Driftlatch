@@ -38,7 +38,7 @@ export async function upsertProfile(payload: {
     attachment_style: payload.attachment_style,
     defaults: payload.defaults,
     updated_at: new Date().toISOString(),
-  });
+  }, { onConflict: "user_id" });
 
   if (error) throw error;
 }
@@ -52,7 +52,7 @@ export async function loadProfile() {
     .from("user_profile")
     .select("*")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   if (error) return null;
   return data;
@@ -112,7 +112,7 @@ export async function loadSavedToolIds() {
 
 export async function touchRecent(toolId: string) {
   const user = await requireUser();
-  if (!user) throw new Error("Not logged in");
+  if (!user) return;
   const supabase = getSupabase();
 
   const { error } = await supabase.from("user_recent_tools").upsert({

@@ -1,12 +1,30 @@
+import { getRoomToneLabel, type RoomTone } from "@/lib/roomTone";
 import type { AttachmentStyle, DriftNeed, DriftSituation, DriftState, Tool } from "@/lib/toolLibrary";
 
 type WhyThisNowInput = {
   attachmentStyle: AttachmentStyle;
   need: DriftNeed | null;
+  roomTone?: RoomTone | null;
   situation: DriftSituation | null;
   state: DriftState | null;
   timeMinutes: 1 | 3 | 5 | 10 | null;
   tool: Pick<Tool, "depth" | "selector_priority" | "tool_family">;
+};
+
+const STATE_LABEL: Record<DriftState, string> = {
+  clear_light: "Clear & light",
+  steady: "Steady",
+  carrying_work: "Carrying work",
+  wired: "Wired",
+  drained: "Drained",
+  overloaded: "Overloaded",
+};
+
+const SITUATION_LABEL: Record<DriftSituation, string> = {
+  partner_nearby: "Partner nearby",
+  kids_around: "Kids around",
+  alone: "Alone",
+  long_distance: "Long distance",
 };
 
 function buildStateLine(state: DriftState | null, timeMinutes: number | null) {
@@ -42,15 +60,15 @@ function buildPatternLine({
   tool,
 }: Pick<WhyThisNowInput, "attachmentStyle" | "need" | "situation" | "tool">) {
   if (attachmentStyle === "Anxious") {
-    return "For your pattern, something simple and steady is usually more likely to help first.";
+    return "When you lean anxious under stress, something simple and steady is usually more likely to help first.";
   }
 
   if (attachmentStyle === "Avoidant") {
-    return "For your pattern, a lower-pressure move is usually more likely to help first.";
+    return "When you lean avoidant under stress, a lower-pressure move is usually more likely to help first.";
   }
 
   if (attachmentStyle === "Mixed") {
-    return "For your pattern, the simpler version usually lands better first.";
+    return "When you want closeness and distance at the same time under stress, the simpler version usually lands better first.";
   }
 
   if (need === "be_here") {
@@ -89,13 +107,22 @@ function buildPatternLine({
 }
 
 export function buildWhyThisNowCopy(input: WhyThisNowInput) {
+  const roomToneLabel = getRoomToneLabel(input.roomTone ?? null);
+  if (input.state && input.situation && roomToneLabel) {
+    return `Chosen for your state and the current room tone. Picked for this moment: ${STATE_LABEL[input.state]}, ${SITUATION_LABEL[input.situation]}, room feeling ${roomToneLabel}.`;
+  }
+
+  if (input.state && input.situation) {
+    return `Chosen for your state and the room around you. Picked for this moment: ${STATE_LABEL[input.state]}, ${SITUATION_LABEL[input.situation]}.`;
+  }
+
   return `${buildStateLine(input.state, input.timeMinutes)} ${buildPatternLine(input)}`;
 }
 
 export function buildHomeSetupLine(defaultsSummary: string) {
-  return `Using your usual setup: ${defaultsSummary}`;
+  return `Usual setup: ${defaultsSummary}`;
 }
 
 export function buildHomePickerLine(defaultsSummary: string) {
-  return `Picked from your state and usual setup: ${defaultsSummary}`;
+  return `Picked for this moment: ${defaultsSummary}`;
 }

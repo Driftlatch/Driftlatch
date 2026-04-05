@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
@@ -459,6 +460,14 @@ export default function LoginPage() {
             boxShadow: "0 28px 72px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.055)",
             position: "relative",
           }}>
+            <Image
+              src="/icon.png"
+              alt="Driftlatch"
+              width={52}
+              height={52}
+              priority
+              style={{ borderRadius: 14, marginBottom: 20 }}
+            />
             <AnimatePresence mode="wait">
               {phase === "email" ? (
                 <motion.div

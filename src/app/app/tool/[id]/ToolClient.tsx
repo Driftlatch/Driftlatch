@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
-import { type CSSProperties, useEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { buildWhyThisNowCopy } from "@/lib/personalizedCopy";
+import { isRoomToneForSituation, type RoomTone } from "@/lib/roomTone";
 import { loadSavedToolIds, saveTool, unsaveTool } from "@/lib/store";
 import { selectTool } from "@/lib/selectTool";
 import { getSupabase } from "@/lib/supabase";
@@ -23,14 +24,17 @@ type LocalFeedbackEntry = {
 
 type CheckinId = string;
 type CheckinMode = "quick" | "standard";
+type CheckinSource = "explicit" | "implicit";
 type CheckinContext = {
   state: DriftState;
   need: DriftNeed;
+  roomTone: RoomTone | null;
   situation: DriftSituation;
   timeMinutes: 1 | 3 | 5 | 10;
   mode: CheckinMode;
   attachmentStyle: AttachmentStyle;
   preferredPackIds: string[];
+  source: CheckinSource;
 };
 type ExcludedToolsMap = Record<string, string[]>;
 
@@ -184,7 +188,61 @@ function writeRecentTool(toolId: string) {
 
 function buildCheckinBucketKey(ctx: CheckinContext) {
   const preferred = ctx.preferredPackIds.join(",");
-  return `${ctx.state}|${ctx.need}|${ctx.situation}|${ctx.timeMinutes}|${ctx.mode}|${ctx.attachmentStyle}|${preferred}`;
+  return `${ctx.state}|${ctx.need}|${ctx.situation}|${ctx.roomTone ?? "none"}|${ctx.timeMinutes}|${ctx.mode}|${ctx.attachmentStyle}|${preferred}`;
+}
+
+function inferTimeFromTool(tool: Tool): 1 | 3 | 5 | 10 {
+  if (tool.time_max_minutes <= 1) return 1;
+  if (tool.time_max_minutes <= 3) return 3;
+  if (tool.time_max_minutes <= 5) return 5;
+  return 10;
+}
+
+function inferSituationFromTool(tool: Tool): DriftSituation {
+  const explicitSituation = tool.best_for_situation.find((value): value is DriftSituation => value !== "any");
+  return explicitSituation ?? "alone";
+}
+
+async function insertCheckinDraft(
+  supabase: ReturnType<typeof getSupabase>,
+  payload: {
+    did_complete: boolean;
+    need: DriftNeed;
+    room_tone: RoomTone | null;
+    situation: DriftSituation;
+    source: CheckinSource;
+    state: DriftState;
+    time_minutes: 1 | 3 | 5 | 10;
+    tool_id: string;
+    user_id: string;
+  },
+) {
+  const insertWithSource = await supabase
+    .from("user_checkins")
+    .insert(payload)
+    .select("id")
+    .single();
+
+  const sourceMissing =
+    insertWithSource.error?.message?.toLowerCase().includes("source") ||
+    insertWithSource.error?.details?.toLowerCase().includes("source");
+
+  if (!sourceMissing) return insertWithSource;
+
+  return supabase
+    .from("user_checkins")
+    .insert({
+      user_id: payload.user_id,
+      state: payload.state,
+      need: payload.need,
+      room_tone: payload.room_tone,
+      situation: payload.situation,
+      time_minutes: payload.time_minutes,
+      tool_id: payload.tool_id,
+      did_complete: payload.did_complete,
+    })
+    .select("id")
+    .single();
 }
 
 function readExcludedToolsMap(): ExcludedToolsMap {
@@ -255,6 +313,7 @@ export default function ToolClient({ tool }: { tool: Tool }) {
   const feedbackRequested = searchParams.get("feedback") === "1";
   const stateParam = searchParams.get("state");
   const needParam = searchParams.get("need");
+  const roomToneParam = searchParams.get("roomTone");
   const situationParam = searchParams.get("situation");
   const timeParam = searchParams.get("time");
   const modeParam = searchParams.get("mode");
@@ -268,33 +327,42 @@ export default function ToolClient({ tool }: { tool: Tool }) {
   const atmosphereColor = getAtmosphereColor(activeState);
   const doneButtonStyle = getDoneButtonStyle(activeState);
   const checkinContext = useMemo<CheckinContext | null>(() => {
-    const parsedTime = toValidTime(timeParam);
     const mode = isCheckinMode(modeParam) ? modeParam : "quick";
     const attachmentStyle = isAttachmentStyle(attachmentStyleParam) ? attachmentStyleParam : readAttachmentStyle();
     const preferredPackIds = readPreferredPackIds(preferredPackIdsParam);
-    return fromCheckin && isDriftState(stateParam) && isDriftNeed(needParam) && isDriftSituation(situationParam) && parsedTime
-      ? {
-          state: stateParam,
-          need: needParam,
-          situation: situationParam,
-          timeMinutes: parsedTime,
-          mode,
-          attachmentStyle,
-          preferredPackIds: preferredPackIds.length > 0 ? preferredPackIds : readStoredPreferredPackIds(),
-        }
-      : null;
-  }, [attachmentStyleParam, fromCheckin, modeParam, needParam, preferredPackIdsParam, situationParam, stateParam, timeParam]);
+    const parsedTime = toValidTime(timeParam) ?? inferTimeFromTool(tool);
+    const inferredSituation = isDriftSituation(situationParam) ? situationParam : inferSituationFromTool(tool);
+    const inferredState = isDriftState(stateParam) ? stateParam : tool.best_for_state[0] ?? "steady";
+    const inferredNeed = isDriftNeed(needParam) ? needParam : tool.need[0] ?? "wind_down";
+
+    if (fromCheckin && (!isDriftState(stateParam) || !isDriftNeed(needParam) || !isDriftSituation(situationParam) || !toValidTime(timeParam))) {
+      return null;
+    }
+
+    return {
+      state: inferredState,
+      need: inferredNeed,
+      roomTone: isRoomToneForSituation(inferredSituation, roomToneParam) ? roomToneParam : null,
+      situation: inferredSituation,
+      timeMinutes: parsedTime,
+      mode,
+      attachmentStyle,
+      preferredPackIds: preferredPackIds.length > 0 ? preferredPackIds : readStoredPreferredPackIds(),
+      source: fromCheckin ? "explicit" : "implicit",
+    };
+  }, [attachmentStyleParam, fromCheckin, modeParam, needParam, preferredPackIdsParam, roomToneParam, situationParam, stateParam, timeParam, tool]);
   const whyThisNow = useMemo(
     () =>
       buildWhyThisNowCopy({
         attachmentStyle: activeAttachmentStyle,
         need: activeNeed,
+        roomTone: activeSituation && isRoomToneForSituation(activeSituation, roomToneParam) ? roomToneParam : null,
         situation: activeSituation,
         state: activeState,
         timeMinutes: activeTime,
         tool,
       }),
-    [activeAttachmentStyle, activeNeed, activeSituation, activeState, activeTime, tool],
+    [activeAttachmentStyle, activeNeed, activeSituation, activeState, activeTime, roomToneParam, tool],
   );
   const [showFeedback, setShowFeedback] = useState(feedbackRequested);
   const [helpfulScore, setHelpfulScore] = useState<HelpfulScore | null>(null);
@@ -309,8 +377,9 @@ export default function ToolClient({ tool }: { tool: Tool }) {
   const [toolSavePending, setToolSavePending] = useState(false);
   const [alternateStatus, setAlternateStatus] = useState<string | null>(null);
   const draftPromiseRef = useRef<Promise<CheckinId | null> | null>(null);
+  const trackedToolOpenRef = useRef<string | null>(null);
   const checkinExcludeBucketKey = useMemo(
-    () => (checkinContext ? buildCheckinBucketKey(checkinContext) : null),
+    () => (checkinContext?.source === "explicit" ? buildCheckinBucketKey(checkinContext) : null),
     [checkinContext]
   );
 
@@ -361,26 +430,24 @@ export default function ToolClient({ tool }: { tool: Tool }) {
     };
   }, [tool.id]);
 
-  async function ensureCheckinDraft(userId: string) {
+  const ensureCheckinDraft = useCallback(async (userId: string) => {
     if (!checkinContext) return null;
     if (checkinId) return checkinId;
     if (draftPromiseRef.current) return draftPromiseRef.current;
 
     const supabase = getSupabase();
     const promise = (async () => {
-      const { data, error } = await supabase
-        .from("user_checkins")
-        .insert({
-          user_id: userId,
-          state: checkinContext.state,
-          need: checkinContext.need,
-          situation: checkinContext.situation,
-          time_minutes: checkinContext.timeMinutes,
-          tool_id: tool.id,
-          did_complete: false,
-        })
-        .select("id")
-        .single();
+      const { data, error } = await insertCheckinDraft(supabase, {
+        user_id: userId,
+        state: checkinContext.state,
+        need: checkinContext.need,
+        room_tone: checkinContext.roomTone,
+        situation: checkinContext.situation,
+        time_minutes: checkinContext.timeMinutes,
+        tool_id: tool.id,
+        did_complete: false,
+        source: checkinContext.source,
+      });
 
       if (error) return null;
       const nextId = data?.id != null ? String(data.id) : null;
@@ -392,7 +459,7 @@ export default function ToolClient({ tool }: { tool: Tool }) {
 
     draftPromiseRef.current = promise;
     return promise;
-  }
+  }, [checkinContext, checkinId, tool.id]);
 
   useEffect(() => {
     if (!checkinContext) return;
@@ -408,19 +475,17 @@ export default function ToolClient({ tool }: { tool: Tool }) {
         if (draftPromiseRef.current) return draftPromiseRef.current;
 
         const promise = (async () => {
-          const { data, error } = await supabase
-            .from("user_checkins")
-            .insert({
-              user_id: authData.user.id,
-              state: checkinContext.state,
-              need: checkinContext.need,
-              situation: checkinContext.situation,
-              time_minutes: checkinContext.timeMinutes,
-              tool_id: tool.id,
-              did_complete: false,
-            })
-            .select("id")
-            .single();
+          const { data, error } = await insertCheckinDraft(supabase, {
+            user_id: authData.user.id,
+            state: checkinContext.state,
+            need: checkinContext.need,
+            room_tone: checkinContext.roomTone,
+            situation: checkinContext.situation,
+            time_minutes: checkinContext.timeMinutes,
+            tool_id: tool.id,
+            did_complete: false,
+            source: checkinContext.source,
+          });
 
           if (error) return null;
           const draftId = data?.id != null ? String(data.id) : null;
@@ -443,6 +508,37 @@ export default function ToolClient({ tool }: { tool: Tool }) {
       cancelled = true;
     };
   }, [checkinContext, checkinId, tool.id]);
+
+  useEffect(() => {
+    if (trackedToolOpenRef.current === tool.id) return;
+    trackedToolOpenRef.current = tool.id;
+    writeRecentTool(tool.id);
+
+    let cancelled = false;
+
+    const trackToolOpen = async () => {
+      try {
+        const supabase = getSupabase();
+        const { data: authData } = await supabase.auth.getUser();
+        if (cancelled || !authData.user) return;
+
+        await supabase.from("user_recent_tools").upsert({
+          user_id: authData.user.id,
+          tool_id: tool.id,
+          used_at: new Date().toISOString(),
+        });
+
+        if (!checkinContext) return;
+        await ensureCheckinDraft(authData.user.id);
+      } catch {}
+    };
+
+    void trackToolOpen();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [checkinContext, ensureCheckinDraft, tool.id]);
 
   async function syncCheckinFeedback(userId: string, nextHelpfulScore: HelpfulScore, nextShift: ShiftValue) {
     const nextCheckinId = await ensureCheckinDraft(userId);
@@ -576,6 +672,7 @@ export default function ToolClient({ tool }: { tool: Tool }) {
       need: checkinContext.need,
       state: checkinContext.state,
       timeMinutes: checkinContext.timeMinutes,
+      roomTone: checkinContext.roomTone,
       situation: checkinContext.situation,
       mode: checkinContext.mode,
       attachmentStyle: checkinContext.attachmentStyle,
@@ -599,6 +696,9 @@ export default function ToolClient({ tool }: { tool: Tool }) {
       mode: checkinContext.mode,
       attachmentStyle: checkinContext.attachmentStyle,
     });
+    if (checkinContext.roomTone) {
+      params.set("roomTone", checkinContext.roomTone);
+    }
     if (checkinContext.preferredPackIds.length > 0) {
       params.set("preferredPackIds", checkinContext.preferredPackIds.join(","));
     }

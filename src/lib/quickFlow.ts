@@ -1,4 +1,6 @@
 import { selectTool } from "@/lib/selectTool";
+import { type RoomTone } from "@/lib/roomTone";
+import { getNeedLabel } from "@/lib/supportLabels";
 import type { AttachmentStyle, DriftNeed, DriftSituation, DriftState } from "@/lib/toolLibrary";
 
 export type StoredProfileDefaults = {
@@ -12,6 +14,7 @@ export type ValidToolTime = 1 | 3 | 5 | 10;
 export type ToolContext = {
   state: DriftState;
   need: DriftNeed;
+  roomTone?: RoomTone | null;
   time: ValidToolTime;
   situation: DriftSituation;
 };
@@ -28,20 +31,16 @@ export type QuickRecommendation = {
   ctx: ToolContext;
   href: string;
   primary: ReturnType<typeof selectTool>["primary"];
-};
-
-const NEED_LABEL: Record<DriftNeed, string> = {
-  regain_clarity: "regain clarity",
-  wind_down: "wind down",
-  be_here: "be here",
-  come_back: "come back",
+  alternates: ReturnType<typeof selectTool>["alternates"];
+  selectorDebug: ReturnType<typeof selectTool>["debug"] | null;
+  selectorReason: ReturnType<typeof selectTool>["reason"];
 };
 
 const SITUATION_LABEL: Record<DriftSituation, string> = {
-  partner_nearby: "partner nearby",
-  kids_around: "kids around",
-  alone: "alone",
-  long_distance: "long distance",
+  partner_nearby: "Partner nearby",
+  kids_around: "Kids around",
+  alone: "Alone",
+  long_distance: "Long distance",
 };
 
 function isDriftNeed(value: unknown): value is DriftNeed {
@@ -91,23 +90,24 @@ export function resolveQuickDefaults(
 }
 
 export function formatQuickDefaultsSummary(defaults: Pick<ResolvedQuickDefaults, "need" | "time" | "situation">) {
-  return `${defaults.time} min · ${SITUATION_LABEL[defaults.situation]} · ${NEED_LABEL[defaults.need]}`;
+  return `${defaults.time} min · ${SITUATION_LABEL[defaults.situation]} · ${getNeedLabel(defaults.need)}`;
 }
 
 export function buildToolContext(
   state: DriftState,
-  defaults: Pick<ResolvedQuickDefaults, "need" | "time" | "situation">,
+  defaults: Pick<ToolContext, "need" | "roomTone" | "time" | "situation">,
 ): ToolContext {
   return {
     state,
     need: defaults.need,
+    roomTone: defaults.roomTone ?? null,
     time: defaults.time,
     situation: defaults.situation,
   };
 }
 
 export function buildToolContextKey(ctx: ToolContext) {
-  return `need=${ctx.need}|state=${ctx.state}|situation=${ctx.situation}|time=${ctx.time}`;
+  return `need=${ctx.need}|state=${ctx.state}|situation=${ctx.situation}|roomTone=${ctx.roomTone ?? "none"}|time=${ctx.time}`;
 }
 
 export function buildRecommendedToolHref(
@@ -128,6 +128,7 @@ export function buildRecommendedToolHref(
     time: `${ctx.time}`,
   });
 
+  if (ctx.roomTone) params.set("roomTone", ctx.roomTone);
   if (options.mode) params.set("mode", options.mode);
   if (options.attachmentStyle) params.set("attachmentStyle", options.attachmentStyle);
   if ((options.preferredPackIds?.length ?? 0) > 0) {
@@ -139,7 +140,7 @@ export function buildRecommendedToolHref(
 
 export function buildQuickRecommendation(options: {
   attachmentStyle?: AttachmentStyle;
-  defaults: Pick<ResolvedQuickDefaults, "need" | "time" | "situation">;
+  defaults: Pick<ToolContext, "need" | "roomTone" | "time" | "situation">;
   excludeToolIds?: string[];
   from: "checkin" | "home";
   mode?: "quick" | "standard";
@@ -147,18 +148,21 @@ export function buildQuickRecommendation(options: {
   state: DriftState;
 }): QuickRecommendation {
   const ctx = buildToolContext(options.state, options.defaults);
-  const primary = selectTool({
+  const selection = selectTool({
     attachmentStyle: options.attachmentStyle,
     excludeToolIds: options.excludeToolIds,
     mode: options.mode,
     need: ctx.need,
     preferredPackIds: options.preferredPackIds,
+    roomTone: ctx.roomTone,
     situation: ctx.situation,
     state: ctx.state,
     timeMinutes: ctx.time,
-  }).primary;
+  });
+  const primary = selection.primary;
 
   return {
+    alternates: selection.alternates,
     contextKey: buildToolContextKey(ctx),
     ctx,
     href: buildRecommendedToolHref(primary.id, ctx, {
@@ -168,5 +172,7 @@ export function buildQuickRecommendation(options: {
       preferredPackIds: options.preferredPackIds,
     }),
     primary,
+    selectorDebug: selection.debug ?? null,
+    selectorReason: selection.reason,
   };
 }
