@@ -1048,14 +1048,32 @@ export default function Home() {
                 "radial-gradient(ellipse, rgba(194,122,92,0.55) 0%, rgba(194,122,92,0.18) 40%, transparent 70%)",
               filter: "blur(80px)",
               pointerEvents: "none",
+              willChange: "opacity",
             }}
           />
 
-          {/* LAYER 4 — SVG silhouette scene */}
+          {/* LAYER 4 — Mobile atmosphere (shown only on mobile) */}
+          <div
+            aria-hidden
+            style={{
+              position: "absolute",
+              inset: 0,
+              zIndex: 4,
+              pointerEvents: "none",
+              background: `
+                radial-gradient(ellipse at 30% 85%, rgba(194,122,92,0.18) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 90%, rgba(194,122,92,0.12) 0%, transparent 45%),
+                radial-gradient(ellipse at 50% 95%, rgba(194,122,92,0.22) 0%, transparent 40%)
+              `,
+              display: isMobile ? "block" : "none",
+            }}
+          />
+
+          {/* LAYER 4 — SVG silhouette scene (desktop only) */}
           <motion.svg
             aria-hidden
             className="hero-scene-svg"
-            style={{ position: "absolute", inset: 0, zIndex: 4, pointerEvents: "none" }}
+            style={{ position: "absolute", inset: 0, zIndex: 4, pointerEvents: "none", display: isMobile ? "none" : "block" }}
             width="100%"
             height="100%"
             viewBox={isMobile ? "0 380 1440 520" : "0 0 1440 900"}
@@ -1078,7 +1096,7 @@ export default function Home() {
             <ellipse cx="720" cy="820" rx="320" ry="28" fill="rgba(194,122,92,0.12)" />
 
             {/* FIX 3 — Sofa + couple (RIGHT zone: x 980–1430) */}
-            <motion.g style={{ x: coupleX, scale: coupleScale, transformOrigin: "1150px 700px" }}>
+            <motion.g style={{ x: coupleX, scale: coupleScale, transformOrigin: "1150px 700px", willChange: "transform" }}>
               {/* Sofa back */}
               <path
                 d="M 980,580 Q 980,545 1015,545 L 1370,545 Q 1405,545 1405,580 L 1405,730 Q 1405,748 1388,748 L 997,748 Q 980,748 980,730 Z"
@@ -1119,7 +1137,7 @@ export default function Home() {
             </motion.g>
 
             {/* FIX 2 — Laptop (LEFT zone: x 60–490) */}
-            <motion.g style={{ x: laptopX, y: laptopY }}>
+            <motion.g style={{ x: laptopX, y: laptopY, willChange: "transform" }}>
               {/* Screen face (perspective-tilted parallelogram) */}
               <path d="M 120,420 L 380,380 L 400,580 L 140,610 Z" fill="rgba(35,20,10,1)" />
               {/* Screen inner glow */}
