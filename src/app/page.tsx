@@ -1058,7 +1058,7 @@ export default function Home() {
             style={{ position: "absolute", inset: 0, zIndex: 4, pointerEvents: "none" }}
             width="100%"
             height="100%"
-            viewBox={isMobile ? "180 350 1080 550" : "0 0 1440 900"}
+            viewBox={isMobile ? "0 380 1440 520" : "0 0 1440 900"}
             preserveAspectRatio="xMidYMid slice"
           >
             <defs>
@@ -1067,7 +1067,7 @@ export default function Home() {
                 <stop offset="100%" stopColor="rgba(200,120,50,0)" />
               </radialGradient>
               <radialGradient id="coupleGlow" cx="50%" cy="60%" r="50%">
-                <stop offset="0%" stopColor="rgba(210,130,55,0.6)" />
+                <stop offset="0%" stopColor="rgba(210,130,55,0.85)" />
                 <stop offset="100%" stopColor="rgba(210,130,55,0)" />
               </radialGradient>
             </defs>
@@ -1082,14 +1082,14 @@ export default function Home() {
               {/* Sofa back */}
               <path
                 d="M 980,580 Q 980,545 1015,545 L 1370,545 Q 1405,545 1405,580 L 1405,730 Q 1405,748 1388,748 L 997,748 Q 980,748 980,730 Z"
-                fill="rgba(28,16,8,0.98)"
+                fill="rgba(35,20,10,1)"
               />
               {/* Sofa top rim */}
-              <path d="M 1015,546 Q 1192,538 1370,546" stroke="rgba(194,122,92,0.25)" strokeWidth="1.5" fill="none" />
+              <path d="M 1015,546 Q 1192,538 1370,546" stroke="rgba(194,122,92,0.4)" strokeWidth="1.5" fill="none" />
               {/* Sofa left arm */}
-              <rect x="962" y="600" width="30" height="130" rx="10" fill="rgba(28,16,8,0.98)" />
+              <rect x="962" y="600" width="30" height="130" rx="10" fill="rgba(35,20,10,1)" />
               {/* Sofa right arm */}
-              <rect x="1398" y="600" width="30" height="130" rx="10" fill="rgba(28,16,8,0.98)" />
+              <rect x="1398" y="600" width="30" height="130" rx="10" fill="rgba(35,20,10,1)" />
               {/* Seat cushion line */}
               <path d="M 980,680 L 1405,680" stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
               {/* Sofa bottom shadow */}
@@ -1097,31 +1097,31 @@ export default function Home() {
               {/* Sofa rim glow */}
               <ellipse cx="1192" cy="750" rx="350" ry="8" fill="rgba(194,122,92,0.1)" />
               {/* Warm glow between figures */}
-              <ellipse cx="1145" cy="660" rx="180" ry="60" fill="url(#coupleGlow)" opacity="0.9" />
+              <ellipse cx="1145" cy="660" rx="180" ry="60" fill="url(#coupleGlow)" opacity="1" />
 
               {/* Left figure */}
-              <ellipse cx="1105" cy="468" rx="32" ry="35" fill="rgba(28,16,8,0.98)" />
-              <rect x="1096" y="501" width="18" height="22" fill="rgba(28,16,8,0.98)" />
+              <ellipse cx="1105" cy="468" rx="32" ry="35" fill="rgba(35,20,10,1)" />
+              <rect x="1096" y="501" width="18" height="22" fill="rgba(35,20,10,1)" />
               <path
                 d="M 1055,590 Q 1053,522 1096,510 L 1114,510 Q 1157,520 1158,590 Z"
-                fill="rgba(28,16,8,0.98)"
+                fill="rgba(35,20,10,1)"
               />
               {/* Right figure (leaning slightly left) */}
-              <ellipse cx="1175" cy="448" rx="28" ry="31" fill="rgba(28,16,8,0.98)" />
-              <rect x="1167" y="477" width="16" height="20" fill="rgba(28,16,8,0.98)" />
+              <ellipse cx="1175" cy="448" rx="28" ry="31" fill="rgba(35,20,10,1)" />
+              <rect x="1167" y="477" width="16" height="20" fill="rgba(35,20,10,1)" />
               <path
                 d="M 1145,585 Q 1143,508 1167,498 L 1183,498 Q 1207,506 1212,585 Z"
-                fill="rgba(28,16,8,0.98)"
+                fill="rgba(35,20,10,1)"
               />
               {/* Figure rim highlights */}
-              <ellipse cx="1105" cy="468" rx="32" ry="35" fill="none" stroke="rgba(194,122,92,0.12)" strokeWidth="1" />
-              <ellipse cx="1175" cy="448" rx="28" ry="31" fill="none" stroke="rgba(194,122,92,0.10)" strokeWidth="1" />
+              <ellipse cx="1105" cy="468" rx="32" ry="35" fill="none" stroke="rgba(194,122,92,0.22)" strokeWidth="1" />
+              <ellipse cx="1175" cy="448" rx="28" ry="31" fill="none" stroke="rgba(194,122,92,0.18)" strokeWidth="1" />
             </motion.g>
 
             {/* FIX 2 — Laptop (LEFT zone: x 60–490) */}
             <motion.g style={{ x: laptopX, y: laptopY }}>
               {/* Screen face (perspective-tilted parallelogram) */}
-              <path d="M 120,420 L 380,380 L 400,580 L 140,610 Z" fill="rgba(22,13,7,0.97)" />
+              <path d="M 120,420 L 380,380 L 400,580 L 140,610 Z" fill="rgba(35,20,10,1)" />
               {/* Screen inner glow */}
               <path d="M 132,432 L 372,394 L 390,572 L 152,598 Z" fill="rgba(194,122,92,0.07)" />
               {/* Screen UI lines */}
@@ -1131,18 +1131,18 @@ export default function Home() {
               {/* Hinge line */}
               <line x1="120" y1="420" x2="380" y2="380" stroke="rgba(194,122,92,0.2)" strokeWidth="1.5" />
               {/* Keyboard base */}
-              <path d="M 105,618 L 415,575 L 430,640 L 95,685 Z" fill="rgba(18,11,6,0.97)" />
+              <path d="M 105,618 L 415,575 L 430,640 L 95,685 Z" fill="rgba(35,20,10,1)" />
               {/* Keyboard surface detail */}
               <path d="M 115,628 L 410,587 L 422,630 L 108,668 Z" fill="rgba(25,15,8,0.6)" />
               {/* Screen glow spilling forward */}
               <ellipse cx="265" cy="680" rx="140" ry="22" fill="rgba(194,122,92,0.14)" />
 
               {/* Coffee mug */}
-              <rect x="428" y="618" width="34" height="38" rx="5" fill="rgba(22,13,7,0.97)" />
-              <rect x="426" y="654" width="38" height="6" rx="3" fill="rgba(18,11,6,0.97)" />
+              <rect x="428" y="618" width="34" height="38" rx="5" fill="rgba(35,20,10,1)" />
+              <rect x="426" y="654" width="38" height="6" rx="3" fill="rgba(35,20,10,1)" />
               <path
                 d="M 462,626 Q 478,626 478,636 Q 478,646 462,646"
-                stroke="rgba(22,13,7,0.97)"
+                stroke="rgba(35,20,10,1)"
                 strokeWidth="6"
                 fill="none"
               />
