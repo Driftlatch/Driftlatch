@@ -832,7 +832,7 @@ function NavBar() {
           Log in
         </a>
 
-        <a href="/app/onboarding" className="btn primary navCta">
+        <a href="/pressure-profile" className="btn primary navCta">
           Start free profile test
         </a>
 
@@ -873,7 +873,7 @@ function NavBar() {
               FAQ
             </a>
             <a
-              href="/app/onboarding"
+              href="/pressure-profile"
               className="btn primary"
               style={{ marginTop: 10 }}
               onClick={() => setMenuOpen(false)}
@@ -1608,7 +1608,7 @@ export default function Home() {
           </div>
 
           <div className="btnRow" style={{ marginTop: 18 }}>
-            <a className="btn primary" href="/app/onboarding">
+            <a className="btn primary" href="/pressure-profile">
               Take the Pressure Profile
             </a>
             <a className="btn ghost" href="#pricing">
