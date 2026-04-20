@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   },
 
   description:
-    "A privacy-first system for founders and high-drive professionals. Manage pressure so work does not follow you home and home tension does not take your focus at work.",
+    "Closeness at home. Clarity at work. A privacy-first tool for founders and high-drive professionals. Under 10 minutes a day. No tracking. No message reading.",
 
   keywords: [
     "founder mental health",
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     siteName: "Driftlatch",
     title: "Driftlatch — Closeness at home. Clarity at work.",
     description:
-      "A privacy-first system for founders. Manage pressure so work does not follow you home.",
+      "Manage pressure so work does not follow you home and home tension does not take your focus at work. Built for founders.",
     images: [
       {
         url: "/og-image.png",

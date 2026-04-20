@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Get Driftlatch Access",
-  description:
-    "Start your Driftlatch membership. Annual plan at $59 per year. 14-day refund guarantee.",
+  title: "Thank you — Driftlatch",
   robots: {
     index: false,
     follow: false,
@@ -14,6 +12,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default function BuyLayout({ children }: { children: React.ReactNode }) {
+export default function ThanksLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
