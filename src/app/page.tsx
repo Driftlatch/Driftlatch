@@ -945,6 +945,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 export default function Home() {
   const [landingLoaded, setLandingLoaded] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const seen = sessionStorage.getItem("dl_landing_seen");
@@ -952,6 +953,13 @@ export default function Home() {
       setLandingLoaded(false);
       sessionStorage.setItem("dl_landing_seen", "1");
     }
+  }, []);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
   }, []);
 
   const heroRef = useRef<HTMLElement>(null);
@@ -1046,10 +1054,11 @@ export default function Home() {
           {/* LAYER 4 — SVG silhouette scene */}
           <motion.svg
             aria-hidden
+            className="hero-scene-svg"
             style={{ position: "absolute", inset: 0, zIndex: 4, pointerEvents: "none" }}
             width="100%"
             height="100%"
-            viewBox="0 0 1440 900"
+            viewBox={isMobile ? "180 350 1080 550" : "0 0 1440 900"}
             preserveAspectRatio="xMidYMid slice"
           >
             <defs>
@@ -1208,6 +1217,7 @@ export default function Home() {
           {/* LAYER 6 — Gradient fade: solid dark behind text, transparent below */}
           <div
             aria-hidden
+            className="hero-gradient-shelf"
             style={{
               position: "absolute",
               inset: 0,
@@ -1220,6 +1230,7 @@ export default function Home() {
 
           {/* Hero text — relative in flow, sits at top of flex column */}
           <div
+            className="hero-text-wrapper"
             style={{
               position: "relative",
               zIndex: 10,

@@ -1440,3 +1440,23 @@ textarea:focus {
 .moment-card:active {
   transform: scale(0.98) !important;
 }
+
+@media (max-width: 640px) {
+  .hero-scene-svg {
+    transform-origin: center bottom !important;
+  }
+
+  .hero-gradient-shelf {
+    background: linear-gradient(
+      to bottom,
+      #0B0B0E 0%,
+      #0B0B0E 30%,
+      rgba(11,11,14,0.6) 55%,
+      transparent 75%
+    ) !important;
+  }
+
+  .hero-text-wrapper {
+    padding-top: 72px !important;
+  }
+}
