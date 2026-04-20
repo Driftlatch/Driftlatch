@@ -975,6 +975,7 @@ export default function Home() {
   const coupleScale = useTransform(scrollYProgress, [0, 0.4], [1, 0.94]);
   const glowOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0.2]);
   const textOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+  const sceneTransform = isMobile ? "translate(200, 150) scale(0.5)" : "";
   const textY = useTransform(scrollYProgress, [0, 0.2], ["0px", "-40px"]);
 
   return (
@@ -1052,31 +1053,14 @@ export default function Home() {
             }}
           />
 
-          {/* LAYER 4 — Mobile atmosphere (shown only on mobile) */}
-          <div
-            aria-hidden
-            style={{
-              position: "absolute",
-              inset: 0,
-              zIndex: 4,
-              pointerEvents: "none",
-              background: `
-                radial-gradient(ellipse at 30% 85%, rgba(194,122,92,0.18) 0%, transparent 50%),
-                radial-gradient(ellipse at 70% 90%, rgba(194,122,92,0.12) 0%, transparent 45%),
-                radial-gradient(ellipse at 50% 95%, rgba(194,122,92,0.22) 0%, transparent 40%)
-              `,
-              display: isMobile ? "block" : "none",
-            }}
-          />
-
-          {/* LAYER 4 — SVG silhouette scene (desktop only) */}
+          {/* LAYER 4 — SVG silhouette scene */}
           <motion.svg
             aria-hidden
             className="hero-scene-svg"
-            style={{ position: "absolute", inset: 0, zIndex: 4, pointerEvents: "none", display: isMobile ? "none" : "block" }}
+            style={{ position: "absolute", inset: 0, zIndex: 4, pointerEvents: "none" }}
             width="100%"
             height="100%"
-            viewBox={isMobile ? "0 380 1440 520" : "0 0 1440 900"}
+            viewBox="0 0 1440 900"
             preserveAspectRatio="xMidYMid slice"
           >
             <defs>
@@ -1089,6 +1073,8 @@ export default function Home() {
                 <stop offset="100%" stopColor="rgba(210,130,55,0)" />
               </radialGradient>
             </defs>
+
+            <g transform={sceneTransform}>
 
             {/* FIX 4 — Ground plane */}
             <ellipse cx="720" cy="880" rx="1100" ry="90" fill="rgba(15,8,3,0.85)" />
@@ -1217,6 +1203,8 @@ export default function Home() {
             <circle cx="756" cy="654" r="2.0" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 9s linear 0.9s infinite" }} />
             <circle cx="848" cy="642" r="3.0" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 6s linear 6.8s infinite" }} />
             <circle cx="960" cy="668" r="2.5" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 11s linear 4.2s infinite" }} />
+
+            </g>
           </motion.svg>
 
           {/* LAYER 5 — Edge vignette */}
