@@ -1,5 +1,7 @@
 "use client";
 
+export const runtime = "edge";
+
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { notFound, useParams } from "next/navigation";
