@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://driftlatch.com"),
 
   title: {
-    default: "Driftlatch — Closeness at home. Clarity at work.",
+    default: "Driftlatch. Closeness at home. Clarity at work.",
     template: "%s | Driftlatch",
   },
 
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://driftlatch.com",
     siteName: "Driftlatch",
-    title: "Driftlatch — Closeness at home. Clarity at work.",
+    title: "Driftlatch. Closeness at home. Clarity at work.",
     description:
       "Manage pressure so work does not follow you home and home tension does not take your focus at work. Built for founders.",
     images: [
@@ -55,14 +55,14 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Driftlatch — Closeness at home. Clarity at work.",
+        alt: "Driftlatch. Closeness at home. Clarity at work.",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "Driftlatch — Closeness at home. Clarity at work.",
+    title: "Driftlatch. Closeness at home. Clarity at work.",
     description:
       "A privacy-first system for founders. Manage pressure so work does not follow you home.",
     images: ["/og-image.png"],
