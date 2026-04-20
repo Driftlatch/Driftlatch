@@ -1,4 +1,18 @@
+import type { Metadata } from "next";
 import OnboardingPage from "@/app/app/onboarding/page";
+
+export const metadata: Metadata = {
+  title: "Free Pressure Profile — Driftlatch",
+  description:
+    "Two minutes to see where pressure is landing. Answer 20 short statements about work, recovery, home, and tension. Free. No account needed.",
+  openGraph: {
+    title: "Take the Free Pressure Profile",
+    description:
+      "2 minutes. See exactly where pressure is landing in your life. Built for founders.",
+    url: "https://driftlatch.com/pressure-profile",
+    images: [{ url: "/og-pressure-profile.png", width: 1200, height: 630 }],
+  },
+};
 
 export default function PressureProfilePage() {
   return <OnboardingPage />;

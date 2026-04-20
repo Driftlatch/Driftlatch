@@ -24,6 +24,8 @@ import {
 import { getNeedLabel } from "@/lib/supportLabels";
 import { getSupabase } from "@/lib/supabase";
 
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
 type Answer = 0 | 1 | 2 | 3 | 4;
 
 const SCALE: { label: string; value: Answer }[] = [
@@ -563,7 +565,7 @@ function getRecoveryCardCopy(topPattern?: string): ResultCardCopy {
 
   return {
     label: "AFTER WORK RECOVERY",
-    heading: "Your system may still be on after the day ends",
+    heading: "You may still be on after the day ends",
     body:
       "Stress can stay in your body even when you are trying to rest. That often looks like tension, restlessness, or a long delay before you actually feel off.",
     startHere: getNeedLabel("wind_down"),
@@ -1204,339 +1206,199 @@ export default function OnboardingPage() {
   ]);
 
   return (
-    <main className="profile-page">
-      <div className="profile-atmosphere" aria-hidden>
-        <div className="profile-glow profile-glow-main" />
-        <div className="profile-glow profile-glow-side" />
-        <div className="profile-glow profile-glow-bottom" />
-        <div className="profile-grid-noise" />
-      </div>
+    <main className="profile-page" style={{ background: "#0B0B0E" }}>
+      <div aria-hidden style={{ position: "fixed", top: 0, left: "50%", transform: "translateX(-50%)", width: 600, height: 300, borderRadius: "50%", background: "radial-gradient(ellipse, rgba(194,122,92,0.08) 0%, transparent 70%)", filter: "blur(80px)", pointerEvents: "none" as const, zIndex: 0 }} />
 
-      <div className="profile-shell">
-        <section className="profile-section">
+      <div className="profile-shell" style={{ position: "relative", zIndex: 1 }}>
+        <AnimatePresence mode="wait">
 
           {/* ── INTRO ── */}
           {page === "intro" && (
-            <div className="profile-stack profile-intro-stack">
-              <div className="profile-card profile-hero-card profile-intro-hero-card">
-                <div className="profile-top-rim" />
-                <div className="profile-hero-inner profile-content-wrap">
-                  <span className="profile-eyebrow-pill">Pressure Profile</span>
-                  <h1 className="profile-display profile-display-intro">Two minutes to see where pressure is landing.</h1>
-                  <p className="profile-lead profile-meta-width">
-                    You will answer 20 short statements about work, recovery, home, and how you handle tension. Driftlatch uses that to show where pressure is landing and where to begin.
-                  </p>
-                </div>
-              </div>
+            <motion.div key="intro" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.28, ease: EASE }}>
+              <div style={{ maxWidth: 560, margin: "0 auto", padding: "80px 24px 40px", textAlign: "center" as const }}>
+                <span style={{ display: "inline-flex", padding: "5px 14px", borderRadius: 999, border: "1px solid rgba(194,122,92,0.2)", background: "rgba(194,122,92,0.07)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: "rgba(194,122,92,0.85)", marginBottom: 24 }}>PRESSURE PROFILE</span>
+                <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(2rem,5vw,3rem)", fontWeight: 700, letterSpacing: "-0.05em", color: "var(--text)", lineHeight: 1.05, margin: "0 0 16px" }}>Two minutes to see where pressure is landing.</h1>
+                <p style={{ fontSize: 15, color: "rgba(161,161,170,0.65)", lineHeight: 1.7, maxWidth: 440, margin: "0 auto 48px" }}>
+                  You will answer 20 short statements about work, recovery, home, and how you handle tension. Driftlatch uses that to show where pressure is landing and where to begin.
+                </p>
 
-              <div className="profile-content-wrap profile-intro-content">
-                <div className="profile-intro-grid">
-                  <div className="profile-card profile-subcard">
-                    <div className="profile-card-content">
-                      <div className="profile-eyebrow">WHAT SHOULD WE CALL YOU? (OPTIONAL)</div>
-                      <label className="profile-input-wrap">
-                        <span className="profile-sr-only">Display name</span>
-                        <input
-                          className="profile-input"
-                          type="text"
-                          value={displayNameInput}
-                          onChange={handleDisplayNameChange}
-                          placeholder="Display name"
-                          autoComplete="nickname"
-                        />
-                      </label>
-                    </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, maxWidth: 480, margin: "0 auto 36px" }}>
+                  <div style={{ padding: "20px 18px", background: "rgba(18,18,22,0.9)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, textAlign: "left" as const }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: "rgba(161,161,170,0.4)", marginBottom: 10 }}>WHAT SHOULD WE CALL YOU? (OPTIONAL)</div>
+                    <label>
+                      <span className="profile-sr-only">Display name</span>
+                      <input
+                        type="text"
+                        value={displayNameInput}
+                        onChange={handleDisplayNameChange}
+                        placeholder="Display name"
+                        autoComplete="nickname"
+                        style={{ width: "100%", padding: "11px 14px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, fontSize: 14, color: "rgba(244,244,245,0.85)", outline: "none" }}
+                      />
+                    </label>
                   </div>
 
-                  <div className="profile-card profile-subcard profile-privacy-card">
-                    <div className="profile-card-content">
-                      <div className="profile-privacy-head">
-                        <span className="profile-lock" aria-hidden>
-                          🔒
-                        </span>
-                        <span>Private by design</span>
-                      </div>
-                      <p className="profile-meta-copy">
-                        No message reading. No behavior tracking. Only what you choose to enter here.
-                      </p>
-                    </div>
+                  <div style={{ padding: "20px 18px", background: "rgba(18,18,22,0.9)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, textAlign: "left" as const }}>
+                    <span style={{ fontSize: 18, marginBottom: 8, display: "block" }} aria-hidden>🔒</span>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: "rgba(244,244,245,0.85)", marginBottom: 6 }}>Private by design</div>
+                    <p style={{ fontSize: 13, color: "rgba(161,161,170,0.55)", lineHeight: 1.55, margin: 0 }}>No message reading. No behavior tracking. Only what you choose to enter here.</p>
                   </div>
                 </div>
 
-                <div className="profile-actions profile-intro-actions">
-                  <button className="profile-btn profile-btn-primary" type="button" onClick={() => setPage("context")}>
-                    Start
-                  </button>
-                  <Link className="profile-btn profile-btn-secondary" href="/">
-                    Back to site
-                  </Link>
+                <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+                  <button type="button" onClick={() => setPage("context")} style={{ padding: "14px 36px", borderRadius: 12, fontSize: 15, fontWeight: 700, background: "linear-gradient(170deg, rgba(206,132,98,0.97), rgba(162,96,62,0.97))", border: "1px solid rgba(194,122,92,0.3)", color: "white", cursor: "pointer", boxShadow: "0 8px 32px rgba(194,122,92,0.25)" }}>Start</button>
+                  <Link href="/" style={{ padding: "14px 20px", borderRadius: 12, fontSize: 14, fontWeight: 600, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.04)", color: "rgba(161,161,170,0.6)", textDecoration: "none", display: "inline-flex", alignItems: "center" }}>Back to site</Link>
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
 
           {/* ── CONTEXT ── */}
           {page === "context" && (
-            <div className="profile-stack">
-              <div className="profile-card profile-hero-card profile-hero-card-compact">
-                <div className="profile-top-rim" />
-                <div className="profile-hero-inner profile-content-wrap">
-                  <span className="profile-eyebrow-pill">Context</span>
-                  <h1 className="profile-display profile-display-compact">Tell us what your life actually looks like.</h1>
-                  <p className="profile-meta-copy profile-meta-width">
-                    These answers help Driftlatch choose the most useful place to start. There are no right answers.
-                  </p>
-                </div>
-              </div>
+            <motion.div key="context" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.28, ease: EASE }}>
+              <div style={{ maxWidth: 640, margin: "0 auto", padding: "60px 24px" }}>
+                <span style={{ display: "inline-flex", padding: "4px 12px", borderRadius: 999, border: "1px solid rgba(194,122,92,0.2)", background: "rgba(194,122,92,0.07)", fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: "rgba(194,122,92,0.85)", marginBottom: 20 }}>CONTEXT</span>
+                <h1 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(1.6rem,4vw,2.2rem)", fontWeight: 700, letterSpacing: "-0.04em", color: "var(--text)", lineHeight: 1.1, margin: "0 0 8px" }}>Tell us what your life actually looks like.</h1>
+                <p style={{ fontSize: 14, color: "rgba(161,161,170,0.55)", lineHeight: 1.6, margin: "0 0 36px" }}>These answers help Driftlatch choose the most useful place to start. There are no right answers.</p>
 
-              <div className="profile-context-layout">
-                <div className="profile-context-grid">
-                  <div className="profile-card profile-subcard">
-                    <div className="profile-card-content">
-                      <div className="profile-eyebrow">Who is at home with you most days?</div>
-                      <div className="profile-choice-grid">
-                        {(["Partner/spouse", "Kids/family", "Partner + kids", "Long distance", "Solo"] as HomeSetup[]).map((v) => {
-                          const selected = homeSetup === v;
-                          return (
-                            <button
-                              key={v}
-                              type="button"
-                              className={`profile-choice ${selected ? "is-selected" : ""}`}
-                              style={
-                                {
-                                  "--choice-accent": "rgba(194, 122, 92, 0.94)",
-                                  "--choice-border": "rgba(194, 122, 92, 0.34)",
-                                } as CSSProperties
-                              }
-                              onClick={() => setHomeSetup(v)}
-                            >
-                              {v}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="profile-card profile-subcard">
-                    <div className="profile-card-content">
-                      <div className="profile-eyebrow">How intense is work right now?</div>
-                      <div className="profile-choice-grid">
-                        {(["Normal", "Busy", "Peak pressure"] as WorkIntensity[]).map((v) => {
-                          const selected = workIntensity === v;
-                          return (
-                            <button
-                              key={v}
-                              type="button"
-                              className={`profile-choice ${selected ? "is-selected" : ""}`}
-                              style={
-                                {
-                                  "--choice-accent": "rgba(126, 150, 188, 0.92)",
-                                  "--choice-border": "rgba(126, 150, 188, 0.34)",
-                                } as CSSProperties
-                              }
-                              onClick={() => setWorkIntensity(v)}
-                            >
-                              {v}
-                            </button>
-                          );
-                        })}
-                      </div>
-
-                      <div className="profile-divider" />
-
-                      <div className="profile-eyebrow">Where is pressure spilling over?</div>
-                      <div className="profile-choice-grid">
-                        {(["Work → home", "Home → work", "Both ways"] as Spillover[]).map((v) => {
-                          const selected = spillover === v;
-                          return (
-                            <button
-                              key={v}
-                              type="button"
-                              className={`profile-choice ${selected ? "is-selected" : ""}`}
-                              style={
-                                {
-                                  "--choice-accent": "rgba(168, 118, 136, 0.9)",
-                                  "--choice-border": "rgba(168, 118, 136, 0.32)",
-                                } as CSSProperties
-                              }
-                              onClick={() => setSpillover(v)}
-                            >
-                              {v}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="profile-card profile-subcard">
-                  <div className="profile-card-content">
-                    <div className="profile-eyebrow">What do you most want to protect?</div>
-                    <div className="profile-choice-grid">
-                      {(["Clarity at work", "Closeness at home", "Both"] as Priority[]).map((v) => {
-                        const selected = priority === v;
-                        return (
-                          <button
-                            key={v}
-                            type="button"
-                            className={`profile-choice ${selected ? "is-selected" : ""}`}
-                            style={
-                              {
-                                "--choice-accent": "rgba(194, 122, 92, 0.94)",
-                                "--choice-border": "rgba(194, 122, 92, 0.34)",
-                              } as CSSProperties
-                            }
-                            onClick={() => setPriority(v)}
-                          >
-                            {v}
-                          </button>
-                        );
-                      })}
-                    </div>
-                    <p className="profile-meta-copy profile-meta-spaced">
-                      This helps Driftlatch choose the kind of support most likely to help first.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="profile-actions profile-context-actions">
-                  <button className="profile-btn profile-btn-primary" type="button" onClick={() => goToQuestion(0)}>
-                    Continue
-                  </button>
-                  <button className="profile-btn profile-btn-secondary" type="button" onClick={() => setPage("intro")}>
-                    Back
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ── QUESTIONS ── */}
-          {(page === "q1" || page === "q2" || page === "q3" || page === "q4") && (
-            <div className="profile-stack">
-              <div className="profile-card profile-progress-card">
-                <div className="profile-top-rim" />
-                <div className="profile-content-wrap profile-progress-wrap">
-                  <div className="profile-progress-copy">
-                    <span className="profile-eyebrow-pill">Pressure Profile · {progressLabel(page)}</span>
-                    <h1 className="profile-display profile-display-compact">Answer based on the last two weeks.</h1>
-                    <p className="profile-meta-copy profile-meta-width profile-progress-helper">
-                      Choose what has been most true lately, not what would be true on your best week.
-                    </p>
-                  </div>
-
-                  <div className="profile-progress-rail" aria-label="Overall progress">
-                    <motion.div
-                      className="profile-progress-fill"
-                      animate={{ width: `${totalProgressPct}%` }}
-                      transition={{ duration: 0.3, ease: "easeOut" }}
-                    />
-                  </div>
-
-                  <div className="profile-segment-grid">
-                    {groupedProgress.map((segment) => {
-                      const tone = toneForResultDomain(segment.label);
+                {/* Who is at home */}
+                <div style={{ position: "relative", overflow: "hidden", background: "rgba(18,18,22,0.9)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 22, padding: "22px 20px", marginBottom: 12 }}>
+                  <div aria-hidden style={{ position: "absolute", top: 0, left: 16, right: 16, height: 1, background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent)", pointerEvents: "none" as const }} />
+                  <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: "rgba(161,161,170,0.4)", marginBottom: 14 }}>Who is at home with you most days?</div>
+                  <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
+                    {(["Partner/spouse", "Kids/family", "Partner + kids", "Long distance", "Solo"] as HomeSetup[]).map((v) => {
+                      const selected = homeSetup === v;
                       return (
-                        <div key={segment.label} className="profile-segment">
-                          <div className="profile-segment-label">{segment.label}</div>
-                          <div className="profile-segment-track">
-                            <div
-                              className="profile-segment-fill"
-                              style={
-                                {
-                                  width: `${segment.value}%`,
-                                  "--segment-accent": tone.accent,
-                                } as CSSProperties
-                              }
-                            />
-                          </div>
-                        </div>
+                        <button key={v} type="button" onClick={() => setHomeSetup(v)} style={{ padding: "9px 18px", borderRadius: 999, border: selected ? "1px solid rgba(194,122,92,0.28)" : "1px solid rgba(255,255,255,0.08)", background: selected ? "rgba(194,122,92,0.12)" : "rgba(255,255,255,0.04)", fontSize: 13, fontWeight: 500, color: selected ? "rgba(194,122,92,0.9)" : "rgba(161,161,170,0.6)", cursor: "pointer", transition: "all 0.18s ease" }}>{v}</button>
                       );
                     })}
                   </div>
                 </div>
-              </div>
 
-              <div
-                className="profile-card profile-question-card"
-                style={
-                  {
-                    "--question-accent": currentQuestionTone.accent,
-                    "--question-border": currentQuestionTone.border,
-                    "--question-glow": currentQuestionTone.glow,
-                    "--question-soft": currentQuestionTone.soft,
-                  } as CSSProperties
-                }
-              >
-                <div className="profile-content-wrap profile-question-wrap">
-                  <div className="profile-question-shell">
-                    <div className="profile-question-meta-row">
-                      <span className="profile-question-domain">{currentQuestionTone.label}</span>
-                      <span className="profile-question-count">{withinGroupIndex} of 5</span>
-                    </div>
-
-                    <AnimatePresence mode="wait">
-                      <motion.div
-                        className="profile-question-motion"
-                        key={currentQuestionIndex}
-                        initial={{ x: 40, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: -40, opacity: 0 }}
-                        transition={{ duration: 0.3, ease: "easeOut" }}
-                      >
-                        <div className="profile-card profile-question-surface">
-                          <div className="profile-card-content profile-question-content">
-                            <div className="profile-question-text">
-                              {currentQuestion.id}. {currentQuestion.text}
-                            </div>
-
-                            <div className="profile-scale-group">
-                              <div className="profile-scale-row">
-                                {SCALE.map((opt, i) => {
-                                  const selected = answers[currentQuestionIndex] === opt.value;
-                                  return (
-                                    <button
-                                      key={opt.label}
-                                      type="button"
-                                      aria-label={`${i + 1}`}
-                                      className={`profile-scale-button ${selected ? "is-selected" : ""}`}
-                                      onClick={() => setAnswer(currentQuestionIndex, opt.value)}
-                                    >
-                                      <span className="profile-scale-number">{i + 1}</span>
-                                    </button>
-                                  );
-                                })}
-                              </div>
-                              <div className="profile-scale-legend">
-                                <span>1 = Never</span>
-                                <span>5 = Almost always</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    </AnimatePresence>
+                {/* Work intensity + spillover */}
+                <div style={{ position: "relative", overflow: "hidden", background: "rgba(18,18,22,0.9)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 22, padding: "22px 20px", marginBottom: 12 }}>
+                  <div aria-hidden style={{ position: "absolute", top: 0, left: 16, right: 16, height: 1, background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent)", pointerEvents: "none" as const }} />
+                  <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: "rgba(161,161,170,0.4)", marginBottom: 14 }}>How intense is work right now?</div>
+                  <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
+                    {(["Normal", "Busy", "Peak pressure"] as WorkIntensity[]).map((v) => {
+                      const selected = workIntensity === v;
+                      return (
+                        <button key={v} type="button" onClick={() => setWorkIntensity(v)} style={{ padding: "9px 18px", borderRadius: 999, border: selected ? "1px solid rgba(194,122,92,0.28)" : "1px solid rgba(255,255,255,0.08)", background: selected ? "rgba(194,122,92,0.12)" : "rgba(255,255,255,0.04)", fontSize: 13, fontWeight: 500, color: selected ? "rgba(194,122,92,0.9)" : "rgba(161,161,170,0.6)", cursor: "pointer", transition: "all 0.18s ease" }}>{v}</button>
+                      );
+                    })}
                   </div>
 
-                  <div className="profile-actions profile-actions-inline">
-                    {currentQuestionIndex > 0 && (
-                      <button className="profile-btn profile-btn-secondary" type="button" onClick={goBackQuestion}>
-                        Back
-                      </button>
-                    )}
-                    <button className="profile-btn profile-btn-primary" type="button" onClick={goNextQuestion}>
-                      {currentQuestionIndex === 19 ? "See my map" : "Next"}
-                    </button>
+                  <div style={{ height: 1, margin: "18px 0", background: "linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.12), rgba(255,255,255,0.04))" }} />
+
+                  <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: "rgba(161,161,170,0.4)", marginBottom: 14 }}>Where is pressure spilling over?</div>
+                  <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
+                    {(["Work → home", "Home → work", "Both ways"] as Spillover[]).map((v) => {
+                      const selected = spillover === v;
+                      return (
+                        <button key={v} type="button" onClick={() => setSpillover(v)} style={{ padding: "9px 18px", borderRadius: 999, border: selected ? "1px solid rgba(194,122,92,0.28)" : "1px solid rgba(255,255,255,0.08)", background: selected ? "rgba(194,122,92,0.12)" : "rgba(255,255,255,0.04)", fontSize: 13, fontWeight: 500, color: selected ? "rgba(194,122,92,0.9)" : "rgba(161,161,170,0.6)", cursor: "pointer", transition: "all 0.18s ease" }}>{v}</button>
+                      );
+                    })}
                   </div>
                 </div>
+
+                {/* What to protect */}
+                <div style={{ position: "relative", overflow: "hidden", background: "rgba(18,18,22,0.9)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 22, padding: "22px 20px", marginBottom: 12 }}>
+                  <div aria-hidden style={{ position: "absolute", top: 0, left: 16, right: 16, height: 1, background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent)", pointerEvents: "none" as const }} />
+                  <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: "rgba(161,161,170,0.4)", marginBottom: 14 }}>What do you most want to protect?</div>
+                  <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
+                    {(["Clarity at work", "Closeness at home", "Both"] as Priority[]).map((v) => {
+                      const selected = priority === v;
+                      return (
+                        <button key={v} type="button" onClick={() => setPriority(v)} style={{ padding: "9px 18px", borderRadius: 999, border: selected ? "1px solid rgba(194,122,92,0.28)" : "1px solid rgba(255,255,255,0.08)", background: selected ? "rgba(194,122,92,0.12)" : "rgba(255,255,255,0.04)", fontSize: 13, fontWeight: 500, color: selected ? "rgba(194,122,92,0.9)" : "rgba(161,161,170,0.6)", cursor: "pointer", transition: "all 0.18s ease" }}>{v}</button>
+                      );
+                    })}
+                  </div>
+                  <p style={{ margin: "12px 0 0", color: "rgba(161,161,170,0.55)", fontSize: 13, lineHeight: 1.6 }}>This helps Driftlatch choose the kind of support most likely to help first.</p>
+                </div>
+
+                <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 24 }}>
+                  <button type="button" onClick={() => goToQuestion(0)} style={{ padding: "14px 36px", borderRadius: 12, fontSize: 15, fontWeight: 700, background: "linear-gradient(170deg, rgba(206,132,98,0.97), rgba(162,96,62,0.97))", border: "1px solid rgba(194,122,92,0.3)", color: "white", cursor: "pointer", boxShadow: "0 8px 32px rgba(194,122,92,0.25)" }}>Continue</button>
+                  <button type="button" onClick={() => setPage("intro")} style={{ padding: "14px 20px", borderRadius: 12, fontSize: 14, fontWeight: 600, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.04)", color: "rgba(161,161,170,0.6)", cursor: "pointer" }}>Back</button>
+                </div>
               </div>
-            </div>
+            </motion.div>
+          )}
+
+          {/* ── QUESTIONS ── */}
+          {(page === "q1" || page === "q2" || page === "q3" || page === "q4") && (
+            <motion.div key={page} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.28, ease: EASE }}>
+              <div style={{ maxWidth: 600, margin: "0 auto", padding: "40px 24px" }}>
+                {/* Overall progress bar */}
+                <div style={{ width: "100%", height: 2, borderRadius: 999, background: "rgba(255,255,255,0.06)", marginBottom: 8 }}>
+                  <div style={{ height: "100%", borderRadius: 999, background: "rgba(194,122,92,0.6)", width: `${totalProgressPct}%`, transition: "width 0.4s ease" }} />
+                </div>
+
+                {/* Domain progress row */}
+                <div style={{ display: "flex", gap: 0, marginBottom: 40 }}>
+                  {(["Work", "Recovery", "Home", "Connection"] as DomainName[]).map((label) => {
+                    const domainKey = RESULT_DOMAIN_TO_QUESTION_DOMAIN[label];
+                    const isActive = currentQuestion.domain === domainKey;
+                    return (
+                      <div key={label} style={{ flex: 1, textAlign: "center" as const }}>
+                        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: isActive ? "rgba(194,122,92,0.8)" : "rgba(161,161,170,0.25)" }}>{label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Question card */}
+                <div style={{ position: "relative", overflow: "hidden", background: "rgba(18,18,22,0.9)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 22, backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", boxShadow: "0 24px 70px rgba(0,0,0,0.45)", padding: "28px 24px", marginBottom: 20 }}>
+                  {/* Rim light */}
+                  <div aria-hidden style={{ position: "absolute", top: 0, left: 16, right: 16, height: 1, background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent)", pointerEvents: "none" as const }} />
+
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    {/* Domain badge */}
+                    <span style={{ display: "inline-flex", padding: "4px 12px", borderRadius: 999, border: `1px solid ${currentQuestionTone.border}`, background: currentQuestionTone.soft, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: currentQuestionTone.accent }}>{currentQuestionTone.label}</span>
+                    {/* Question counter */}
+                    <span style={{ fontSize: 12, color: "rgba(161,161,170,0.3)", fontWeight: 500 }}>{withinGroupIndex} OF 5</span>
+                  </div>
+
+                  <AnimatePresence mode="wait">
+                    <motion.div key={currentQuestionIndex} initial={{ x: 40, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -40, opacity: 0 }} transition={{ duration: 0.3, ease: "easeOut" }}>
+                      <div style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(1.1rem,2.5vw,1.35rem)", fontWeight: 700, letterSpacing: "-0.025em", color: "rgba(244,244,245,0.92)", lineHeight: 1.5, marginTop: 16, marginBottom: 0 }}>
+                        {currentQuestion.id}. {currentQuestion.text}
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+
+                {/* Answer options */}
+                <div style={{ display: "flex", gap: 8, marginTop: 28, marginBottom: 8, alignItems: "stretch" }}>
+                  {SCALE.map((opt, i) => {
+                    const selected = answers[currentQuestionIndex] === opt.value;
+                    return (
+                      <button key={opt.label} type="button" aria-label={`${i + 1}`} onClick={() => setAnswer(currentQuestionIndex, opt.value)} style={{ flex: 1, padding: "16px 8px", borderRadius: 12, textAlign: "center" as const, cursor: "pointer", transition: "all 0.18s ease", border: selected ? "1px solid rgba(194,122,92,0.3)" : "1px solid rgba(255,255,255,0.07)", background: selected ? "rgba(194,122,92,0.12)" : "rgba(255,255,255,0.03)", display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", gap: 6, transform: selected ? "scale(1.04)" : "scale(1)" }}>
+                        <span style={{ fontSize: 18, fontWeight: 700, color: selected ? "rgba(194,122,92,0.95)" : "rgba(244,244,245,0.7)" }}>{i + 1}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Scale labels */}
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
+                  <span style={{ fontSize: 11, color: "rgba(161,161,170,0.3)", fontWeight: 500 }}>Never</span>
+                  <span style={{ fontSize: 11, color: "rgba(161,161,170,0.3)", fontWeight: 500 }}>Almost always</span>
+                </div>
+
+                {/* Navigation */}
+                <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 24 }}>
+                  {currentQuestionIndex > 0 && (
+                    <button type="button" onClick={goBackQuestion} style={{ padding: "13px 20px", borderRadius: 10, fontSize: 14, fontWeight: 600, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.04)", color: "rgba(161,161,170,0.6)", cursor: "pointer" }}>Back</button>
+                  )}
+                  <button type="button" onClick={goNextQuestion} style={{ padding: "13px 32px", borderRadius: 10, fontSize: 15, fontWeight: 700, background: "linear-gradient(170deg, rgba(206,132,98,0.97), rgba(162,96,62,0.97))", border: "1px solid rgba(194,122,92,0.3)", color: "white", cursor: "pointer", boxShadow: "0 8px 32px rgba(194,122,92,0.25)" }}>{currentQuestionIndex === 19 ? "See my map" : "Next"}</button>
+                </div>
+              </div>
+            </motion.div>
           )}
 
           {/* ── RESULTS ── */}
           {page === "results" && (
+            <motion.div key="results" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.28, ease: EASE }}>
             <div className="profile-stack profile-results-stack">
               <div className="profile-card profile-results-hero">
                 <div className="profile-top-rim profile-top-rim-strong" />
@@ -1628,6 +1490,29 @@ export default function OnboardingPage() {
                   <p className="profile-meta-copy profile-meta-width">{personalizedResultCopy.startSummary}</p>
                   <p className="profile-meta-copy profile-meta-width profile-meta-spaced">{personalizedResultCopy.startDetail}</p>
                   <div className="profile-soft-divider" />
+
+                  {!isPublicFlow || isLoggedIn ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "28px 0" }} />
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+                        <div>
+                          <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: "rgba(194,122,92,0.55)", marginBottom: 5, display: "block" }}>NEXT LAYER</span>
+                          <span style={{ fontSize: 14, color: "rgba(244,244,245,0.75)", lineHeight: 1.55 }}>See how your EQ holds up under this pressure pattern.</span>
+                        </div>
+                        <Link
+                          href="/pressure-eq"
+                          style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 16px", borderRadius: 999, background: "rgba(194,122,92,0.1)", border: "1px solid rgba(194,122,92,0.2)", color: "rgba(194,122,92,0.85)", fontSize: 13, fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap" as const, flexShrink: 0 }}
+                        >
+                          4 min →
+                        </Link>
+                      </div>
+                    </motion.div>
+                  ) : null}
+
                   <div className="profile-actions profile-actions-wrap">
                     {isPublicFlow && !isLoggedIn ? (
                       <>
@@ -1666,8 +1551,9 @@ export default function OnboardingPage() {
                 </div>
               </div>
             </div>
+            </motion.div>
           )}
-        </section>
+        </AnimatePresence>
       </div>
       <style jsx>{ONBOARDING_THEME_STYLES}</style>
     </main>

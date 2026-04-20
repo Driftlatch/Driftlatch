@@ -5,7 +5,9 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import Link from "next/link";
+import { AnimatePresence } from "framer-motion";
 import NavBar from "./NavBar";
+import AppSplash from "./AppSplash";
 import {
   hasAppAccess,
   hasCompletedSetup,
@@ -50,9 +52,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         }
 
         if (!authState.session) {
-          logAppGuard("Missing session. Redirecting to login.", {
-            pathname,
-          });
+          logAppGuard("Missing session. Redirecting to login.", { pathname });
           setGuardError(null);
           setReady(false);
           router.replace(loginHref);
@@ -94,9 +94,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         }
 
         if (setupComplete && pathname === SETUP_ROUTE) {
-          logAppGuard("Setup already complete. Redirecting to app home.", {
-            pathname,
-          });
+          logAppGuard("Setup already complete. Redirecting to app home.", { pathname });
           setGuardError(null);
           setReady(false);
           router.replace(APP_ROUTE);
@@ -128,9 +126,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       if (!active) return;
 
       if (event === "SIGNED_OUT") {
-        logAppGuard("Auth event SIGNED_OUT", {
-          pathname,
-        });
+        logAppGuard("Auth event SIGNED_OUT", { pathname });
         setGuardError(null);
         setReady(false);
         router.replace(loginHref);
@@ -191,6 +187,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <>
+      <AnimatePresence>
+        <AppSplash />
+      </AnimatePresence>
       <div
         style={{
           minHeight: "100svh",

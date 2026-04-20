@@ -14,15 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      billing_events: {
+        Row: {
+          error_message: string | null
+          event_id: string | null
+          event_type: string
+          id: string
+          payload: Json
+          processed_at: string | null
+          provider: string
+          received_at: string
+          status: string
+        }
+        Insert: {
+          error_message?: string | null
+          event_id?: string | null
+          event_type: string
+          id?: string
+          payload: Json
+          processed_at?: string | null
+          provider?: string
+          received_at?: string
+          status?: string
+        }
+        Update: {
+          error_message?: string | null
+          event_id?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          provider?: string
+          received_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
       user_checkins: {
         Row: {
           created_at: string | null
           did_complete: boolean | null
+          helpfulness: number | null
           id: string
           need: string | null
+          rated_at: string | null
           room_tone: string | null
-          source: string | null
+          shift: number | null
           situation: string | null
+          source: string | null
           state: string | null
           time_minutes: number | null
           tool_id: string | null
@@ -31,11 +70,14 @@ export type Database = {
         Insert: {
           created_at?: string | null
           did_complete?: boolean | null
+          helpfulness?: number | null
           id?: string
           need?: string | null
+          rated_at?: string | null
           room_tone?: string | null
-          source?: string | null
+          shift?: number | null
           situation?: string | null
+          source?: string | null
           state?: string | null
           time_minutes?: number | null
           tool_id?: string | null
@@ -44,11 +86,14 @@ export type Database = {
         Update: {
           created_at?: string | null
           did_complete?: boolean | null
+          helpfulness?: number | null
           id?: string
           need?: string | null
+          rated_at?: string | null
           room_tone?: string | null
-          source?: string | null
+          shift?: number | null
           situation?: string | null
+          source?: string | null
           state?: string | null
           time_minutes?: number | null
           tool_id?: string | null
@@ -58,8 +103,9 @@ export type Database = {
       }
       user_entitlements: {
         Row: {
-          cancel_at_period_end: boolean | null
-          created_at: string | null
+          access_expires_at: string | null
+          cancel_at_period_end: boolean
+          created_at: string
           current_period_end: string | null
           last_event_at: string | null
           last_event_id: string | null
@@ -68,13 +114,15 @@ export type Database = {
           paddle_subscription_id: string | null
           paddle_transaction_id: string | null
           plan: string | null
-          status: string | null
-          updated_at: string | null
+          status: string
+          trial_ends_at: string | null
+          updated_at: string
           user_id: string
         }
         Insert: {
-          cancel_at_period_end?: boolean | null
-          created_at?: string | null
+          access_expires_at?: string | null
+          cancel_at_period_end?: boolean
+          created_at?: string
           current_period_end?: string | null
           last_event_at?: string | null
           last_event_id?: string | null
@@ -83,13 +131,15 @@ export type Database = {
           paddle_subscription_id?: string | null
           paddle_transaction_id?: string | null
           plan?: string | null
-          status?: string | null
-          updated_at?: string | null
+          status?: string
+          trial_ends_at?: string | null
+          updated_at?: string
           user_id: string
         }
         Update: {
-          cancel_at_period_end?: boolean | null
-          created_at?: string | null
+          access_expires_at?: string | null
+          cancel_at_period_end?: boolean
+          created_at?: string
           current_period_end?: string | null
           last_event_at?: string | null
           last_event_id?: string | null
@@ -98,9 +148,157 @@ export type Database = {
           paddle_subscription_id?: string | null
           paddle_transaction_id?: string | null
           plan?: string | null
-          status?: string | null
-          updated_at?: string | null
+          status?: string
+          trial_ends_at?: string | null
+          updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_eq_checkins: {
+        Row: {
+          created_at: string
+          domain: string
+          id: string
+          micro_question: string
+          response: number
+          state_at_checkin: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          domain: string
+          id?: string
+          micro_question: string
+          response: number
+          state_at_checkin?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          domain?: string
+          id?: string
+          micro_question?: string
+          response?: number
+          state_at_checkin?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_eq_profile: {
+        Row: {
+          archetype: string
+          boundary_intel: number
+          completed_at: string
+          has_kids_context: boolean
+          has_partner_context: boolean
+          opening_paragraph: string
+          presence_quality: number
+          pressure_reading: number
+          recovery_aware: number
+          repair_instinct: number
+          signal_accuracy: number
+          updated_at: string
+          user_id: string
+          version: number
+          weakest_domain: string
+        }
+        Insert: {
+          archetype: string
+          boundary_intel: number
+          completed_at?: string
+          has_kids_context?: boolean
+          has_partner_context?: boolean
+          opening_paragraph: string
+          presence_quality: number
+          pressure_reading: number
+          recovery_aware: number
+          repair_instinct: number
+          signal_accuracy: number
+          updated_at?: string
+          user_id: string
+          version?: number
+          weakest_domain: string
+        }
+        Update: {
+          archetype?: string
+          boundary_intel?: number
+          completed_at?: string
+          has_kids_context?: boolean
+          has_partner_context?: boolean
+          opening_paragraph?: string
+          presence_quality?: number
+          pressure_reading?: number
+          recovery_aware?: number
+          repair_instinct?: number
+          signal_accuracy?: number
+          updated_at?: string
+          user_id?: string
+          version?: number
+          weakest_domain?: string
+        }
+        Relationships: []
+      }
+      user_eq_sessions: {
+        Row: {
+          completed_at: string
+          id: string
+          raw_scores: Json
+          scenario_ids: string[]
+          session_type: string
+          user_id: string | null
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          raw_scores: Json
+          scenario_ids: string[]
+          session_type?: string
+          user_id?: string | null
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          raw_scores?: Json
+          scenario_ids?: string[]
+          session_type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_moment_reviews: {
+        Row: {
+          created_at: string
+          fixit_cards: Json | null
+          fixit_used: string | null
+          id: string
+          moment_type: string
+          reflection_text: string | null
+          state_before: string
+          user_id: string | null
+          who_involved: string
+        }
+        Insert: {
+          created_at?: string
+          fixit_cards?: Json | null
+          fixit_used?: string | null
+          id?: string
+          moment_type: string
+          reflection_text?: string | null
+          state_before: string
+          user_id?: string | null
+          who_involved: string
+        }
+        Update: {
+          created_at?: string
+          fixit_cards?: Json | null
+          fixit_used?: string | null
+          id?: string
+          moment_type?: string
+          reflection_text?: string | null
+          state_before?: string
+          user_id?: string | null
+          who_involved?: string
         }
         Relationships: []
       }
@@ -129,8 +327,8 @@ export type Database = {
         Row: {
           attachment_style: string | null
           created_at: string | null
-          display_name: string | null
           defaults: Json | null
+          display_name: string | null
           updated_at: string | null
           user_id: string
           username: string | null
@@ -138,8 +336,8 @@ export type Database = {
         Insert: {
           attachment_style?: string | null
           created_at?: string | null
-          display_name?: string | null
           defaults?: Json | null
+          display_name?: string | null
           updated_at?: string | null
           user_id: string
           username?: string | null
@@ -147,8 +345,8 @@ export type Database = {
         Update: {
           attachment_style?: string | null
           created_at?: string | null
-          display_name?: string | null
           defaults?: Json | null
+          display_name?: string | null
           updated_at?: string | null
           user_id?: string
           username?: string | null

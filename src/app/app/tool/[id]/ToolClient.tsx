@@ -24,7 +24,7 @@ type LocalFeedbackEntry = {
 
 type CheckinId = string;
 type CheckinMode = "quick" | "standard";
-type CheckinSource = "explicit" | "implicit";
+type CheckinSource = "checkin" | "home";
 type CheckinContext = {
   state: DriftState;
   need: DriftNeed;
@@ -217,9 +217,23 @@ async function insertCheckinDraft(
     user_id: string;
   },
 ) {
+  // Home state taps record only state + source. All other fields are null.
+  const isHome = payload.source === "home";
+  const insertPayload = {
+    user_id: payload.user_id,
+    state: payload.state,
+    source: payload.source,
+    need: isHome ? null : payload.need,
+    room_tone: isHome ? null : payload.room_tone,
+    situation: isHome ? null : payload.situation,
+    time_minutes: isHome ? null : payload.time_minutes,
+    tool_id: isHome ? null : payload.tool_id,
+    did_complete: isHome ? null : payload.did_complete,
+  };
+
   const insertWithSource = await supabase
     .from("user_checkins")
-    .insert(payload)
+    .insert(insertPayload)
     .select("id")
     .single();
 
@@ -229,17 +243,18 @@ async function insertCheckinDraft(
 
   if (!sourceMissing) return insertWithSource;
 
+  // Fallback: DB schema predates the source column — omit it.
   return supabase
     .from("user_checkins")
     .insert({
       user_id: payload.user_id,
       state: payload.state,
-      need: payload.need,
-      room_tone: payload.room_tone,
-      situation: payload.situation,
-      time_minutes: payload.time_minutes,
-      tool_id: payload.tool_id,
-      did_complete: payload.did_complete,
+      need: isHome ? null : payload.need,
+      room_tone: isHome ? null : payload.room_tone,
+      situation: isHome ? null : payload.situation,
+      time_minutes: isHome ? null : payload.time_minutes,
+      tool_id: isHome ? null : payload.tool_id,
+      did_complete: isHome ? null : payload.did_complete,
     })
     .select("id")
     .single();
@@ -348,7 +363,7 @@ export default function ToolClient({ tool }: { tool: Tool }) {
       mode,
       attachmentStyle,
       preferredPackIds: preferredPackIds.length > 0 ? preferredPackIds : readStoredPreferredPackIds(),
-      source: fromCheckin ? "explicit" : "implicit",
+      source: fromCheckin ? "checkin" : "home",
     };
   }, [attachmentStyleParam, fromCheckin, modeParam, needParam, preferredPackIdsParam, roomToneParam, situationParam, stateParam, timeParam, tool]);
   const whyThisNow = useMemo(
@@ -379,7 +394,7 @@ export default function ToolClient({ tool }: { tool: Tool }) {
   const draftPromiseRef = useRef<Promise<CheckinId | null> | null>(null);
   const trackedToolOpenRef = useRef<string | null>(null);
   const checkinExcludeBucketKey = useMemo(
-    () => (checkinContext?.source === "explicit" ? buildCheckinBucketKey(checkinContext) : null),
+    () => (checkinContext?.source === "checkin" ? buildCheckinBucketKey(checkinContext) : null),
     [checkinContext]
   );
 
@@ -550,7 +565,6 @@ export default function ToolClient({ tool }: { tool: Tool }) {
       .update({
         did_complete: true,
         helpful_score: nextHelpfulScore,
-        shift: nextShift,
       })
       .eq("id", nextCheckinId)
       .eq("user_id", userId);
@@ -901,7 +915,7 @@ export default function ToolClient({ tool }: { tool: Tool }) {
 const mainStyle: CSSProperties = {
   minHeight: "100dvh",
   background: "var(--bg)",
-  padding: "32px 20px 96px",
+  padding: "48px 20px 100px",
   WebkitTapHighlightColor: "transparent",
 };
 
@@ -932,12 +946,12 @@ function ambientGlowStyle(color: string): CSSProperties {
 const glassStyle: CSSProperties = {
   position: "relative",
   overflow: "hidden",
-  background: "rgba(39,39,42,0.62)",
-  border: "1px solid rgba(255,255,255,0.08)",
-  borderRadius: 24,
+  background: "rgba(18,18,22,0.9)",
+  border: "1px solid rgba(255,255,255,0.07)",
+  borderRadius: 22,
   backdropFilter: "blur(24px)",
   WebkitBackdropFilter: "blur(24px)",
-  boxShadow: "0 20px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.07)",
+  boxShadow: "0 24px 70px rgba(0,0,0,0.45)",
 };
 
 const toolCardStyle: CSSProperties = {
@@ -990,10 +1004,10 @@ function eyebrowStyle(color: string): CSSProperties {
 
 const titleStyle: CSSProperties = {
   margin: 0,
-  color: "var(--text)",
-  fontSize: "clamp(2rem, 5vw, 3rem)",
-  lineHeight: 1,
-  letterSpacing: "-0.04em",
+  color: "rgba(244,244,245,0.93)",
+  fontSize: "clamp(2.2rem, 7vw, 3.8rem)",
+  lineHeight: 0.96,
+  letterSpacing: "-0.055em",
   fontWeight: 700,
   fontFamily: "Zodiak, Georgia, serif",
 };

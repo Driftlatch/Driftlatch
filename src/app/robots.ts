@@ -6,8 +6,9 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: "/app/",
+        disallow: ["/app/", "/api/", "/login", "/buy", "/thanks"],
       },
     ],
+    sitemap: "https://driftlatch.com/sitemap.xml",
   };
 }

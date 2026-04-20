@@ -10,6 +10,7 @@ import {
   ToolSituation,
 } from "./toolLibrary";
 import { isRoomToneForSituation, type RoomTone } from "./roomTone";
+import { EQ_DOMAIN_PACK_MAP, type EQDomain } from "./userContext";
 
 export type SelectInput = {
   need: DriftNeed;
@@ -22,6 +23,7 @@ export type SelectInput = {
   preferredPackIds?: string[];
   // optional: used to avoid repeating the same exact tool when user taps "Another option"
   excludeToolIds?: string[];
+  weakestEQDomain?: EQDomain | null;
 };
 
 export type SelectOutput = {
@@ -842,6 +844,14 @@ function scoreTool(
   applyScore(packWeight.score, "pack_fit");
   reasons.push(...packWeight.reasons);
   suppressions.push(...packWeight.suppressions);
+
+  // EQ domain boost
+  if (input.weakestEQDomain) {
+    const boostedPacks = EQ_DOMAIN_PACK_MAP[input.weakestEQDomain];
+    if (boostedPacks && boostedPacks.includes(t.pack_id)) {
+      applyScore(15, "eq_domain_boost");
+    }
+  }
 
   const demandWeight = getDemandWeight(t, input);
   applyScore(demandWeight.score, "demand_fit");

@@ -252,7 +252,9 @@ function normalizeRoomTone(situation: DriftSituation | null, value: string | nul
 }
 
 function resolveCheckinSignalSource(row: WeeklyCheckinRow): ResolvedSignalSource {
-  return row.source === "implicit" ? "implicit" : "explicit";
+  // "home" and legacy "implicit" are both implicit signals (state-only taps).
+  // "checkin" and legacy "explicit" are explicit (full check-in flow).
+  return row.source === "implicit" || row.source === "home" ? "implicit" : "explicit";
 }
 
 function resolveCheckinRow(row: WeeklyCheckinRow): ResolvedCheckinRow {
@@ -282,7 +284,7 @@ export function normalizeCheckinRows(rows: WeeklyCheckinRow[]) {
       room_tone: typeof row.room_tone === "string" ? row.room_tone : null,
       shift: typeof row.shift === "string" ? row.shift : null,
       situation: isDriftSituation(row.situation) ? row.situation : null,
-      source: row.source === "implicit" ? "implicit" : "explicit",
+      source: row.source === "implicit" || row.source === "home" ? "implicit" : "explicit",
       state: isDriftState(row.state) ? row.state : null,
       time_minutes: typeof row.time_minutes === "number" ? row.time_minutes : null,
       tool_id: typeof row.tool_id === "string" ? row.tool_id : null,

@@ -20,6 +20,7 @@ import { getUserMetadataDisplayName, loadCurrentUserAppState, resolveUserDisplay
 import { getPackPurpose as getSupportPurpose } from "@/lib/supportLabels";
 import { getSupabase } from "@/lib/supabase";
 import { getPackName, LIBRARY } from "@/lib/toolLibrary";
+import { selectTool } from "@/lib/selectTool";
 import {
   EMPTY_WEEKLY_CHECKINS_FETCH_META,
   RANGE_DAYS as WEEKLY_RANGE_DAYS,
@@ -39,8 +40,20 @@ import {
   type WeeklyRecentRow,
 } from "@/lib/weeklyReflection";
 import type { AttachmentStyle, DriftNeed, DriftState } from "@/lib/toolLibrary";
+import { buildUserMomentContext, generateHomeGreeting, type UserMomentContext } from "@/lib/userContext";
+import LogoAnimation from "@/components/LogoAnimation";
 
 type Slot = "morning" | "afternoon" | "evening";
+type EQProfileData = {
+  pressure_reading: number;
+  repair_instinct: number;
+  presence_quality: number;
+  boundary_intel: number;
+  recovery_aware: number;
+  signal_accuracy: number;
+  weakest_domain: string;
+  archetype: string;
+};
 type CheckinRow = { created_at: string; state: DriftState; need: DriftNeed };
 type HomeProfileIdentity = {
   attachmentStyle: AttachmentStyle;
@@ -85,6 +98,15 @@ const STATE_ATMOSPHERE: Record<DriftState, string> = {
   overloaded: "rgba(146,78,72,0.18)",
 };
 
+const STATE_DOT_COLOR: Record<DriftState, { bg: string; glow: string }> = {
+  clear_light:   { bg: "rgba(120,190,150,0.85)", glow: "0 0 8px rgba(120,190,150,0.5)" },
+  steady:        { bg: "rgba(100,160,200,0.85)", glow: "0 0 8px rgba(100,160,200,0.5)" },
+  carrying_work: { bg: "rgba(194,122,92,0.85)",  glow: "0 0 8px rgba(194,122,92,0.5)" },
+  wired:         { bg: "rgba(208,164,92,0.85)",  glow: "0 0 8px rgba(208,164,92,0.5)" },
+  drained:       { bg: "rgba(110,162,144,0.85)", glow: "0 0 8px rgba(110,162,144,0.5)" },
+  overloaded:    { bg: "rgba(182,102,96,0.85)",  glow: "0 0 8px rgba(182,102,96,0.5)" },
+};
+
 const SLOT_LABEL: Record<Slot, string> = { morning: "Good Morning", afternoon: "Good Afternoon", evening: "Good Evening" };
 const QUICK_STATES: DriftState[] = ["clear_light", "steady", "carrying_work", "wired", "drained", "overloaded"];
 const HOME_RECOMMENDATION_HISTORY_KEY = "driftlatch_home_recommendation_history";
@@ -102,6 +124,9 @@ type HomeRecommendationHistoryEntry = {
 
 type HomeRecommendationHistory = Record<string, HomeRecommendationHistoryEntry[]>;
 
+function isHardState(s: string) {
+  return ["carrying_work", "wired", "drained", "overloaded"].includes(s);
+}
 function isDriftState(value: unknown): value is DriftState {
   return value === "clear_light" || value === "carrying_work" || value === "wired" || value === "drained" || value === "overloaded" || value === "steady";
 }
@@ -431,7 +456,7 @@ function PacksCarousel({ activeState }: { activeState: DriftState }) {
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, overflow: "hidden" }}>
+      <div className="packs-carousel-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, overflow: "hidden" }}>
         {visiblePacks.map(({ pack, originalIdx, slotIdx }) => {
           const toolCount = LIBRARY.tools.filter((t) => t.pack_id === pack.id).length;
           const isHovered = hoveredIndex === originalIdx;
@@ -521,6 +546,93 @@ function CompactWeeklyMovement({ days }: { days: WeeklyDaySummary[] }) {
   );
 }
 
+const STATE_EQ_DELTA: Record<DriftState, number> = {
+  clear_light: 8,
+  steady: 3,
+  carrying_work: -5,
+  wired: -12,
+  drained: -10,
+  overloaded: -18,
+};
+
+function CompactEQGraph({ days, eqProfile }: { days: WeeklyDaySummary[]; eqProfile: EQProfileData }) {
+  const domains = [eqProfile.pressure_reading, eqProfile.repair_instinct, eqProfile.presence_quality, eqProfile.boundary_intel, eqProfile.recovery_aware, eqProfile.signal_accuracy];
+  const baseline = Math.round(domains.reduce((a, b) => a + b, 0) / domains.length);
+  const W = 700;
+  const H = HOME_WEEKLY_CHART_HEIGHT;
+  const xStep = W / 6;
+  const scoreToY = (score: number) => H - (score / 100) * H;
+  const baselineY = scoreToY(baseline);
+
+  const scores: (number | null)[] = days.map((day) => {
+    if (!day.hasData || !day.latestState) return null;
+    const delta = STATE_EQ_DELTA[day.latestState] ?? 0;
+    return Math.max(15, Math.min(100, baseline + delta));
+  });
+  const points: { x: number; y: number; idx: number }[] = [];
+  scores.forEach((score, i) => {
+    if (score !== null) points.push({ x: i * xStep + xStep / 2, y: scoreToY(score), idx: i });
+  });
+
+  const areaPath = points.length >= 2
+    ? `M ${points[0].x} ${H} L ${points.map((p) => `${p.x} ${p.y}`).join(" L ")} L ${points[points.length - 1].x} ${H} Z`
+    : "";
+  const polylinePts = points.map((p) => `${p.x},${p.y}`).join(" ");
+
+  // Insight line
+  const loggedScores = scores.filter((s): s is number => s !== null);
+  let insightLine = "Log your mood daily to see your EQ pattern.";
+  if (loggedScores.length >= 3) {
+    const avg = loggedScores.reduce((a, b) => a + b, 0) / loggedScores.length;
+    const allAbove = loggedScores.every((s) => s > baseline);
+    const avgBelowByMore10 = avg < baseline - 10;
+    const hasRecovery = loggedScores.some((s, i) => i > 0 && loggedScores[i - 1] < baseline && s >= baseline);
+    if (allAbove) insightLine = "Above your baseline all week.";
+    else if (avgBelowByMore10) insightLine = "Pressure pulled your EQ down this week.";
+    else if (hasRecovery) insightLine = "You recovered mid week.";
+    else insightLine = "";
+  }
+
+  return (
+    <div style={{ display: "grid", gap: 10 }}>
+      <div style={{ position: "relative", height: H }}>
+        <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} style={{ overflow: "visible" }}>
+          <defs>
+            <linearGradient id="eqAreaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgba(194,122,92,0.15)" />
+              <stop offset="100%" stopColor="rgba(194,122,92,0.0)" />
+            </linearGradient>
+          </defs>
+          {[25, 50, 75].map((s) => (
+            <line key={s} x1={0} y1={scoreToY(s)} x2={W} y2={scoreToY(s)} stroke="rgba(255,255,255,0.04)" strokeWidth={1} strokeDasharray="2 4" />
+          ))}
+          <line x1={0} y1={baselineY} x2={W} y2={baselineY} stroke="rgba(194,122,92,0.20)" strokeWidth={1} strokeDasharray="4 4" />
+          <text x={W - 2} y={baselineY - 3} textAnchor="end" fontSize={9} fill="rgba(194,122,92,0.35)">Baseline</text>
+          {areaPath && <path d={areaPath} fill="url(#eqAreaGrad)" />}
+          {points.length >= 2 && <polyline points={polylinePts} fill="none" stroke="rgba(194,122,92,0.75)" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />}
+          {scores.map((score, i) => {
+            const cx = i * xStep + xStep / 2;
+            if (score !== null) {
+              return <circle key={i} cx={cx} cy={scoreToY(score)} r={4} fill="rgba(194,122,92,0.85)" stroke="rgba(11,11,14,1)" strokeWidth={2} />;
+            }
+            return <line key={i} x1={cx} y1={H - 5} x2={cx} y2={H} stroke="rgba(255,255,255,0.08)" strokeWidth={1.5} />;
+          })}
+        </svg>
+      </div>
+      <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(7, minmax(0, 1fr))" }}>
+        {days.map((day) => (
+          <div key={day.key} style={{ display: "grid", justifyItems: "center" }}>
+            <span style={{ color: "rgba(244,244,245,0.76)", fontSize: 11, fontWeight: 700, letterSpacing: "-0.01em" }}>{day.label.slice(0, 1)}</span>
+          </div>
+        ))}
+      </div>
+      {insightLine ? (
+        <div style={{ fontSize: 12, color: "rgba(161,161,170,0.40)", fontStyle: "italic", marginTop: 10, textAlign: "center" }}>{insightLine}</div>
+      ) : null}
+    </div>
+  );
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function Page() {
   const router = useRouter();
@@ -549,6 +661,11 @@ export default function Page() {
   const [pinning, setPinning] = useState(false);
   const [pinnedMoment, setPinnedMoment] = useState(false);
   const [justPinned, setJustPinned] = useState(false);
+  const [selectedTime, setSelectedTime] = useState<1 | 3 | 5 | 10 | null>(null);
+  const [graphView, setGraphView] = useState<"state" | "eq">("state");
+  const [eqProfile, setEqProfile] = useState<EQProfileData | null>(null);
+  const [momentContext, setMomentContext] = useState<UserMomentContext | null>(null);
+  const [inlineExcludedIds, setInlineExcludedIds] = useState<string[]>([]);
 
   // Tutorial: 0 = not started, 1 = step 1 (state strip), 2 = step 2 (hero), 3 = done
   const [tutorialStep, setTutorialStep] = useState<0 | 1 | 2 | 3>(0);
@@ -574,7 +691,13 @@ export default function Page() {
 
   const hour = new Date().getHours();
   const currentSlot = getCurrentSlot(hour);
-  const greeting = displayName ? `${SLOT_LABEL[currentSlot]}, ${displayName}.` : `${SLOT_LABEL[currentSlot]}.`;
+  const greetingText = momentContext
+    ? generateHomeGreeting(displayName, momentContext)
+    : { headline: displayName ? `${SLOT_LABEL[currentSlot]}, ${displayName}.` : `${SLOT_LABEL[currentSlot]}.`, subline: "Start from the smallest useful move." };
+  const greeting = greetingText.headline;
+  const greetingTimeOfDay = hour < 12 ? "Morning" : hour < 17 ? "Afternoon" : "Evening";
+  const greetingLine1 = `Good ${greetingTimeOfDay},`;
+  const greetingLine2 = displayName ? `${displayName}.` : null;
   const todayKey = formatDayKey(new Date());
 
   useEffect(() => {
@@ -629,12 +752,13 @@ export default function Page() {
       const last14Iso = isoDaysAgo(14);
       setWeeklyFetchWindow({ endIso: weeklyEndIso, startIso: last7Iso });
 
-      const [profile, checkins14Res, checkins7Res, weeklyFeedbackRes, recentWeeklyRes] = await Promise.all([
+      const [profile, checkins14Res, checkins7Res, weeklyFeedbackRes, recentWeeklyRes, eqProfileRes] = await Promise.all([
         Promise.resolve(currentUser.profile),
         supabase.from("user_checkins").select("created_at,state,need").eq("user_id", userId).gte("created_at", last14Iso).lt("created_at", nowIso).order("created_at", { ascending: false }),
         fetchWeeklyCheckins(supabase, userId, last7Iso, weeklyEndIso),
         supabase.from("user_tool_feedback").select("created_at,helpful_score,shift,tool_id").eq("user_id", userId).gte("created_at", last7Iso).lt("created_at", weeklyEndIso).order("created_at", { ascending: false }),
         supabase.from("user_recent_tools").select("tool_id,used_at").eq("user_id", userId).gte("used_at", last7Iso).lt("used_at", weeklyEndIso).order("used_at", { ascending: false }),
+        supabase.from("user_eq_profile").select("pressure_reading,repair_instinct,presence_quality,boundary_intel,recovery_aware,signal_accuracy,weakest_domain,archetype").eq("user_id", userId).maybeSingle(),
       ]);
 
       if (requestId !== latestHomeLoadRef.current) return;
@@ -745,6 +869,18 @@ export default function Page() {
       setWeeklyRecentTools(nextWeeklyRecent);
       setCheckedInToday(next7.some((r) => formatDayKey(new Date(r.created_at)) === todayKey));
       setSelectedState((cur) => cur ?? derivedSelectedState);
+      const nextEqProfile = !eqProfileRes.error && eqProfileRes.data ? (eqProfileRes.data as EQProfileData) : null;
+      setEqProfile(nextEqProfile);
+      const rawWeekCheckins = (checkins7Res.data ?? []) as Array<{ state: string; source: string | null; created_at: string }>;
+      setMomentContext(buildUserMomentContext({
+        currentState: derivedSelectedState,
+        timeAvailable: null,
+        attachmentStyle: nextAttachmentStyle,
+        eqProfile: nextEqProfile,
+        weekCheckins: rawWeekCheckins
+          .filter((c) => typeof c.state === "string" && typeof c.source === "string")
+          .map((c) => ({ state: c.state, source: c.source as string, created_at: c.created_at })),
+      }));
       setLoading(false);
     } catch (error) {
       console.error("Failed to hydrate home state:", error);
@@ -1050,6 +1186,26 @@ export default function Page() {
   );
   const showHomeWeeklyFetchErrorCard = Boolean(weeklyFetchError) && weeklyReflection.mode === "empty";
 
+  // Reset inline excluded ids when state or time changes
+  useEffect(() => {
+    setInlineExcludedIds([]);
+  }, [selectedState, selectedTime]);
+
+  const inlineRecommendation = useMemo(() => {
+    if (!selectedState || !isHardState(selectedState) || !selectedTime) return null;
+    return selectTool({
+      state: selectedState,
+      need: savedDefaults.default_need ?? "regain_clarity",
+      situation: "alone",
+      timeMinutes: selectedTime,
+      attachmentStyle,
+      preferredPackIds: primaryPack ? [primaryPack] : [],
+      mode: "quick",
+      excludeToolIds: inlineExcludedIds,
+      weakestEQDomain: momentContext?.weakestDomainUnderPressure ?? null,
+    });
+  }, [selectedState, selectedTime, inlineExcludedIds, savedDefaults.default_need, attachmentStyle, primaryPack, momentContext]);
+
   useEffect(() => {
     if (process.env.NODE_ENV === "production") return;
     const explicitCount = weeklyCheckins.filter((row) => row.source !== "implicit").length;
@@ -1121,12 +1277,13 @@ export default function Page() {
     setExcludedToolIds([]);
     setQuickRecommendation(recommendation);
     setLastState(nextState);
+    setSelectedTime(null);
+    setInlineExcludedIds([]);
     safeWriteJSON("driftlatch_last_state", nextState);
     // Tutorial: tapping a state chip advances from step 1 to step 2
     if (tutorialStep === 1) {
       window.setTimeout(() => setTutorialStep(2), 350);
     }
-    router.push(recommendation.href);
   }
 
   function handleAnotherOption() {
@@ -1161,15 +1318,35 @@ export default function Page() {
     setQuickRecommendation(reshuffledRecommendation);
   }
 
+  async function handleInlineOpen(toolId: string) {
+    try {
+      if (profileIdentity?.userId && selectedState && selectedTime) {
+        const supabase = getSupabase();
+        await supabase.from("user_checkins").insert({
+          user_id: profileIdentity.userId,
+          state: selectedState,
+          tool_id: toolId,
+          time_minutes: selectedTime,
+          source: "home",
+          did_complete: null,
+          need: null,
+          situation: null,
+          room_tone: null,
+        });
+      }
+    } catch {
+      // ignore DB errors
+    }
+    router.push(`/app/tool/${toolId}?from=home&state=${selectedState}&time=${selectedTime}`);
+  }
+
   const heroHref = quickRecommendation?.href ?? "/app/checkin";
   const tutorialActive = tutorialStep === 1 || tutorialStep === 2;
 
   if (loading) return (
-    <main style={loadingStyle}>
-      <motion.div animate={{ opacity: [0.35, 1, 0.35] }} transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }} style={{ color: "rgba(244,244,245,0.88)", fontSize: 14, letterSpacing: "0.22em", fontWeight: 800 }}>
-        LOADING
-      </motion.div>
-    </main>
+    <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "#18181B", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <LogoAnimation variant="splash" />
+    </div>
   );
 
   if (!isLoggedIn) return (
@@ -1244,28 +1421,57 @@ export default function Page() {
       </AnimatePresence>
 
       <div style={pageWrapStyle}>
-        {/* ── Header ── */}
-        <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.42, delay: 0, ease: EASE }} style={headerStyle}>
-          <div style={{ display: "grid", gap: 10, minWidth: 0, flex: 1 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={eyebrowStyle}>Home</span>
-              {selectedState && (
-                <AnimatePresence mode="wait">
-                  <motion.span key={activeState} initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 6 }} transition={{ duration: 0.22, ease: EASE }} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                    <StateDot state={activeState} />
-                    <span style={{ color: "rgba(161,161,170,0.65)", fontSize: 11, fontWeight: 700, letterSpacing: "0.06em" }}>{STATE_LABEL[activeState].toLowerCase()}</span>
-                  </motion.span>
-                </AnimatePresence>
-              )}
-            </div>
-            <h1 style={titleStyle}>{greeting}</h1>
-            <p style={subtitleStyle}>{checkedInToday ? "Your rhythm is already logged. Keep the next move simple." : "Start from the smallest useful move."}</p>
-          </div>
+        {/* ── Weekly dots (above greeting card) ── */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.42, delay: 0, ease: EASE }} style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
           <motion.button whileTap={{ scale: 0.95 }} type="button" onClick={() => router.push("/app/weekly")} style={dotsButtonStyle} aria-label="Open weekly reflection">
             {last7Dots.map((dot, i) => (
               <motion.span key={dot.key} initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3, delay: 0.1 + i * 0.04, ease: EASE }} style={{ ...dotStyle, background: dot.filled ? "var(--accent)" : "rgba(255,255,255,0.12)", border: dot.filled ? "1px solid rgba(194,122,92,0.34)" : "1px solid rgba(255,255,255,0.08)" }} />
             ))}
           </motion.button>
+        </motion.div>
+
+        {/* ── Greeting card ── */}
+        <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.42, delay: 0, ease: EASE }} style={{ background: "rgba(18,18,22,0.6)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 20, padding: "28px 24px 24px", position: "relative", overflow: "hidden", marginBottom: 20 }}>
+          {/* Warm ambient glow */}
+          <div aria-hidden style={{ position: "absolute", top: -40, left: -20, width: 280, height: 180, background: "radial-gradient(ellipse, rgba(194,122,92,0.13) 0%, transparent 70%)", filter: "blur(40px)", pointerEvents: "none" as const }} />
+
+          <div style={{ position: "relative", zIndex: 1, display: "grid", gap: 10 }}>
+            {/* Breadcrumb with state dot */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={eyebrowStyle}>Home</span>
+              {selectedState && (
+                <AnimatePresence mode="wait">
+                  <motion.span key={activeState} initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 6 }} transition={{ duration: 0.22, ease: EASE }} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                    <span style={{ width: 6, height: 6, borderRadius: "50%", background: STATE_DOT_COLOR[activeState].bg, boxShadow: STATE_DOT_COLOR[activeState].glow, flexShrink: 0 }} />
+                    <span style={{ color: STATE_DOT_COLOR[activeState].bg.replace("0.85)", "0.7)"), fontSize: 10, fontWeight: 500, letterSpacing: "0.02em" }}>{STATE_LABEL[activeState].toLowerCase()}</span>
+                  </motion.span>
+                </AnimatePresence>
+              )}
+            </div>
+
+            {/* Heading — split onto two lines */}
+            <h1 style={{ margin: "0 0 8px", fontFamily: "var(--font-serif)", fontSize: "clamp(2rem,5vw,2.8rem)", fontWeight: 700, letterSpacing: "-0.05em", color: "rgba(244,244,245,0.95)", lineHeight: 1.0 }}>
+              {greetingLine1}
+              {greetingLine2 && (<><br /><span style={{ color: "rgba(244,244,245,0.92)", textShadow: "0 0 40px rgba(194,122,92,0.15)" }}>{greetingLine2}</span></>)}
+            </h1>
+
+            {/* Subline */}
+            <p style={{ margin: 0, fontSize: 14, color: "rgba(161,161,170,0.55)", fontWeight: 400, lineHeight: 1.5 }}>{checkedInToday ? "Your rhythm is already logged. Keep the next move simple." : greetingText.subline}</p>
+
+            {/* EQ fingerprint line */}
+            {!loading && eqProfile === null && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.4, delay: 1.0, ease: EASE }}
+              >
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 10 }}>
+                  <span style={{ fontSize: 12, color: "rgba(161,161,170,0.35)" }}>Your EQ fingerprint is not set.</span>
+                  <Link href="/pressure-eq" className="eq-greeting-link" style={{ fontSize: 12, fontWeight: 600, color: "rgba(194,122,92,0.75)", cursor: "pointer", textDecoration: "none" }}>Take 4 minutes →</Link>
+                </span>
+              </motion.div>
+            )}
+          </div>
         </motion.section>
 
         {/* ── State strip ── */}
@@ -1274,7 +1480,7 @@ export default function Page() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.42, delay: 0.08, ease: EASE }}
-          style={tutorialStep === 1 ? { position: "relative", zIndex: 52, borderRadius: 16, outline: "2px solid rgba(194,122,92,0.5)", outlineOffset: 8, boxShadow: "0 0 0 8px rgba(194,122,92,0.07)" } : undefined}
+          style={tutorialStep === 1 ? { marginTop: 16, position: "relative", zIndex: 52, borderRadius: 16, outline: "2px solid rgba(194,122,92,0.5)", outlineOffset: 8, boxShadow: "0 0 0 8px rgba(194,122,92,0.07)" } : { marginTop: 16 }}
         >
           <div style={{ display: "grid", gap: 10 }}>
             <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" }}>
@@ -1339,6 +1545,161 @@ export default function Page() {
           </div>
         </motion.section>
 
+        {/* ── Time selector / Quick acknowledgment ── */}
+        <AnimatePresence mode="wait">
+          {selectedState && (
+            <motion.div
+              key={`time-sel-${selectedState}`}
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.3, ease: EASE }}
+            >
+              {!isHardState(selectedState) ? (
+                <div style={{ fontSize: 13, color: "rgba(161,161,170,0.45)", textAlign: "center", paddingTop: 12 }}>
+                  Good. Noted for today.
+                </div>
+              ) : (
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 500, color: "rgba(161,161,170,0.45)", marginBottom: 10, textAlign: "center" }}>
+                    How much time do you have?
+                  </div>
+                  <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+                    {([1, 3, 5, 10] as const).map((mins) => (
+                      <button
+                        key={mins}
+                        type="button"
+                        onClick={() => setSelectedTime(mins)}
+                        style={{
+                          padding: "9px 18px", borderRadius: 999, minHeight: 44,
+                          border: selectedTime === mins ? "1px solid rgba(194,122,92,0.28)" : "1px solid rgba(255,255,255,0.08)",
+                          background: selectedTime === mins ? "rgba(194,122,92,0.12)" : "rgba(255,255,255,0.04)",
+                          fontSize: 13, fontWeight: 500,
+                          color: selectedTime === mins ? "rgba(194,122,92,0.9)" : "rgba(161,161,170,0.55)",
+                          cursor: "pointer",
+                          transition: "all 0.18s ease",
+                        }}
+                      >
+                        {mins} min
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── Inline recommendation ── */}
+        <AnimatePresence>
+          {inlineRecommendation && (
+            <motion.div
+              key={`inline-${inlineRecommendation.primary.id}`}
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.35, ease: EASE }}
+            >
+              <div style={{ background: "rgba(18,18,22,0.9)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 18, padding: "20px 18px", marginTop: 12, position: "relative", overflow: "hidden" }}>
+                <div className="home-top-highlight" />
+                <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(161,161,170,0.35)", marginBottom: 8 }}>
+                  {getPackName(inlineRecommendation.primary.pack_id)}
+                </div>
+                <div style={{ fontFamily: "var(--font-serif)", fontSize: "1.15rem", fontWeight: 700, letterSpacing: "-0.025em", color: "rgba(244,244,245,0.92)", marginBottom: 6 }}>
+                  {inlineRecommendation.primary.title}
+                </div>
+                <div style={{ fontSize: 13, color: "rgba(161,161,170,0.6)", lineHeight: 1.55, marginBottom: 18 }}>
+                  {firstSentence(inlineRecommendation.primary.do)}
+                </div>
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <button
+                    type="button"
+                    onClick={() => handleInlineOpen(inlineRecommendation.primary.id)}
+                    style={{ background: "var(--accent)", color: "white", padding: "10px 22px", borderRadius: 8, fontSize: 14, fontWeight: 600, border: "none", cursor: "pointer", minHeight: 44 }}
+                  >
+                    Open
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setInlineExcludedIds((prev) => [...prev, inlineRecommendation.primary.id])}
+                    style={{ border: "1px solid rgba(255,255,255,0.09)", background: "transparent", padding: "10px 16px", borderRadius: 8, fontSize: 13, cursor: "pointer", color: "rgba(161,161,170,0.5)", minHeight: 44 }}
+                  >
+                    Another option
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => router.push(`/app/checkin?state=${selectedState}&from=home`)}
+                    style={{ fontSize: 12, color: "rgba(161,161,170,0.3)", marginLeft: "auto", cursor: "pointer", textDecoration: "none", alignSelf: "center", background: "none", border: "none" }}
+                  >
+                    More options
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── Moment entry ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.5, ease: EASE }}
+          className="moment-card"
+          onClick={() => router.push("/app/eq/moment")}
+          style={{
+            marginTop: 12,
+            padding: "14px 18px",
+            background: "rgba(18,18,22,0.7)",
+            border: "1px solid rgba(255,255,255,0.07)",
+            borderRadius: 16,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+            position: "relative",
+            overflow: "hidden",
+            WebkitTapHighlightColor: "transparent",
+          }}
+        >
+          {/* Subtle left accent */}
+          <div style={{
+            position: "absolute",
+            left: 0, top: 0, bottom: 0,
+            width: 3,
+            borderRadius: "16px 0 0 16px",
+            background: "rgba(194,122,92,0.35)",
+          }} />
+
+          <div style={{ paddingLeft: 10 }}>
+            <div style={{
+              fontSize: 13,
+              fontWeight: 500,
+              color: "rgba(244,244,245,0.75)",
+              marginBottom: 3,
+            }}>
+              Something happened?
+            </div>
+            <div style={{
+              fontSize: 12,
+              color: "rgba(161,161,170,0.45)",
+              lineHeight: 1.4,
+            }}>
+              Reflect on it. Understand it. Get one clear next move.
+            </div>
+          </div>
+
+          <div style={{
+            fontSize: 13,
+            color: "rgba(194,122,92,0.6)",
+            fontWeight: 500,
+            flexShrink: 0,
+            paddingRight: 2,
+          }}>
+            Reflect →
+          </div>
+        </motion.div>
+
         {/* ── Hero ── */}
         <motion.section
           ref={heroSectionRef}
@@ -1347,6 +1708,7 @@ export default function Page() {
           transition={{ duration: 0.48, delay: 0.14, ease: EASE }}
           style={tutorialStep === 2 ? { position: "relative", zIndex: 52, borderRadius: 22, outline: "2px solid rgba(194,122,92,0.5)", outlineOffset: 4, boxShadow: "0 0 0 8px rgba(194,122,92,0.07)" } : undefined}
         >
+        {selectedTime === null ? (<>
           {profileLoadFailed ? (
             <TiltCard style={{ ...cardStyle }}>
               <div className="home-top-highlight" />
@@ -1503,6 +1865,7 @@ export default function Page() {
               </motion.div>
             </AnimatePresence>
           ) : null}
+        </>) : null}
         </motion.section>
 
         {/* ── This week ── */}
@@ -1527,10 +1890,42 @@ export default function Page() {
                 </div>
               ) : (
                 <>
-                  <CompactWeeklyMovement days={weeklyReflection.days} />
-                  {weeklyReflection.microInsight ? <div style={{ ...metaStyle, fontSize: 12 }}>{weeklyReflection.microInsight}</div> : null}
-                  {!weeklyReflection.microInsight && weeklyReflection.roomPatternReads[0] ? <div style={{ ...metaStyle, fontSize: 12 }}>{weeklyReflection.roomPatternReads[0]}</div> : null}
-                  {weeklyReflection.mode === "partial" && (weeklyReflection.returnLine || weeklyReflection.footer) ? (
+                  {eqProfile && (
+                    <div style={{ display: "flex", gap: 6, marginBottom: 14 }} onClick={(e) => e.stopPropagation()}>
+                      {(["state", "eq"] as const).map((view) => (
+                        <button
+                          key={view}
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); setGraphView(view); }}
+                          style={{
+                            padding: "9px 18px", borderRadius: 999, minHeight: 44,
+                            border: graphView === view ? "1px solid rgba(194,122,92,0.28)" : "1px solid rgba(255,255,255,0.08)",
+                            background: graphView === view ? "rgba(194,122,92,0.12)" : "rgba(255,255,255,0.04)",
+                            fontSize: 13, fontWeight: 500,
+                            color: graphView === view ? "rgba(194,122,92,0.9)" : "rgba(161,161,170,0.55)",
+                            cursor: "pointer",
+                            transition: "all 0.18s ease",
+                          }}
+                        >
+                          {view === "state" ? "State" : "EQ this week"}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <AnimatePresence mode="wait">
+                    {graphView === "eq" && eqProfile ? (
+                      <motion.div key="eq" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.22 }}>
+                        <CompactEQGraph days={weeklyReflection.days} eqProfile={eqProfile} />
+                      </motion.div>
+                    ) : (
+                      <motion.div key="state" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.22 }}>
+                        <CompactWeeklyMovement days={weeklyReflection.days} />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  {graphView === "state" && weeklyReflection.microInsight ? <div style={{ ...metaStyle, fontSize: 12, marginTop: 8 }}>{weeklyReflection.microInsight}</div> : null}
+                  {graphView === "state" && !weeklyReflection.microInsight && weeklyReflection.roomPatternReads[0] ? <div style={{ ...metaStyle, fontSize: 12, marginTop: 8 }}>{weeklyReflection.roomPatternReads[0]}</div> : null}
+                  {graphView === "state" && weeklyReflection.mode === "partial" && (weeklyReflection.returnLine || weeklyReflection.footer) ? (
                     <div style={{ color: "rgba(161,161,170,0.72)", fontSize: 12, lineHeight: 1.55 }}>
                       {weeklyReflection.returnLine ?? weeklyReflection.footer}
                     </div>
@@ -1558,7 +1953,7 @@ export default function Page() {
         {/* ── Quick actions ── */}
         <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.42, delay: 0.32, ease: EASE }} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           {([{ href: "/app/checkin", label: "Check in", sub: "Log your state" }, { href: "/app/weekly", label: "This week", sub: "Patterns & rhythm" }] as const).map(({ href, label, sub }) => (
-            <MotionLink key={href} href={href} whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} style={{ display: "grid", gap: 4, padding: "16px 18px", background: "rgba(39,39,42,0.52)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 18, backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)", textDecoration: "none", boxShadow: "0 8px 24px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.04)" }}>
+            <MotionLink key={href} href={href} whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} style={{ display: "grid", gap: 4, padding: "16px 18px", background: "rgba(18,18,22,0.9)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 18, backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", textDecoration: "none", boxShadow: "0 24px 70px rgba(0,0,0,0.45)", position: "relative", overflow: "hidden" }}>
               <span style={{ color: "rgba(244,244,245,0.86)", fontSize: 15, fontWeight: 700, lineHeight: 1.1 }}>{label}</span>
               <span style={{ color: "rgba(161,161,170,0.68)", fontSize: 12, lineHeight: 1.4 }}>{sub}</span>
             </MotionLink>
@@ -1573,17 +1968,17 @@ export default function Page() {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const loadingStyle: CSSProperties = { minHeight: "100dvh", background: "var(--bg)", display: "grid", placeItems: "center", overflow: "hidden" };
-const mainStyle: CSSProperties = { minHeight: "100dvh", padding: "44px 18px 120px", background: "var(--bg)", position: "relative", overflow: "hidden" };
+const mainStyle: CSSProperties = { minHeight: "100dvh", padding: "44px 18px 100px", background: "var(--bg)", position: "relative", overflow: "hidden" };
 const atmosphereWrapStyle: CSSProperties = { position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 };
 const blobStyle: CSSProperties = { position: "absolute", borderRadius: 999, filter: "blur(72px)" };
-const pageWrapStyle: CSSProperties = { position: "relative", zIndex: 2, width: "100%", maxWidth: 740, margin: "0 auto", display: "grid", gap: 20 };
+const pageWrapStyle: CSSProperties = { position: "relative", zIndex: 2, width: "100%", maxWidth: 640, margin: "0 auto", display: "grid", gap: 20 };
 const headerStyle: CSSProperties = { display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, flexWrap: "nowrap" };
 const eyebrowStyle: CSSProperties = { color: "rgba(161,161,170,0.85)", fontSize: 11, fontWeight: 800, letterSpacing: "0.16em", textTransform: "uppercase" };
-const titleStyle: CSSProperties = { margin: 0, color: "rgba(244,244,245,0.88)", fontSize: "clamp(2.1rem, 5.5vw, 2.5rem)", lineHeight: 1.05, letterSpacing: "-0.04em", fontWeight: 640 };
-const subtitleStyle: CSSProperties = { margin: 0, color: "rgba(161,161,170,0.85)", fontSize: 14, lineHeight: 1.65, maxWidth: 460 };
+const titleStyle: CSSProperties = { margin: 0, color: "rgba(244,244,245,0.88)", fontFamily: "Zodiak, Georgia, serif", fontSize: "clamp(1.8rem, 5vw, 2.4rem)", lineHeight: 1.05, letterSpacing: "-0.04em", fontWeight: 700 };
+const subtitleStyle: CSSProperties = { margin: 0, color: "rgba(161,161,170,0.65)", fontSize: 14, lineHeight: 1.65, maxWidth: 460 };
 const dotsButtonStyle: CSSProperties = { display: "inline-flex", alignItems: "center", gap: 7, minHeight: 44, padding: "0 4px", border: "none", background: "transparent", cursor: "pointer", flexShrink: 0 };
 const dotStyle: CSSProperties = { width: 9, height: 9, borderRadius: 999, flexShrink: 0 };
-const cardStyle: CSSProperties = { position: "relative", background: "rgba(39,39,42,0.62)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 22, backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", boxShadow: "0 24px 70px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06)", overflow: "hidden" };
+const cardStyle: CSSProperties = { position: "relative", background: "rgba(18,18,22,0.9)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 22, backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", boxShadow: "0 24px 70px rgba(0,0,0,0.45)", overflow: "hidden" };
 const actionGridStyle: CSSProperties = { position: "relative", zIndex: 3, display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10, marginTop: 8 };
 const heroTitleStyle: CSSProperties = { color: "rgba(244,244,245,0.94)", fontSize: "clamp(2.1rem, 6.5vw, 3.2rem)", lineHeight: 1.0, letterSpacing: "-0.055em", fontWeight: 680, fontFamily: "Zodiak, Georgia, serif", maxWidth: 600 };
 const bodyStyle: CSSProperties = { margin: 0, color: "rgba(244,244,245,0.80)", fontSize: 15, lineHeight: 1.68 };

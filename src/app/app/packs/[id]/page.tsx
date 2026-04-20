@@ -677,12 +677,12 @@ export default function PackDetailPage() {
         }
 
         .glass {
-          background: rgba(39, 39, 42, 0.62);
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: rgba(18, 18, 22, 0.9);
+          border: 1px solid rgba(255, 255, 255, 0.07);
           border-radius: 22px;
           backdrop-filter: blur(24px);
           -webkit-backdrop-filter: blur(24px);
-          box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+          box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
         }
 
         .glass-light {
@@ -765,7 +765,7 @@ export default function PackDetailPage() {
 const mainStyle: CSSProperties = {
   minHeight: "100dvh",
   background: "var(--bg)",
-  padding: "40px 0 104px",
+  padding: "44px 0 100px",
   WebkitTapHighlightColor: "transparent",
   overflowX: "hidden",
 };

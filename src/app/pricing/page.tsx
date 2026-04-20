@@ -6,13 +6,14 @@ import { motion, AnimatePresence } from "framer-motion";
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const WHAT_YOU_GET = [
-  "State-matched tools picked for how you feel right now",
-  "Pressure Profile, 2-minute setup, used every session",
-  "6 tool packs across emotional states and home situations",
-  "Partner, kids, long-distance, and solo situation support",
-  "Weekly pattern read, spots what's building before it costs you",
-  "Pinned moments, save the tools that actually work for you",
-  "Clear-light mode, tools for when you're good, not just struggling",
+  "State-matched supports, picked for how you feel right now",
+  "Pressure Profile to map where stress is landing",
+  "Pressure EQ to understand how you show up under load",
+  "Moment Review to reflect on what went wrong and what to do next time",
+  "10 support packs. 220 plus supports inside.",
+  "Partner, kids and solo situation support",
+  "Weekly reflection with EQ tracking",
+  "Private by design. No message reading. No behaviour tracking.",
 ];
 
 export default function PricingPage() {
@@ -54,43 +55,37 @@ export default function PricingPage() {
           style={{ textAlign: "center", marginBottom: 48 }}
         >
           <div style={{
-            display: "inline-flex", alignItems: "center", gap: 8,
-            padding: "7px 16px", borderRadius: 999, marginBottom: 28,
-            border: "1px solid rgba(194,122,92,0.22)",
+            display: "inline-flex", alignItems: "center",
+            padding: "5px 14px", borderRadius: 999, marginBottom: 20,
+            border: "1px solid rgba(194,122,92,0.2)",
             background: "rgba(194,122,92,0.07)",
+            fontSize: 11, fontWeight: 700, letterSpacing: "0.1em",
+            textTransform: "uppercase" as const,
+            color: "rgba(194,122,92,0.85)",
           }}>
-            <motion.span
-              animate={{ opacity: [1, 0.4, 1] }}
-              transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-              style={{
-                width: 5, height: 5, borderRadius: 999, display: "inline-block",
-                background: "rgba(194,122,92,0.9)",
-                boxShadow: "0 0 8px rgba(194,122,92,0.7)",
-              }}
-            />
-            <span style={{ color: "rgba(194,122,92,0.88)", fontSize: 11, fontWeight: 800, letterSpacing: "0.14em" }}>
-              FOUNDING ACCESS
-            </span>
+            DRIFTLATCH
           </div>
 
           <h1 style={{
-            margin: "0 0 18px",
-            fontSize: "clamp(2.8rem, 7.8vw, 5rem)",
-            lineHeight: 0.98,
-            letterSpacing: "-0.05em",
-            color: "rgba(244,244,245,0.93)",
-            fontWeight: 650,
-            fontFamily: "Zodiak, Georgia, serif",
+            margin: "0 0 16px",
+            fontFamily: "var(--font-serif)",
+            fontSize: "clamp(2rem,4vw,3rem)",
+            fontWeight: 700,
+            letterSpacing: "-0.04em",
+            color: "var(--text)",
+            lineHeight: 1.1,
+            textAlign: "center" as const,
           }}>
-            One system.<br />No compromise.
+            One clear move. Every day.
           </h1>
 
           <p style={{
-            margin: "0 auto",
-            maxWidth: 460,
-            color: "rgba(161,161,170,0.65)",
-            fontSize: 17,
-            lineHeight: 1.72,
+            margin: "0 auto 48px",
+            maxWidth: 480,
+            color: "rgba(161,161,170,0.6)",
+            fontSize: 15,
+            lineHeight: 1.7,
+            textAlign: "center" as const,
           }}>
             Tools matched to your state. Simple enough to use when your day is already full. Built for the gap between who you are at work and who you want to be at home.
           </p>
@@ -115,7 +110,7 @@ export default function PricingPage() {
                 onClick={() => setBilling(opt)}
                 style={{
                   position: "relative", padding: "10px 22px", borderRadius: 10,
-                  border: "none", cursor: "pointer", fontSize: 13, fontWeight: 800,
+                  border: "none", cursor: "pointer", fontSize: 14, fontWeight: 500,
                   letterSpacing: "-0.01em", transition: "color 0.22s ease",
                   background: "transparent",
                   color: billing === opt ? "rgba(244,244,245,0.92)" : "rgba(161,161,170,0.45)",
@@ -156,8 +151,8 @@ export default function PricingPage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.22, ease: EASE }}
           style={{
-            margin: "0 0 24px", textAlign: "center",
-            color: "rgba(161,161,170,0.40)", fontSize: 13, lineHeight: 1.6,
+            margin: "8px 0 24px", textAlign: "center",
+            color: "rgba(161,161,170,0.4)", fontSize: 13, lineHeight: 1.6,
           }}
         >
           Both plans include full access. Annual just costs less.
@@ -220,21 +215,21 @@ export default function PricingPage() {
                 {/* Price */}
                 <div style={{ marginBottom: 8, display: "flex", alignItems: "baseline", gap: 8 }}>
                   <span style={{
-                    fontSize: "clamp(3.35rem, 10vw, 5.25rem)",
+                    fontFamily: "var(--font-serif)",
+                    fontSize: "clamp(3rem,8vw,5rem)",
                     lineHeight: 0.94,
                     fontWeight: 700,
-                    letterSpacing: "-0.052em",
-                    color: "rgba(244,244,245,0.9)",
-                    fontFamily: "Zodiak, Georgia, serif",
+                    letterSpacing: "-0.05em",
+                    color: "rgba(244,244,245,0.92)",
                   }}>
                     {billing === "annual" ? "$59" : "$9.99"}
                   </span>
                   <div>
-                    <div style={{ color: "rgba(161,161,170,0.5)", fontSize: 14, fontWeight: 600 }}>
+                    <div style={{ color: "rgba(161,161,170,0.5)", fontSize: 16, fontWeight: 400 }}>
                       {billing === "annual" ? "/ year" : "/ month"}
                     </div>
                     {billing === "annual" && (
-                      <div style={{ color: "rgba(161,161,170,0.35)", fontSize: 12, marginTop: 2 }}>
+                      <div style={{ color: "rgba(161,161,170,0.4)", fontSize: 13, marginTop: 4 }}>
                         ~$4.92 / month
                       </div>
                     )}
@@ -244,8 +239,8 @@ export default function PricingPage() {
                 {/* Sub-message */}
                 <p style={{
                   margin: "0 0 32px",
-                  color: "rgba(161,161,170,0.6)",
-                  fontSize: 15, lineHeight: 1.65,
+                  color: "rgba(161,161,170,0.55)",
+                  fontSize: 14, lineHeight: 1.6,
                 }}>
                   {billing === "annual"
                     ? "Best if you already know you want this in your week, not just on your wishlist. One payment, full year."
@@ -265,21 +260,20 @@ export default function PricingPage() {
                   <p style={{ margin: "0 0 14px", color: "rgba(161,161,170,0.42)", fontSize: 12, lineHeight: 1.55 }}>
                     Not built for endless browsing. One right tool at the right moment.
                   </p>
-                  <div style={{ display: "grid", gap: 10 }}>
+                  <div>
                     {WHAT_YOU_GET.map((item, i) => (
                       <motion.div
                         key={item}
                         initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.22 + i * 0.05, ease: EASE }}
-                        style={{ display: "flex", alignItems: "flex-start", gap: 11 }}
+                        style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 12 }}
                       >
                         <div style={{
-                          width: 5, height: 5, borderRadius: 999, flexShrink: 0, marginTop: 7,
-                          background: "linear-gradient(135deg, rgba(194,122,92,0.9), rgba(194,122,92,0.5))",
-                          boxShadow: "0 0 6px rgba(194,122,92,0.35)",
+                          width: 5, height: 5, borderRadius: "50%", flexShrink: 0, marginTop: 7,
+                          background: "rgba(194,122,92,0.6)",
                         }} />
-                        <span style={{ color: "rgba(161,161,170,0.78)", fontSize: 14, lineHeight: 1.6 }}>
+                        <span style={{ fontSize: 14, color: "rgba(244,244,245,0.75)", lineHeight: 1.55 }}>
                           {item}
                         </span>
                       </motion.div>
@@ -399,7 +393,7 @@ export default function PricingPage() {
             A tool you pay for is a tool you actually use. We'd rather you try it for 14 days and get a refund than scroll through a free version and get nothing from it.
           </p>
           <p style={{ margin: 0, color: "rgba(161,161,170,0.45)", fontSize: 14, lineHeight: 1.72 }}>
-            Driftlatch is for founders and high-drive people who want less pressure carryover — not more self-improvement homework.
+            Driftlatch is for founders and high-drive people who want less pressure carryover, not more self-improvement homework.
           </p>
         </motion.div>
 

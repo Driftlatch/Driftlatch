@@ -13,7 +13,6 @@ import {
 } from "@/lib/toolLibrary";
 import { getPackPurpose as getSupportPurpose } from "@/lib/supportLabels";
 
-const MotionLink = motion(Link);
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const STATE_LABEL: Record<DriftState, string> = {
@@ -52,7 +51,6 @@ const CLEAR_LIGHT_PACK_IDS = new Set([
   "maintain_light_pack",
 ]);
 
-const META_SEPARATOR = " \u00b7 ";
 
 const PACK_FLAGSHIP_TOOL_IDS: Record<string, string> = {
   clear_head_pack: "CH-01",
@@ -235,6 +233,18 @@ function glowForPack(packId: string): string {
   return "radial-gradient(circle at 80% 20%, rgba(194,122,92,0.16) 0%, rgba(194,122,92,0.03) 54%, transparent 76%)";
 }
 
+function accentRGBCore(packId: string): string {
+  if (packId === "wind_down_pack" || packId === "space_not_distance_pack") return "100,160,200";
+  if (packId === "be_here_pack" || packId === "warm_pack" || packId === "maintain_light_pack") return "120,190,150";
+  if (packId === "settle_the_spiral_pack") return "180,120,200";
+  if (packId === "sharp_pack" || packId === "expansive_pack") return "208,164,92";
+  return "194,122,92";
+}
+
+function accentForPack(packId: string): string {
+  return `rgba(${accentRGBCore(packId)},0.7)`;
+}
+
 function normalizeSearchText(value: string): string {
   return value.trim().toLowerCase();
 }
@@ -260,7 +270,6 @@ function PackCard({
   lastState,
   toolId,
   onShuffle,
-  isClearLight,
 }: {
   pack: Pack;
   index: number;
@@ -275,98 +284,147 @@ function PackCard({
   const distribution = useMemo(() => getToolDistribution(packTools), [packTools]);
   const bestForStates = stateChips.slice(0, 2);
   const firstMove = packTools.find((tool) => tool.id === toolId) ?? pickFlagship(pack, packTools, lastState);
-  const paceLine = [
-    `Fast ${distribution.fast}`,
-    `Standard ${distribution.standard}`,
-    `Deep ${distribution.deep}`,
-  ].join(META_SEPARATOR);
+  const accent = accentForPack(pack.id);
+  const accentCore = accentRGBCore(pack.id);
 
   return (
-    <motion.section
+    <motion.article
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.42, delay: 0.08 + index * 0.06, ease: EASE }}
-      className={isClearLight ? "glass glass-light" : "glass"}
-      style={{ position: "relative", overflow: "hidden", padding: 22 }}
+      style={{
+        position: "relative",
+        overflow: "hidden",
+        background: "rgba(18,18,22,0.9)",
+        border: "1px solid rgba(255,255,255,0.07)",
+        borderRadius: 22,
+        backdropFilter: "blur(24px)",
+        WebkitBackdropFilter: "blur(24px)",
+        boxShadow: "0 24px 70px rgba(0,0,0,0.45)",
+        padding: "22px 22px 22px 28px",
+      }}
     >
-      <div aria-hidden className="top-highlight" />
-      <div
-        aria-hidden
-        style={{
-          position: "absolute",
-          inset: 0,
-          pointerEvents: "none",
-          background: glowForPack(pack.id),
-        }}
-      />
+      {/* Rim light */}
+      <div aria-hidden style={{
+        position: "absolute", top: 0, left: 16, right: 16, height: 1,
+        background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent)",
+        pointerEvents: "none",
+      }} />
 
-      <div style={{ position: "relative", zIndex: 1, display: "grid", gap: 16 }}>
-        {/* Title + purpose + chips — full width */}
-        <div className="pack-header">
-          <div
-            className="pack-title"
-            style={{
-              color: isClearLight ? "rgba(200,235,215,0.95)" : "var(--text)",
-              fontSize: "clamp(1.9rem, 4vw, 2.6rem)",
-              lineHeight: 1.04,
-              letterSpacing: "-0.04em",
-              fontWeight: 650,
-              overflowWrap: "anywhere",
-              wordBreak: "break-word",
-            }}
-          >
+      {/* Left accent bar */}
+      <div aria-hidden style={{
+        position: "absolute",
+        left: 0, top: 0, bottom: 0,
+        width: 3,
+        borderRadius: "3px 0 0 3px",
+        background: accent,
+        opacity: 0.85,
+      }} />
+
+      <div style={{ display: "grid", gap: 14 }}>
+        {/* Heading row */}
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+          <div style={{
+            fontFamily: "var(--font-serif)",
+            fontSize: "1.15rem",
+            fontWeight: 700,
+            letterSpacing: "-0.025em",
+            lineHeight: 1.2,
+            color: "rgba(244,244,245,0.95)",
+          }}>
             {getPackName(pack.id)}
           </div>
-
-          <p
-            className="pack-purpose"
-            style={{ margin: 0, color: "var(--muted)", fontSize: 15, lineHeight: 1.7 }}
-          >
-            {getPackPurpose(pack)}
-          </p>
-
-          <div className="pack-meta">
-            <div
-              className={isClearLight ? "pack-meta-count pack-meta-count-light" : "pack-meta-count"}
-            >
-              {toolCount} tools
-            </div>
-            <div className="pack-meta-detail">
-              {paceLine}
-            </div>
-            <div className="pack-meta-detail">
-              <span className="pack-meta-label">Best for:</span>{" "}
-              {bestForStates.join(", ")}
-            </div>
+          <div style={{
+            flexShrink: 0,
+            fontSize: 11,
+            fontWeight: 600,
+            color: "rgba(161,161,170,0.55)",
+            background: "rgba(255,255,255,0.05)",
+            borderRadius: 8,
+            padding: "3px 8px",
+            whiteSpace: "nowrap",
+            alignSelf: "center",
+          }}>
+            {toolCount} tools
           </div>
         </div>
 
-        {/* Start here */}
-        <div className="glass-row" style={{ padding: 16, display: "grid", gap: 8 }}>
-          <div
-            style={{
-              color: "var(--muted)",
-              fontSize: 10,
-              fontWeight: 800,
-              letterSpacing: "0.16em",
-              textTransform: "uppercase",
-            }}
-          >
+        {/* Description */}
+        <p style={{ margin: 0, fontSize: 13, lineHeight: 1.65, color: "var(--muted)" }}>
+          {getPackPurpose(pack)}
+        </p>
+
+        {/* Meta row */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+          {distribution.fast > 0 && (
+            <span style={{
+              fontSize: 11, fontWeight: 600, color: "rgba(161,161,170,0.7)",
+              background: "rgba(255,255,255,0.05)", borderRadius: 6,
+              padding: "2px 7px",
+            }}>
+              {distribution.fast} fast
+            </span>
+          )}
+          {distribution.standard > 0 && (
+            <span style={{
+              fontSize: 11, fontWeight: 600, color: "rgba(161,161,170,0.7)",
+              background: "rgba(255,255,255,0.05)", borderRadius: 6,
+              padding: "2px 7px",
+            }}>
+              {distribution.standard} standard
+            </span>
+          )}
+          {distribution.deep > 0 && (
+            <span style={{
+              fontSize: 11, fontWeight: 600, color: "rgba(161,161,170,0.7)",
+              background: "rgba(255,255,255,0.05)", borderRadius: 6,
+              padding: "2px 7px",
+            }}>
+              {distribution.deep} deep
+            </span>
+          )}
+          {bestForStates.length > 0 && (
+            <span style={{
+              fontSize: 11, fontWeight: 600,
+              color: accent,
+              background: `rgba(${accentCore},0.1)`,
+              borderRadius: 6,
+              padding: "2px 7px",
+            }}>
+              {bestForStates.join(", ")}
+            </span>
+          )}
+        </div>
+
+        {/* Start here panel */}
+        <div style={{
+          background: "rgba(18,18,22,0.7)",
+          border: "1px solid rgba(255,255,255,0.06)",
+          borderRadius: 14,
+          padding: "14px 16px",
+          display: "grid",
+          gap: 6,
+        }}>
+          <div style={{
+            fontSize: 10, fontWeight: 700, letterSpacing: "0.1em",
+            textTransform: "uppercase",
+            color: accent,
+          }}>
             Start here
           </div>
           <AnimatePresence mode="wait">
             <motion.div
               key={firstMove?.id ?? "empty"}
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 14 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.24, ease: EASE }}
-              style={{ display: "grid", gap: 6 }}
+              exit={{ opacity: 0, x: -14 }}
+              transition={{ duration: 0.22, ease: EASE }}
+              style={{ display: "grid", gap: 4 }}
             >
-              <div style={{ color: "var(--text)", fontSize: 20, lineHeight: 1.08, fontWeight: 650 }}>
+              <div style={{ fontSize: 15, fontWeight: 650, lineHeight: 1.2, color: "rgba(244,244,245,0.92)" }}>
                 {firstMove ? firstMove.title : "No tool available"}
               </div>
-              <p style={{ margin: 0, color: "var(--muted)", fontSize: 14, lineHeight: 1.65 }}>
+              <p style={{ margin: 0, fontSize: 13, lineHeight: 1.6, color: "rgba(161,161,170,0.75)" }}>
                 {firstMove
                   ? firstSentence(firstMove.do)
                   : "This support does not have a tool ready yet."}
@@ -375,82 +433,61 @@ function PackCard({
           </AnimatePresence>
         </div>
 
-        {/* Actions */}
-        <div
-          className="card-actions"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr) auto",
-            gap: 10,
-            alignItems: "stretch",
-          }}
-        >
-          <MotionLink
-            whileTap={{ scale: 0.985 }}
+        {/* Action row */}
+        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+          <Link
             href={`/app/packs/${pack.id}`}
-            className={isClearLight ? "btn-primary btn-primary-light" : "btn-primary"}
+            className="pack-link-primary"
+            style={{ fontSize: 13, fontWeight: 700, color: "rgba(194,122,92,0.9)", textDecoration: "none", letterSpacing: "-0.01em" }}
           >
             Open support →
-          </MotionLink>
+          </Link>
           {firstMove ? (
-            <MotionLink
-              whileTap={{ scale: 0.985 }}
+            <Link
               href={buildToolHref(firstMove.id, pack, lastState)}
-              className="btn-secondary"
+              className="pack-link-secondary"
+              style={{ fontSize: 13, fontWeight: 500, color: "rgba(161,161,170,0.6)", textDecoration: "none" }}
             >
               Open first tool →
-            </MotionLink>
-          ) : (
-            <span />
-          )}
+            </Link>
+          ) : null}
           <motion.button
-            whileTap={{ scale: 0.985 }}
+            whileTap={{ scale: 0.97 }}
             type="button"
             onClick={onShuffle}
-            className="btn-ghost"
+            style={{
+              marginLeft: "auto",
+              border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: 10,
+              background: "rgba(255,255,255,0.03)",
+              color: "rgba(161,161,170,0.6)",
+              fontSize: 12, fontWeight: 600,
+              padding: "5px 12px",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+            }}
           >
             Shuffle
           </motion.button>
         </div>
       </div>
-    </motion.section>
+    </motion.article>
   );
 }
 
-function SectionDivider({ label, sub }: { label: string; sub: string }) {
+function SectionDivider({ label }: { label: string; sub?: string }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.38, ease: EASE }}
-      style={{ paddingTop: 10, paddingBottom: 2 }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-        <div style={{ flex: "none", display: "grid", gap: 2 }}>
-          <span
-            style={{
-              color: "rgba(244,244,245,0.72)",
-              fontSize: 11,
-              fontWeight: 800,
-              letterSpacing: "0.16em",
-              textTransform: "uppercase",
-            }}
-          >
-            {label}
-          </span>
-          <span style={{ color: "rgba(161,161,170,0.6)", fontSize: 12, lineHeight: 1.5 }}>
-            {sub}
-          </span>
-        </div>
-        <div
-          style={{
-            flex: 1,
-            height: 1,
-            background: "linear-gradient(90deg, rgba(255,255,255,0.08), transparent)",
-          }}
-        />
-      </div>
-    </motion.div>
+    <div style={{
+      fontSize: 11,
+      fontWeight: 600,
+      letterSpacing: "0.1em",
+      textTransform: "uppercase",
+      color: "rgba(161,161,170,0.4)",
+      marginTop: 32,
+      marginBottom: 4,
+    }}>
+      {label}
+    </div>
   );
 }
 
@@ -511,384 +548,166 @@ export default function PacksPage() {
 
   return (
     <main style={mainStyle}>
-      <div className="px-wrap">
+      <div style={{ width: "min(640px, calc(100vw - 40px))", margin: "0 auto" }}>
+
+        {/* Page header */}
         <motion.div
-          aria-hidden
-          animate={{ opacity: [0.42, 0.68, 0.42], scale: [1, 1.04, 1] }}
-          transition={{ duration: 5.6, repeat: Infinity, ease: "easeInOut" }}
-          style={heroGlowStyle}
-        />
-
-        {/* Hero */}
-        <motion.section
-          initial={{ opacity: 0, y: 18 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.42, delay: 0.02, ease: EASE }}
-          className="glass-hero"
-          style={{ position: "relative", padding: 24, marginBottom: 18, overflow: "hidden" }}
+          transition={{ duration: 0.38, ease: EASE }}
+          style={{ marginBottom: 28 }}
         >
-          <div className="top-highlight" />
-          <div style={{ position: "relative", zIndex: 1, display: "grid", gap: 10 }}>
-            <div
-              style={{
-                color: "rgba(244,244,245,0.88)",
-                fontSize: "clamp(2.8rem, 8vw, 4.8rem)",
-                lineHeight: 0.92,
-                letterSpacing: "-0.06em",
-                fontWeight: 700,
-              }}
-            >
-              Supports
-            </div>
-            <p style={{ margin: 0, color: "rgba(161,161,170,0.85)", fontSize: 17, lineHeight: 1.68 }}>
-              Choose where to start.
-            </p>
-            <motion.div
-              initial={{ scaleX: 0, opacity: 0 }}
-              animate={{ scaleX: 1, opacity: 1 }}
-              transition={{ duration: 0.72, delay: 0.14, ease: EASE }}
-              style={dividerStyle}
-            />
+          <div style={{
+            fontSize: 11, fontWeight: 600, letterSpacing: "0.08em",
+            textTransform: "uppercase", color: "var(--muted)",
+            marginBottom: 8,
+          }}>
+            Tool Library
           </div>
-        </motion.section>
+          <h1 style={{
+            margin: "0 0 8px",
+            fontFamily: "var(--font-serif)",
+            fontSize: "clamp(1.8rem, 5vw, 2.4rem)",
+            fontWeight: 700,
+            letterSpacing: "-0.04em",
+            lineHeight: 1.1,
+            color: "rgba(244,244,245,0.95)",
+          }}>
+            Supports
+          </h1>
+          <p style={{ margin: 0, fontSize: 14, lineHeight: 1.65, color: "rgba(161,161,170,0.7)" }}>
+            Choose where to start.
+          </p>
+        </motion.div>
 
-        <motion.section
+        {/* Search bar */}
+        <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.36, delay: 0.06, ease: EASE }}
           style={{ marginBottom: 20 }}
         >
-          <div className="search-shell">
-            <div className="search-field">
-              <span className="search-icon" aria-hidden>
-                <svg viewBox="0 0 20 20" width="15" height="15" fill="none">
-                  <path
-                    d="M13.75 13.75L17 17M15.5 9.125C15.5 12.6468 12.6468 15.5 9.125 15.5C5.60318 15.5 2.75 12.6468 2.75 9.125C2.75 5.60318 5.60318 2.75 9.125 2.75C12.6468 2.75 15.5 5.60318 15.5 9.125Z"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search packs or steps"
-                aria-label="Search supports or steps"
-                className="search-input"
-              />
-              {hasActiveSearch ? (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="search-clear"
-                  aria-label="Clear search"
-                >
-                  Clear
-                </button>
-              ) : null}
-            </div>
+          <div style={{ position: "relative" }}>
+            <span aria-hidden style={{
+              position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)",
+              color: "rgba(161,161,170,0.55)",
+              display: "flex", alignItems: "center",
+              pointerEvents: "none",
+            }}>
+              <svg viewBox="0 0 20 20" width="15" height="15" fill="none">
+                <path
+                  d="M13.75 13.75L17 17M15.5 9.125C15.5 12.6468 12.6468 15.5 9.125 15.5C5.60318 15.5 2.75 12.6468 2.75 9.125C2.75 5.60318 5.60318 2.75 9.125 2.75C12.6468 2.75 15.5 5.60318 15.5 9.125Z"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search packs or steps"
+              aria-label="Search supports or steps"
+              className="packs-search"
+              style={{
+                display: "block",
+                width: "100%",
+                minHeight: 48,
+                padding: "0 44px",
+                background: "rgba(18,18,22,0.7)",
+                border: "1px solid rgba(255,255,255,0.07)",
+                borderRadius: 14,
+                color: "rgba(244,244,245,0.9)",
+                fontSize: 14,
+                letterSpacing: "0.01em",
+                boxSizing: "border-box",
+              }}
+            />
             {hasActiveSearch ? (
-              <div className="search-meta">
-                {matchCount === 0 ? "No supports match yet." : `${matchCount} support${matchCount === 1 ? "" : "s"} matched`}
-              </div>
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                aria-label="Clear search"
+                style={{
+                  position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)",
+                  border: "none", background: "transparent",
+                  color: "rgba(194,122,92,0.84)",
+                  fontSize: 12, fontWeight: 700, letterSpacing: "0.04em",
+                  cursor: "pointer", padding: 0,
+                }}
+              >
+                Clear
+              </button>
             ) : null}
           </div>
-        </motion.section>
+          {hasActiveSearch ? (
+            <div style={{ marginTop: 8, fontSize: 12, color: "rgba(161,161,170,0.6)" }}>
+              {matchCount === 0 ? "No supports match yet." : `${matchCount} support${matchCount === 1 ? "" : "s"} matched`}
+            </div>
+          ) : null}
+        </motion.div>
 
-        {/* Hard-state packs */}
+        {/* Pack list */}
         {matchCount === 0 ? (
-          <motion.section
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.34, ease: EASE }}
-            className="glass"
-            style={{ position: "relative", overflow: "hidden", padding: 22 }}
-          >
-            <div aria-hidden className="top-highlight" />
-            <div style={{ position: "relative", zIndex: 1, display: "grid", gap: 10 }}>
-              <div style={{ color: "rgba(244,244,245,0.9)", fontSize: 22, lineHeight: 1.12, fontWeight: 650 }}>
+          <div style={{
+            position: "relative", overflow: "hidden",
+            background: "rgba(18,18,22,0.9)",
+            border: "1px solid rgba(255,255,255,0.07)",
+            borderRadius: 22,
+            backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)",
+            boxShadow: "0 24px 70px rgba(0,0,0,0.45)",
+            padding: "24px 22px",
+          }}>
+            <div aria-hidden style={{
+              position: "absolute", top: 0, left: 16, right: 16, height: 1,
+              background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent)",
+              pointerEvents: "none",
+            }} />
+            <div style={{ display: "grid", gap: 10 }}>
+              <div style={{ fontSize: 17, fontWeight: 650, color: "rgba(244,244,245,0.9)" }}>
                 No supports matched that search.
               </div>
-              <p style={{ margin: 0, color: "rgba(161,161,170,0.82)", fontSize: 14, lineHeight: 1.7 }}>
+              <p style={{ margin: 0, fontSize: 13, lineHeight: 1.65, color: "rgba(161,161,170,0.75)" }}>
                 Try a support name, a step title, or a short phrase from the step you remember.
               </p>
-              <div>
-                <button type="button" onClick={() => setSearchQuery("")} className="btn-ghost search-empty-clear">
-                  Clear search
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                style={{
+                  alignSelf: "start",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: 10,
+                  background: "transparent",
+                  color: "rgba(161,161,170,0.8)",
+                  fontSize: 13, fontWeight: 600,
+                  padding: "7px 16px",
+                  cursor: "pointer",
+                }}
+              >
+                Clear search
+              </button>
             </div>
-          </motion.section>
+          </div>
         ) : (
           <>
             {hardPacks.length > 0 ? (
-              <div style={{ display: "grid", gap: 16, marginBottom: lightPacks.length > 0 ? 10 : 0 }}>
-                <SectionDivider label="When things are hard" sub="Reduce load, come back, settle down" />
+              <div style={{ display: "grid", gap: 14, marginBottom: lightPacks.length > 0 ? 8 : 0 }}>
+                <SectionDivider label="When things are hard" />
                 {hardPacks.map((pack, i) => renderPackCard(pack, i, false))}
               </div>
             ) : null}
 
             {lightPacks.length > 0 ? (
-              <div style={{ display: "grid", gap: 16, marginTop: hardPacks.length > 0 ? 24 : 0 }}>
-                <SectionDivider label="When things are clear" sub="Use the window before it closes" />
+              <div style={{ display: "grid", gap: 14 }}>
+                <SectionDivider label="When things are clear" />
                 {lightPacks.map((pack, i) => renderPackCard(pack, i + hardPacks.length, true))}
               </div>
             ) : null}
           </>
         )}
       </div>
-
-      <style jsx>{`
-        * {
-          -webkit-tap-highlight-color: transparent;
-        }
-
-        .px-wrap {
-          width: min(980px, calc(100vw - 40px));
-          margin: 0 auto;
-        }
-
-        .glass-hero {
-          background: rgba(39, 39, 42, 0.62);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 22px;
-          backdrop-filter: blur(24px);
-          -webkit-backdrop-filter: blur(24px);
-          box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-        }
-
-        .glass {
-          background: rgba(39, 39, 42, 0.62);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 22px;
-          backdrop-filter: blur(24px);
-          -webkit-backdrop-filter: blur(24px);
-          box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-        }
-
-        .glass-light {
-          border-color: rgba(140, 190, 150, 0.14);
-          box-shadow:
-            0 24px 70px rgba(0, 0, 0, 0.38),
-            0 0 0 1px rgba(140, 190, 150, 0.06),
-            inset 0 1px 0 rgba(140, 190, 150, 0.08);
-        }
-
-        .search-shell {
-          display: grid;
-          gap: 8px;
-        }
-
-        .search-field {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          min-height: 50px;
-          padding: 0 14px;
-          background: rgba(39, 39, 42, 0.52);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 16px;
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          box-shadow: 0 14px 36px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-        }
-
-        .search-icon {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          color: rgba(161, 161, 170, 0.7);
-          flex-shrink: 0;
-        }
-
-        .search-input {
-          flex: 1;
-          min-width: 0;
-          border: none;
-          background: transparent;
-          color: rgba(244, 244, 245, 0.9);
-          font-size: 14px;
-          line-height: 1.4;
-          letter-spacing: 0.01em;
-          outline: none;
-        }
-
-        .search-input::placeholder {
-          color: rgba(161, 161, 170, 0.62);
-        }
-
-        .search-clear {
-          border: none;
-          background: transparent;
-          color: rgba(194, 122, 92, 0.84);
-          font-size: 12px;
-          font-weight: 800;
-          letter-spacing: 0.04em;
-          cursor: pointer;
-          padding: 0;
-          flex-shrink: 0;
-        }
-
-        .search-meta {
-          color: rgba(161, 161, 170, 0.68);
-          font-size: 12px;
-          line-height: 1.5;
-          padding-left: 2px;
-        }
-
-        .glass-row {
-          background: rgba(39, 39, 42, 0.5);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 16px;
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-          box-shadow: 0 16px 36px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-        }
-
-        .top-highlight {
-          position: absolute;
-          top: 0;
-          left: 16px;
-          right: 16px;
-          height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-          pointer-events: none;
-        }
-
-        .pack-header {
-          display: grid;
-          grid-template-columns: minmax(0, 1fr);
-          gap: 0;
-          min-width: 0;
-          padding-top: 8px;
-        }
-
-        .pack-title {
-          min-width: 0;
-          overflow-wrap: anywhere;
-          word-break: break-word;
-          margin-bottom: 10px;
-        }
-
-        .pack-purpose {
-          min-width: 0;
-        }
-
-        .pack-meta {
-          display: grid;
-          gap: 5px;
-          margin-top: 16px;
-          max-width: 100%;
-          min-width: 0;
-        }
-
-        .pack-meta-count {
-          color: rgba(244, 244, 245, 0.9);
-          font-size: 13px;
-          font-weight: 700;
-          letter-spacing: 0.01em;
-          line-height: 1.45;
-        }
-
-        .pack-meta-count-light {
-          color: rgba(212, 235, 220, 0.9);
-        }
-
-        .pack-meta-detail {
-          color: rgba(161, 161, 170, 0.82);
-          font-size: 12.5px;
-          font-weight: 500;
-          line-height: 1.62;
-          letter-spacing: 0.01em;
-          text-wrap: balance;
-        }
-
-        .pack-meta-label {
-          color: rgba(244, 244, 245, 0.72);
-          font-weight: 600;
-        }
-
-        .btn-primary,
-        .btn-secondary {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 100%;
-          min-height: 52px;
-          padding: 14px 16px;
-          border-radius: 16px;
-          text-decoration: none;
-          font-size: 14px;
-          font-weight: 900;
-        }
-
-        .btn-primary {
-          color: #fff;
-          background: linear-gradient(
-            180deg,
-            rgba(194, 122, 92, 0.96) 0%,
-            rgba(173, 103, 77, 0.96) 100%
-          );
-          border: 1px solid rgba(194, 122, 92, 0.28);
-          box-shadow: 0 18px 42px rgba(194, 122, 92, 0.18);
-        }
-
-        .btn-primary-light {
-          background: linear-gradient(
-            180deg,
-            rgba(100, 170, 120, 0.92) 0%,
-            rgba(80, 148, 100, 0.92) 100%
-          );
-          border-color: rgba(100, 170, 120, 0.28);
-          box-shadow: 0 18px 42px rgba(100, 170, 120, 0.16);
-        }
-
-        .btn-secondary {
-          color: var(--text);
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .btn-ghost {
-          min-height: 52px;
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          border-radius: 16px;
-          background: rgba(255, 255, 255, 0.02);
-          color: rgba(161, 161, 170, 0.9);
-          font-size: 13px;
-          font-weight: 800;
-          padding: 0 12px;
-          cursor: pointer;
-          white-space: nowrap;
-        }
-
-        .search-empty-clear {
-          min-height: 44px;
-          padding: 0 16px;
-        }
-
-        @media (max-width: 640px) {
-          .px-wrap {
-            width: min(560px, calc(100vw - 32px));
-          }
-
-          .search-field {
-            min-height: 48px;
-            padding: 0 12px;
-          }
-
-          .card-actions {
-            grid-template-columns: 1fr !important;
-          }
-
-          .btn-ghost {
-            width: 100%;
-          }
-        }
-      `}</style>
     </main>
   );
 }
@@ -896,28 +715,7 @@ export default function PacksPage() {
 const mainStyle: CSSProperties = {
   minHeight: "100dvh",
   background: "var(--bg)",
-  padding: "40px 0 104px",
+  padding: "44px 0 100px",
   WebkitTapHighlightColor: "transparent",
   overflowX: "hidden",
-};
-
-const heroGlowStyle: CSSProperties = {
-  position: "absolute",
-  top: -40,
-  right: "8%",
-  width: 280,
-  height: 280,
-  borderRadius: 999,
-  background:
-    "radial-gradient(circle, rgba(194,122,92,0.22) 0%, rgba(194,122,92,0.08) 48%, rgba(24,24,27,0) 78%)",
-  filter: "blur(46px)",
-  pointerEvents: "none",
-};
-
-const dividerStyle: CSSProperties = {
-  width: "100%",
-  height: 1,
-  transformOrigin: "left",
-  background:
-    "linear-gradient(90deg, rgba(194,122,92,0.55), rgba(194,122,92,0.08), transparent)",
 };

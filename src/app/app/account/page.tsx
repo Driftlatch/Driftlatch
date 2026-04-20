@@ -1,6 +1,8 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
+import LogoAnimation from "@/components/LogoAnimation";
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -40,16 +42,6 @@ type BusyAction =
   | "export"
   | "delete-data"
   | null;
-
-type UntypedEntitlementsDeleteQuery = {
-  delete: () => {
-    eq: (column: string, value: string) => Promise<{ error: { message: string } | null }>;
-  };
-};
-
-type UntypedEntitlementsDeleteClient = {
-  from: (relation: "user_entitlements") => UntypedEntitlementsDeleteQuery;
-};
 
 const SUPPORT_EMAIL = "support@driftlatch.com";
 const ORIENTATION_SESSION_KEY = "driftlatch_account_orientation_open";
@@ -256,7 +248,39 @@ function formatPlan(plan: string | null | undefined) {
 
 function formatStatus(status: string | null | undefined) {
   if (!status) return "No access";
-  return status.charAt(0).toUpperCase() + status.slice(1);
+  const map: Record<string, string> = {
+    active: "Active",
+    trialing: "Trialing",
+    canceled: "Canceled",
+    past_due: "Past due",
+    inactive: "Inactive",
+    expired: "Expired",
+  };
+  return map[status] ?? (status.charAt(0).toUpperCase() + status.slice(1));
+}
+
+function formatPlanLabel(plan: string | null | undefined) {
+  if (plan === "annual") return "Annual";
+  if (plan === "monthly") return "Monthly";
+  return "No active plan";
+}
+
+function statusColor(status: string | null | undefined): string {
+  if (status === "active") return "rgba(120,190,150,0.9)";
+  if (status === "trialing") return "rgba(100,160,200,0.9)";
+  if (status === "past_due" || status === "canceled") return "rgba(194,122,92,0.9)";
+  return "rgba(161,161,170,0.7)";
+}
+
+function formatBillingDate(
+  entitlement: { status: string | null; current_period_end: string | null; cancel_at_period_end: boolean | null } | null,
+): string | null {
+  if (!entitlement?.current_period_end) return null;
+  const date = new Date(entitlement.current_period_end);
+  if (!isFinite(date.getTime())) return null;
+  const formatted = date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  const isCanceled = entitlement.status === "canceled" || entitlement.cancel_at_period_end === true;
+  return isCanceled ? `Access until ${formatted}` : `Renews ${formatted}`;
 }
 
 function downloadJsonFile(filename: string, data: unknown) {
@@ -267,22 +291,6 @@ function downloadJsonFile(filename: string, data: unknown) {
   anchor.download = filename;
   anchor.click();
   window.URL.revokeObjectURL(url);
-}
-
-async function deleteEntitlementRow(userId: string) {
-  const supabase = getSupabase() as unknown as UntypedEntitlementsDeleteClient;
-  const { error } = await supabase.from("user_entitlements").delete().eq("user_id", userId);
-  if (error) throw new Error(error.message);
-}
-
-function ensureNoDeleteErrors(
-  results: Array<{ error: { message: string } | null }>,
-  fallbackMessage: string,
-) {
-  const failed = results.find((result) => result.error);
-  if (failed?.error) {
-    throw new Error(failed.error.message || fallbackMessage);
-  }
 }
 
 function logAccountDebug(label: string, details: Record<string, unknown>) {
@@ -375,6 +383,7 @@ export default function AccountPage() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [orientationOpen, setOrientationOpen] = useState(false);
   const [orientationPreferenceLoaded, setOrientationPreferenceLoaded] = useState(false);
+  const [eqArchetype, setEqArchetype] = useState<string | null>(null);
   const [accountState, setAccountState] = useState<CurrentUserAppState>({
     diagnostics: [],
     email: "",
@@ -444,6 +453,20 @@ export default function AccountPage() {
         });
 
         setAccountState(nextAccountState);
+
+        // Load EQ archetype for link card
+        if (nextAccountState.userId) {
+          const supabase = getSupabase();
+          const eqRes = await (supabase as any)
+            .from("user_eq_profile")
+            .select("archetype")
+            .eq("user_id", nextAccountState.userId)
+            .maybeSingle();
+          if (active && eqRes.data?.archetype) {
+            setEqArchetype(eqRes.data.archetype as string);
+          }
+        }
+
         setLoading(false);
       } catch (error) {
         console.error("Failed to load account data:", error);
@@ -731,27 +754,27 @@ export default function AccountPage() {
         return;
       }
 
-      const supabase = getSupabase();
-      const deleteResults = await Promise.all([
-        supabase.from("user_pins").delete().eq("user_id", session.user.id),
-        supabase.from("user_tool_feedback").delete().eq("user_id", session.user.id),
-        supabase.from("user_saved_tools").delete().eq("user_id", session.user.id),
-        supabase.from("user_recent_tools").delete().eq("user_id", session.user.id),
-        supabase.from("user_checkins").delete().eq("user_id", session.user.id),
-        supabase.from("user_profile").delete().eq("user_id", session.user.id),
-      ]);
-      ensureNoDeleteErrors(deleteResults, "We could not delete every public record.");
-      await deleteEntitlementRow(session.user.id);
+      const response = await fetch("/api/user/delete", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      const data = await response.json() as { success?: boolean; error?: string };
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "We could not delete your data.");
+      }
 
       clearStorageKeys(DELETE_ACCOUNT_LOCAL_KEYS);
       clearSessionKeys(SESSION_KEYS);
 
-      // TODO: full auth user deletion should happen via a secure server route or admin function.
       await signOut();
-      router.replace("/login");
+      router.replace("/");
     } catch (error) {
       console.error("Failed to delete account data:", error);
-      setNotice({ tone: "error", text: "We could not delete your data. Nothing was faked." });
+      setNotice({ tone: "error", text: error instanceof Error ? error.message : "We could not delete your data." });
       setBusyAction(null);
       return;
     }
@@ -759,13 +782,9 @@ export default function AccountPage() {
 
   if (loading) {
     return (
-      <main style={loadingStyle}>
-        <div style={loadingCardStyle}>
-          <div className="kicker">ACCOUNT</div>
-          <h1 style={{ marginTop: 10, marginBottom: 8 }}>Loading your account</h1>
-          <p className="small">Pulling your settings, access, and controls.</p>
-        </div>
-      </main>
+      <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "#18181B", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <LogoAnimation variant="splash" />
+      </div>
     );
   }
 
@@ -777,14 +796,12 @@ export default function AccountPage() {
       </div>
 
       <div style={contentStyle}>
-        <header style={headerStyle}>
-          <div>
-            <div className="kicker">ACCOUNT</div>
-            <h1 style={{ marginTop: 10, marginBottom: 8 }}>Settings and access</h1>
-            <p className="small" style={{ maxWidth: 560 }}>
-              Everything important in one place: access, setup, data controls, and support.
-            </p>
-          </div>
+        <header>
+          <div style={pageKickerStyle}>ACCOUNT</div>
+          <h1 style={pageH1Style}>Settings and access</h1>
+          <p style={pageSubtitleStyle}>
+            Everything important in one place: access, setup, data controls, and support.
+          </p>
         </header>
 
         {notice ? (
@@ -800,6 +817,61 @@ export default function AccountPage() {
             {notice.text}
           </div>
         ) : null}
+
+        {/* EQ link card */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] as [number, number, number, number], delay: 0.06 }}
+          onClick={() => router.push("/app/eq")}
+          style={{
+            background: "rgba(18,18,22,0.9)",
+            border: "1px solid rgba(255,255,255,0.07)",
+            borderRadius: 18,
+            padding: "16px 18px",
+            position: "relative",
+            overflow: "hidden",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+            WebkitTapHighlightColor: "transparent",
+          }}
+        >
+          <div
+            aria-hidden
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 16,
+              right: 16,
+              height: 1,
+              background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent)",
+              pointerEvents: "none",
+            }}
+          />
+          <div style={{ position: "relative", zIndex: 1, display: "grid", gap: 3 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text)", letterSpacing: "-0.02em" }}>
+              Pressure EQ
+            </div>
+            <div style={{ fontSize: 12, color: "rgba(161,161,170,0.55)" }}>
+              {eqArchetype ?? "Not taken yet"}
+            </div>
+          </div>
+          <div
+            aria-hidden
+            style={{
+              position: "relative",
+              zIndex: 1,
+              fontSize: 18,
+              color: "rgba(161,161,170,0.35)",
+              flexShrink: 0,
+            }}
+          >
+            →
+          </div>
+        </motion.div>
 
         <section style={orientationSectionStyle}>
           <div style={cardTopHighlightStyle} />
@@ -861,7 +933,7 @@ export default function AccountPage() {
               >
                 <div style={sectionHeaderStyle}>
                   <div>
-                    <div className="kicker">PRODUCT ORIENTATION</div>
+                    <div style={cardKickerStyle}>PRODUCT ORIENTATION</div>
                     <h2 style={sectionTitleStyle}>How to use Driftlatch</h2>
                     <p className="small" style={{ maxWidth: 640, marginTop: 10, marginBottom: 0 }}>
                       Driftlatch works best when you keep it simple. Check in with your state, take one useful step,
@@ -944,40 +1016,57 @@ export default function AccountPage() {
 
         <section style={cardStyle}>
           <div style={cardTopHighlightStyle} />
-          <div style={sectionHeaderStyle}>
-            <div>
-              <div className="kicker">ACCOUNT</div>
-              <h2 style={sectionTitleStyle}>Identity and access</h2>
+          <div style={cardKickerStyle}>ACCOUNT</div>
+          <h2 style={sectionTitleStyle}>Identity and access</h2>
+
+          <div>
+            <div style={fieldRowStyle}>
+              <span style={fieldLabelStyle}>Email</span>
+              <span style={fieldValueStyle}>{email || "Email unavailable right now"}</span>
+            </div>
+            <div style={fieldRowStyle}>
+              <span style={fieldLabelStyle}>Plan</span>
+              <span style={fieldValueStyle}>
+                {entitlementLoadFailed ? (
+                  "Unavailable right now"
+                ) : (
+                  <span style={planPillStyle}>{formatPlan(entitlement?.plan)}</span>
+                )}
+              </span>
+            </div>
+            <div style={fieldRowStyle}>
+              <span style={fieldLabelStyle}>Status</span>
+              <span style={fieldValueStyle}>
+                {entitlementLoadFailed ? (
+                  "Unavailable right now"
+                ) : entitlement?.status === "active" ? (
+                  <span style={greenPillStyle}>{formatStatus(entitlement?.status)}</span>
+                ) : (
+                  formatStatus(entitlement?.status)
+                )}
+              </span>
+            </div>
+            <div style={{ ...fieldRowStyle, borderBottom: "none" }}>
+              <span style={fieldLabelStyle}>Member access</span>
+              <span style={fieldValueStyle}>
+                {entitlementLoadFailed ? (
+                  "Unavailable right now"
+                ) : hasAppAccess(entitlement?.status) ? (
+                  <span style={greenPillStyle}>Active member</span>
+                ) : (
+                  "No active access"
+                )}
+              </span>
             </div>
           </div>
 
-          <div style={infoGridStyle}>
-            <div style={infoTileStyle}>
-              <div className="small">Email</div>
-              <div style={infoValueStyle}>{email || "Email unavailable right now"}</div>
-            </div>
-            <div style={infoTileStyle}>
-              <div className="small">Plan</div>
-              <div style={infoValueStyle}>{entitlementLoadFailed ? "Unavailable right now" : formatPlan(entitlement?.plan)}</div>
-            </div>
-            <div style={infoTileStyle}>
-              <div className="small">Entitlement status</div>
-              <div style={infoValueStyle}>{entitlementLoadFailed ? "Unavailable right now" : formatStatus(entitlement?.status)}</div>
-            </div>
-            <div style={infoTileStyle}>
-              <div className="small">Member access</div>
-              <div style={infoValueStyle}>
-                {entitlementLoadFailed ? "Unavailable right now" : hasAppAccess(entitlement?.status) ? "Active member" : "No active access"}
-              </div>
-            </div>
-          </div>
-
-          <div style={buttonRowStyle}>
+          <div style={{ marginTop: 20 }}>
             <button
-              className="btn ghost"
+              className="account-signout"
               type="button"
               onClick={() => void handleSignOut()}
               disabled={busyAction !== null}
+              style={ghostBtnStyle}
             >
               {busyAction === "signout" ? "Signing out..." : "Sign out"}
             </button>
@@ -986,36 +1075,88 @@ export default function AccountPage() {
 
         <section style={cardStyle}>
           <div style={cardTopHighlightStyle} />
-          <div style={sectionHeaderStyle}>
-            <div>
-              <div className="kicker">DRIFTLATCH SETUP</div>
-              <h2 style={sectionTitleStyle}>Profile and defaults</h2>
+          <div style={cardKickerStyle}>SUBSCRIPTION</div>
+          <h2 style={sectionTitleStyle}>Plan and billing</h2>
+
+          <div>
+            <div style={fieldRowStyle}>
+              <span style={fieldLabelStyle}>Current plan</span>
+              <span style={fieldValueStyle}>
+                {entitlementLoadFailed ? (
+                  "Unavailable right now"
+                ) : (
+                  <span style={planPillStyle}>{formatPlanLabel(entitlement?.plan)}</span>
+                )}
+              </span>
+            </div>
+            <div style={fieldRowStyle}>
+              <span style={fieldLabelStyle}>Status</span>
+              <span style={fieldValueStyle}>
+                {entitlementLoadFailed ? (
+                  "Unavailable right now"
+                ) : entitlement?.status === "active" ? (
+                  <span style={greenPillStyle}>{formatStatus(entitlement?.status)}</span>
+                ) : (
+                  <span style={{ color: statusColor(entitlement?.status) }}>{formatStatus(entitlement?.status)}</span>
+                )}
+              </span>
+            </div>
+            {!entitlementLoadFailed && formatBillingDate(entitlement) ? (
+              <div style={{ ...fieldRowStyle, borderBottom: "none" }}>
+                <span style={fieldLabelStyle}>
+                  {entitlement?.status === "canceled" || entitlement?.cancel_at_period_end ? "Access ends" : "Next renewal"}
+                </span>
+                <span style={fieldValueStyle}>{formatBillingDate(entitlement)}</span>
+              </div>
+            ) : (
+              <div style={{ ...fieldRowStyle, borderBottom: "none" }} />
+            )}
+          </div>
+
+          <div style={{ marginTop: 20 }}>
+            <a
+              className="account-billing-btn"
+              href="https://customer.paddle.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={ghostBtnStyle}
+            >
+              Manage subscription
+            </a>
+          </div>
+        </section>
+
+        <section style={cardStyle}>
+          <div style={cardTopHighlightStyle} />
+          <div style={cardKickerStyle}>DRIFTLATCH SETUP</div>
+          <h2 style={sectionTitleStyle}>Profile and defaults</h2>
+
+          <div>
+            <div style={fieldRowStyle}>
+              <span style={fieldLabelStyle}>Display name</span>
+              <span style={fieldValueStyle}>
+                {profileLoadFailed ? "Unavailable right now" : profile?.display_name?.trim() || "Not set"}
+              </span>
+            </div>
+            <div style={{ ...fieldRowStyle, alignItems: "flex-start", borderBottom: "none" }}>
+              <span style={fieldLabelStyle}>Attachment pattern</span>
+              <div style={{ ...fieldValueStyle, display: "grid", gap: 6 }}>
+                <span style={neutralPillStyle}>
+                  {profileLoadFailed ? "Unavailable" : getAttachmentStyleDisplayLabel(profile?.attachment_style)}
+                </span>
+                {!profileLoadFailed && (attachmentStyleSummary?.body ?? getAttachmentStyleExplanation()) ? (
+                  <p style={{ margin: 0, fontSize: 12, color: "rgba(161,161,170,0.6)", lineHeight: 1.55 }}>
+                    {attachmentStyleSummary?.body ?? getAttachmentStyleExplanation()}
+                  </p>
+                ) : null}
+              </div>
             </div>
           </div>
 
-          <div style={infoGridStyle}>
-            <div style={infoTileStyle}>
-              <div className="small">Display name</div>
-              <div style={infoValueStyle}>{profileLoadFailed ? "Profile unavailable right now" : profile?.display_name?.trim() || "No display name saved"}</div>
-            </div>
-            <div style={infoTileStyle}>
-              <div className="small">Attachment pattern</div>
-              <div style={infoValueStyle}>{profileLoadFailed ? "Unavailable right now" : getAttachmentStyleDisplayLabel(profile?.attachment_style)}</div>
-              <p className="small" style={{ marginTop: 8, marginBottom: 0 }}>
-                {profileLoadFailed ? "We could not load your saved profile row right now." : attachmentStyleSummary?.body ?? getAttachmentStyleExplanation()}
-              </p>
-              <p className="small" style={{ marginTop: 8, marginBottom: 0 }}>
-                {getAttachmentStyleQualifier()}
-              </p>
-            </div>
-          </div>
-
-          <div style={subCardStyle}>
+          <div style={{ ...subCardStyle, marginTop: 20 }}>
             <div style={subCardHeaderStyle}>
               <div>
-                <div className="small" style={{ letterSpacing: "0.12em", textTransform: "uppercase" }}>
-                  Defaults
-                </div>
+                <div style={cardKickerStyle}>Defaults</div>
                 <div style={actionTitleStyle}>Check-in defaults</div>
                 <p className="small" style={{ margin: 0 }}>
                   These prefill the check-in flow. Your attachment pattern still updates only through the Pressure Profile.
@@ -1104,12 +1245,8 @@ export default function AccountPage() {
 
         <section style={cardStyle}>
           <div style={cardTopHighlightStyle} />
-          <div style={sectionHeaderStyle}>
-            <div>
-              <div className="kicker">DATA CONTROLS</div>
-              <h2 style={sectionTitleStyle}>History, export, and reset</h2>
-            </div>
-          </div>
+          <div style={cardKickerStyle}>DATA CONTROLS</div>
+          <h2 style={sectionTitleStyle}>History, export, and reset</h2>
 
           <div style={stackStyle}>
             <div style={actionRowStyle}>
@@ -1154,91 +1291,98 @@ export default function AccountPage() {
                 </p>
               </div>
               <button
-                className="btn ghost"
+                className="account-signout"
                 type="button"
                 onClick={() => void handleExportData()}
                 disabled={busyAction !== null}
+                style={ghostBtnStyle}
               >
                 {busyAction === "export" ? "Preparing export..." : "Export my data"}
               </button>
             </div>
-
-            <div style={{ ...actionRowStyle, borderColor: "rgba(194,122,92,0.18)" }}>
-              <div>
-                <div style={actionTitleStyle}>Delete account</div>
-                <p className="small" style={{ margin: 0 }}>
-                  First pass: deletes your public Driftlatch data, then signs you out. Auth-user deletion needs a secure server path.
-                </p>
-              </div>
-              <button
-                className="btn ghost"
-                type="button"
-                onClick={() => setConfirmDelete(true)}
-                disabled={busyAction !== null}
-              >
-                Delete account
-              </button>
-            </div>
-
-            {confirmDelete ? (
-              <div
-                style={{
-                  borderRadius: 18,
-                  border: "1px solid rgba(194,122,92,0.28)",
-                  background: "rgba(194,122,92,0.10)",
-                  padding: 18,
-                }}
-              >
-                <div style={actionTitleStyle}>Confirm deletion</div>
-                <p className="small" style={{ marginBottom: 14 }}>
-                  This will delete your Driftlatch data from public tables and sign you out. It will not remove the auth user itself yet.
-                </p>
-                <div style={buttonRowStyle}>
-                  <button
-                    className="btn primary"
-                    type="button"
-                    onClick={() => void handleDeleteDataAndSignOut()}
-                    disabled={busyAction !== null}
-                  >
-                    {busyAction === "delete-data" ? "Deleting..." : "Delete my data and sign out"}
-                  </button>
-                  <button
-                    className="btn ghost"
-                    type="button"
-                    onClick={() => setConfirmDelete(false)}
-                    disabled={busyAction !== null}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            ) : null}
           </div>
+        </section>
+
+        <section style={dangerCardStyle}>
+          <div style={dangerRimStyle} />
+          <div style={dangerCardKickerStyle}>DANGER ZONE</div>
+          <h2 style={dangerSectionTitleStyle}>Delete account</h2>
+
+          <div style={actionRowStyle}>
+            <div>
+              <div style={actionTitleStyle}>Delete account</div>
+              <p className="small" style={{ margin: 0 }}>
+                Deletes your public Driftlatch data, then signs you out.
+              </p>
+            </div>
+            <button
+              className="account-delete-btn"
+              type="button"
+              onClick={() => setConfirmDelete(true)}
+              disabled={busyAction !== null}
+              style={deleteBtnStyle}
+            >
+              Delete account
+            </button>
+          </div>
+
+          {confirmDelete ? (
+            <div
+              style={{
+                marginTop: 12,
+                borderRadius: 16,
+                border: "1px solid rgba(180,80,80,0.22)",
+                background: "rgba(180,80,80,0.07)",
+                padding: 18,
+              }}
+            >
+              <div style={actionTitleStyle}>Confirm deletion</div>
+              <p className="small" style={{ marginBottom: 14 }}>
+                This will delete your Driftlatch data from public tables and sign you out. It will not remove the auth user itself yet.
+              </p>
+              <div style={buttonRowStyle}>
+                <button
+                  className="btn primary"
+                  type="button"
+                  onClick={() => void handleDeleteDataAndSignOut()}
+                  disabled={busyAction !== null}
+                >
+                  {busyAction === "delete-data" ? "Deleting..." : "Delete my data and sign out"}
+                </button>
+                <button
+                  className="btn ghost"
+                  type="button"
+                  onClick={() => setConfirmDelete(false)}
+                  disabled={busyAction !== null}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : null}
         </section>
 
         <section style={cardStyle}>
           <div style={cardTopHighlightStyle} />
-          <div style={sectionHeaderStyle}>
-            <div>
-              <div className="kicker">BILLING / SUPPORT</div>
-              <h2 style={sectionTitleStyle}>Subscription and help</h2>
-            </div>
-          </div>
+          <div style={cardKickerStyle}>BILLING / SUPPORT</div>
+          <h2 style={sectionTitleStyle}>Subscription and help</h2>
 
           <div style={stackStyle}>
             <div style={actionRowStyle}>
               <div>
                 <div style={actionTitleStyle}>Manage subscription</div>
                 <p className="small" style={{ margin: 0 }}>
-                  Billing portal is not wired yet. For now, email support and we&apos;ll help directly.
+                  Update payment method, download invoices, or cancel your plan via the Paddle billing portal.
                 </p>
               </div>
               <a
-                className="btn ghost"
-                href={`mailto:${SUPPORT_EMAIL}?subject=Manage%20my%20Driftlatch%20subscription`}
-                style={{ textDecoration: "none" }}
+                className="account-billing-btn"
+                href="https://customer.paddle.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={ghostBtnStyle}
               >
-                Email support
+                Billing portal
               </a>
             </div>
 
@@ -1272,11 +1416,11 @@ const loadingStyle = {
 const loadingCardStyle = {
   width: "100%",
   maxWidth: 560,
-  borderRadius: 24,
-  border: "1px solid rgba(255,255,255,0.08)",
-  background: "rgba(39,39,42,0.82)",
-  backdropFilter: "blur(18px)",
-  WebkitBackdropFilter: "blur(18px)",
+  borderRadius: 22,
+  border: "1px solid rgba(255,255,255,0.07)",
+  background: "rgba(18,18,22,0.9)",
+  backdropFilter: "blur(24px)",
+  WebkitBackdropFilter: "blur(24px)",
   padding: 24,
   boxShadow: "0 24px 70px rgba(0,0,0,0.45)",
 } as const;
@@ -1287,7 +1431,7 @@ const pageStyle = {
   color: "var(--text)",
   position: "relative",
   overflow: "hidden",
-  padding: "36px 18px calc(152px + env(safe-area-inset-bottom))",
+  padding: "44px 18px 100px",
 } as const;
 
 const atmosphereStyle = {
@@ -1323,10 +1467,10 @@ const contentStyle = {
   position: "relative",
   zIndex: 1,
   width: "100%",
-  maxWidth: 860,
+  maxWidth: 640,
   margin: "0 auto",
   display: "grid",
-  gap: 18,
+  gap: 12,
 } as const;
 
 const headerStyle = {
@@ -1339,21 +1483,186 @@ const headerStyle = {
 
 const cardStyle = {
   position: "relative",
-  borderRadius: 24,
-  border: "1px solid rgba(255,255,255,0.08)",
-  background: "rgba(39,39,42,0.72)",
-  backdropFilter: "blur(18px)",
-  WebkitBackdropFilter: "blur(18px)",
-  boxShadow: "0 24px 70px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05)",
+  borderRadius: 22,
+  border: "1px solid rgba(255,255,255,0.07)",
+  background: "rgba(18,18,22,0.9)",
+  backdropFilter: "blur(24px)",
+  WebkitBackdropFilter: "blur(24px)",
+  boxShadow: "0 24px 70px rgba(0,0,0,0.45)",
   overflow: "hidden",
-  padding: 22,
+  padding: "28px 24px",
 } as const;
+
+const pageKickerStyle: React.CSSProperties = {
+  fontSize: 11,
+  fontWeight: 600,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+  color: "rgba(161,161,170,0.45)",
+  marginBottom: 10,
+};
+
+const pageH1Style: React.CSSProperties = {
+  margin: 0,
+  fontFamily: "var(--font-serif)",
+  fontSize: "clamp(1.8rem, 5vw, 2.2rem)",
+  fontWeight: 700,
+  letterSpacing: "-0.04em",
+  color: "var(--text)",
+  lineHeight: 1.1,
+  marginBottom: 8,
+};
+
+const pageSubtitleStyle: React.CSSProperties = {
+  margin: 0,
+  fontSize: 14,
+  color: "rgba(161,161,170,0.55)",
+  lineHeight: 1.6,
+  marginBottom: 40,
+  fontWeight: 400,
+};
+
+const cardKickerStyle: React.CSSProperties = {
+  fontSize: 11,
+  fontWeight: 600,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+  color: "rgba(161,161,170,0.4)",
+  marginBottom: 4,
+};
+
+const fieldRowStyle: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  paddingTop: 14,
+  paddingBottom: 14,
+  borderBottom: "1px solid rgba(255,255,255,0.05)",
+};
+
+const fieldLabelStyle: React.CSSProperties = {
+  fontSize: 13,
+  color: "rgba(161,161,170,0.55)",
+  fontWeight: 400,
+};
+
+const fieldValueStyle: React.CSSProperties = {
+  fontSize: 14,
+  color: "rgba(244,244,245,0.88)",
+  fontWeight: 500,
+  textAlign: "right",
+  wordBreak: "break-word",
+  maxWidth: "60%",
+};
+
+const planPillStyle: React.CSSProperties = {
+  display: "inline-flex",
+  padding: "3px 10px",
+  borderRadius: 999,
+  background: "rgba(194,122,92,0.1)",
+  border: "1px solid rgba(194,122,92,0.2)",
+  color: "rgba(194,122,92,0.9)",
+  fontSize: 12,
+  fontWeight: 600,
+};
+
+const greenPillStyle: React.CSSProperties = {
+  display: "inline-flex",
+  padding: "3px 10px",
+  borderRadius: 999,
+  background: "rgba(120,190,150,0.1)",
+  border: "1px solid rgba(120,190,150,0.2)",
+  color: "rgba(120,190,150,0.9)",
+  fontSize: 12,
+  fontWeight: 600,
+};
+
+const neutralPillStyle: React.CSSProperties = {
+  display: "inline-flex",
+  padding: "3px 10px",
+  borderRadius: 999,
+  background: "rgba(255,255,255,0.05)",
+  border: "1px solid rgba(255,255,255,0.08)",
+  color: "rgba(244,244,245,0.7)",
+  fontSize: 12,
+  fontWeight: 500,
+};
+
+const ghostBtnStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 8,
+  padding: "10px 20px",
+  borderRadius: 10,
+  border: "1px solid rgba(255,255,255,0.1)",
+  background: "rgba(255,255,255,0.03)",
+  color: "rgba(161,161,170,0.7)",
+  fontSize: 14,
+  fontWeight: 500,
+  cursor: "pointer",
+  transition: "all 0.2s ease",
+  textDecoration: "none",
+};
+
+const dangerCardStyle: React.CSSProperties = {
+  position: "relative",
+  borderRadius: 22,
+  border: "1px solid rgba(180,80,80,0.15)",
+  background: "rgba(18,12,12,0.9)",
+  backdropFilter: "blur(24px)",
+  WebkitBackdropFilter: "blur(24px)",
+  boxShadow: "0 24px 70px rgba(0,0,0,0.45)",
+  overflow: "hidden",
+  padding: "28px 24px",
+};
+
+const dangerCardKickerStyle: React.CSSProperties = {
+  fontSize: 11,
+  fontWeight: 600,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+  color: "rgba(180,80,80,0.45)",
+  marginBottom: 4,
+};
+
+const dangerSectionTitleStyle: React.CSSProperties = {
+  margin: "6px 0 18px",
+  fontSize: "1.15rem",
+  fontFamily: "var(--font-serif)",
+  fontWeight: 700,
+  lineHeight: 1.2,
+  letterSpacing: "-0.025em",
+  color: "rgba(244,244,245,0.7)",
+};
+
+const dangerRimStyle: React.CSSProperties = {
+  position: "absolute",
+  top: 0,
+  left: 16,
+  right: 16,
+  height: 1,
+  background: "linear-gradient(90deg, transparent, rgba(180,80,80,0.18), transparent)",
+  pointerEvents: "none",
+};
+
+const deleteBtnStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  padding: "10px 20px",
+  borderRadius: 10,
+  border: "1px solid rgba(180,80,80,0.2)",
+  background: "rgba(180,80,80,0.06)",
+  color: "rgba(180,80,80,0.75)",
+  fontSize: 14,
+  fontWeight: 500,
+  cursor: "pointer",
+  transition: "all 0.2s ease",
+};
 
 const orientationSectionStyle = {
   ...cardStyle,
   padding: 0,
-  background:
-    "linear-gradient(180deg, rgba(48,48,52,0.82) 0%, rgba(32,32,35,0.74) 100%), radial-gradient(circle at top left, rgba(194,122,92,0.08) 0%, rgba(39,39,42,0) 38%)",
+  background: "rgba(18,18,22,0.9)",
 } as const;
 
 const orientationSectionGlowStyle = {
@@ -1406,17 +1715,17 @@ const orientationToggleCopyStyle = {
 } as const;
 
 const orientationToggleTitleStyle = {
-  color: "var(--text)",
-  fontSize: 24,
-  lineHeight: 1.04,
-  letterSpacing: "-0.03em",
-  fontWeight: 650,
+  color: "rgba(244,244,245,0.85)",
+  fontSize: 15,
+  lineHeight: 1.3,
+  letterSpacing: "-0.01em",
+  fontWeight: 500,
 } as const;
 
 const orientationToggleHelperStyle = {
-  margin: 0,
-  color: "rgba(161,161,170,0.94)",
-  fontSize: 14,
+  margin: "2px 0 0",
+  color: "rgba(161,161,170,0.5)",
+  fontSize: 13,
   lineHeight: 1.5,
   maxWidth: 560,
 } as const;
@@ -1480,14 +1789,17 @@ const sectionHeaderStyle = {
   justifyContent: "space-between",
   gap: 14,
   alignItems: "flex-start",
-  marginBottom: 18,
+  marginBottom: 0,
 } as const;
 
 const sectionTitleStyle = {
-  margin: "10px 0 0",
-  fontSize: 30,
-  lineHeight: 1.08,
-  letterSpacing: "-0.03em",
+  margin: "6px 0 18px",
+  fontSize: "1.15rem",
+  fontFamily: "var(--font-serif)",
+  fontWeight: 700,
+  lineHeight: 1.2,
+  letterSpacing: "-0.025em",
+  color: "rgba(244,244,245,0.9)",
 } as const;
 
 const infoGridStyle = {
@@ -1539,11 +1851,11 @@ const actionRowStyle = {
 } as const;
 
 const actionTitleStyle = {
-  color: "var(--text)",
-  fontSize: 16,
-  lineHeight: 1.2,
-  fontWeight: 650,
-  marginBottom: 6,
+  color: "rgba(244,244,245,0.88)",
+  fontSize: 14,
+  lineHeight: 1.3,
+  fontWeight: 600,
+  marginBottom: 4,
 } as const;
 
 const legalLinksStyle = {

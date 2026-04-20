@@ -527,6 +527,7 @@ export default function CheckinPage() {
                       <motion.button
                         whileTap={{ scale: 0.99, backgroundColor: "rgba(255,255,255,0.08)" }}
                         type="button"
+                        className="state-opt-btn"
                         onClick={() => handleQuickStateSelect(state.id)}
                         style={optionButtonStyle(isActive, isClearLight)}
                       >
@@ -542,7 +543,7 @@ export default function CheckinPage() {
                             {state.label}
                           </span>
                         </span>
-                        <span style={{ color: "var(--muted)", fontSize: 13, lineHeight: 1.5, textAlign: "right" }}>
+                        <span className="state-opt-hint" style={{ color: "var(--muted)", fontSize: 13, lineHeight: 1.5, textAlign: "right" }}>
                           {state.hint}
                         </span>
                       </motion.button>
@@ -773,9 +774,9 @@ export default function CheckinPage() {
           background-size: 3px 3px, 4px 4px; mix-blend-mode: soft-light;
         }
         .checkin-glass {
-          background: rgba(39,39,42,0.62); border: 1px solid rgba(255,255,255,0.08); border-radius: 22px;
+          background: rgba(18,18,22,0.9); border: 1px solid rgba(255,255,255,0.07); border-radius: 22px;
           backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-          box-shadow: 0 24px 70px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
+          box-shadow: 0 24px 70px rgba(0,0,0,0.45);
         }
         .top-highlight {
           position: absolute; top: 0; left: 16px; right: 16px; height: 1px;
@@ -790,12 +791,12 @@ export default function CheckinPage() {
   );
 }
 
-const mainStyle: CSSProperties = { minHeight: "100dvh", background: "var(--bg)", padding: "56px 0 104px", position: "relative", overflowX: "hidden" };
+const mainStyle: CSSProperties = { minHeight: "100dvh", background: "var(--bg)", padding: "48px 0 100px", position: "relative", overflowX: "hidden" };
 const atmosphereWrapStyle: CSSProperties = { position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 };
-const pageWrapStyle: CSSProperties = { position: "relative", zIndex: 2, width: "min(680px, calc(100vw - 36px))", margin: "0 auto", display: "grid", gap: 16 };
+const pageWrapStyle: CSSProperties = { position: "relative", zIndex: 2, width: "min(560px, calc(100vw - 40px))", margin: "0 auto", display: "grid", gap: 16 };
 const kickerStyle: CSSProperties = { color: "var(--muted)", fontSize: 10, fontWeight: 800, letterSpacing: "0.16em", textTransform: "uppercase" };
-const titleStyle: CSSProperties = { margin: 0, color: "rgba(244,244,245,0.88)", fontSize: "clamp(2.2rem, 7vw, 44px)", lineHeight: 1.04, letterSpacing: "-0.04em", fontWeight: 650 };
-const subtextStyle: CSSProperties = { margin: 0, color: "rgba(161,161,170,0.85)", fontSize: 15, lineHeight: 1.72, maxWidth: 460 };
+const titleStyle: CSSProperties = { margin: 0, color: "rgba(244,244,245,0.92)", fontFamily: "Zodiak, Georgia, serif", fontSize: "clamp(1.8rem, 5vw, 2.6rem)", lineHeight: 1.1, letterSpacing: "-0.04em", fontWeight: 700 };
+const subtextStyle: CSSProperties = { margin: 0, color: "rgba(161,161,170,0.6)", fontSize: 14, lineHeight: 1.72, maxWidth: 460 };
 const quickPanelStyle: CSSProperties = { display: "grid", gap: 10 };
 const panelLabelStyle: CSSProperties = { color: "var(--muted)", fontSize: 10, fontWeight: 800, letterSpacing: "0.16em", textTransform: "uppercase" };
 
