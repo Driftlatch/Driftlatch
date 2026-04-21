@@ -945,7 +945,9 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 export default function Home() {
   const [landingLoaded, setLandingLoaded] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth < 640 : false
+  );
 
   useEffect(() => {
     const seen = sessionStorage.getItem("dl_landing_seen");
@@ -1072,7 +1074,7 @@ export default function Home() {
                 <stop offset="100%" stopColor="rgba(210,130,55,0)" />
               </radialGradient>
               <radialGradient id="mobileGlow" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="rgba(210,130,55,0.65)" />
+                <stop offset="0%" stopColor="rgba(210,130,55,0.85)" />
                 <stop offset="100%" stopColor="rgba(210,130,55,0)" />
               </radialGradient>
             </defs>
@@ -1084,38 +1086,38 @@ export default function Home() {
 
                 {/* Sofa */}
                 <path d="M 40,340 Q 40,310 65,310 L 335,310 Q 360,310 360,340 L 360,420 Q 360,432 348,432 L 52,432 Q 40,432 40,420 Z"
-                  fill="rgba(32,18,8,1)" />
-                <path d="M 65,311 Q 200,305 335,311" stroke="rgba(194,122,92,0.3)" strokeWidth="1.5" fill="none" />
-                <rect x="26" y="330" width="20" height="90" rx="6" fill="rgba(32,18,8,1)" />
-                <rect x="354" y="330" width="20" height="90" rx="6" fill="rgba(32,18,8,1)" />
+                  fill="rgba(45,25,10,1)" />
+                <path d="M 65,311 Q 200,305 335,311" stroke="rgba(194,122,92,0.5)" strokeWidth="1.5" fill="none" />
+                <rect x="26" y="330" width="20" height="90" rx="6" fill="rgba(45,25,10,1)" />
+                <rect x="354" y="330" width="20" height="90" rx="6" fill="rgba(45,25,10,1)" />
 
                 {/* Couple glow */}
                 <ellipse cx="200" cy="400" rx="100" ry="35" fill="url(#mobileGlow)" opacity="1" />
 
                 {/* Left figure */}
-                <ellipse cx="170" cy="248" rx="22" ry="24" fill="rgba(32,18,8,1)" />
-                <rect x="162" y="270" width="16" height="18" fill="rgba(32,18,8,1)" />
-                <path d="M 138,355 Q 136,278 162,270 L 178,270 Q 204,278 206,355 Z" fill="rgba(32,18,8,1)" />
-                <ellipse cx="170" cy="248" rx="22" ry="24" fill="none" stroke="rgba(194,122,92,0.18)" strokeWidth="1" />
+                <ellipse cx="170" cy="248" rx="22" ry="24" fill="rgba(45,25,10,1)" />
+                <rect x="162" y="270" width="16" height="18" fill="rgba(45,25,10,1)" />
+                <path d="M 138,355 Q 136,278 162,270 L 178,270 Q 204,278 206,355 Z" fill="rgba(45,25,10,1)" />
+                <ellipse cx="170" cy="248" rx="22" ry="24" fill="none" stroke="rgba(194,122,92,0.35)" strokeWidth="1" />
 
                 {/* Right figure */}
-                <ellipse cx="224" cy="232" rx="19" ry="21" fill="rgba(32,18,8,1)" />
-                <rect x="217" y="252" width="14" height="16" fill="rgba(32,18,8,1)" />
-                <path d="M 200,350 Q 198,260 217,252 L 231,252 Q 250,258 254,350 Z" fill="rgba(32,18,8,1)" />
-                <ellipse cx="224" cy="232" rx="19" ry="21" fill="none" stroke="rgba(194,122,92,0.15)" strokeWidth="1" />
+                <ellipse cx="224" cy="232" rx="19" ry="21" fill="rgba(45,25,10,1)" />
+                <rect x="217" y="252" width="14" height="16" fill="rgba(45,25,10,1)" />
+                <path d="M 200,350 Q 198,260 217,252 L 231,252 Q 250,258 254,350 Z" fill="rgba(45,25,10,1)" />
+                <ellipse cx="224" cy="232" rx="19" ry="21" fill="none" stroke="rgba(194,122,92,0.35)" strokeWidth="1" />
 
                 {/* Laptop */}
-                <path d="M 30,285 L 110,285 L 116,355 L 24,355 Z" fill="rgba(22,12,5,1)" />
+                <path d="M 30,285 L 110,285 L 116,355 L 24,355 Z" fill="rgba(35,20,8,1)" />
                 <path d="M 33,289 L 107,289 L 113,351 L 27,351 Z" fill="rgba(194,122,92,0.07)" />
                 <line x1="36" y1="305" x2="108" y2="305" stroke="rgba(194,122,92,0.15)" strokeWidth="1.5" />
                 <line x1="36" y1="320" x2="100" y2="320" stroke="rgba(194,122,92,0.1)" strokeWidth="1.5" />
-                <path d="M 20,356 L 120,356 L 126,370 L 14,370 Z" fill="rgba(18,10,4,1)" />
+                <path d="M 20,356 L 120,356 L 126,370 L 14,370 Z" fill="rgba(35,20,8,1)" />
                 <ellipse cx="70" cy="375" rx="55" ry="12" fill="rgba(194,122,92,0.1)" />
 
                 {/* Mug */}
-                <rect x="124" y="342" width="20" height="22" rx="3" fill="rgba(22,12,5,1)" />
-                <rect x="122" y="362" width="24" height="4" rx="2" fill="rgba(18,10,4,1)" />
-                <path d="M 144,347 Q 153,347 153,353 Q 153,359 144,359" stroke="rgba(22,12,5,1)" strokeWidth="4" fill="none" />
+                <rect x="124" y="342" width="20" height="22" rx="3" fill="rgba(35,20,8,1)" />
+                <rect x="122" y="362" width="24" height="4" rx="2" fill="rgba(35,20,8,1)" />
+                <path d="M 144,347 Q 153,347 153,353 Q 153,359 144,359" stroke="rgba(35,20,8,1)" strokeWidth="4" fill="none" />
                 <path d="M 129,340 Q 131,333 129,326" stroke="rgba(194,122,92,0.3)" strokeWidth="1.5" fill="none" strokeLinecap="round"
                   style={{ animation: "steamRise 2.4s ease-in-out infinite" }} />
                 <path d="M 135,338 Q 137,330 135,323" stroke="rgba(194,122,92,0.2)" strokeWidth="1.5" fill="none" strokeLinecap="round"
@@ -1162,13 +1164,13 @@ export default function Home() {
 
                 {/* Laptop */}
                 <motion.g style={{ x: laptopX, y: laptopY, willChange: "transform" }}>
-                  <path d="M 120,420 L 380,380 L 400,580 L 140,610 Z" fill="rgba(35,20,10,1)" />
+                  <path d="M 120,420 L 380,380 L 400,580 L 140,610 Z" fill="rgba(18,11,6,1)" />
                   <path d="M 132,432 L 372,394 L 390,572 L 152,598 Z" fill="rgba(194,122,92,0.07)" />
                   <line x1="148" y1="460" x2="375" y2="428" stroke="rgba(194,122,92,0.14)" strokeWidth="2" />
                   <line x1="148" y1="490" x2="340" y2="462" stroke="rgba(194,122,92,0.09)" strokeWidth="2" />
                   <line x1="148" y1="518" x2="355" y2="490" stroke="rgba(194,122,92,0.07)" strokeWidth="2" />
                   <line x1="120" y1="420" x2="380" y2="380" stroke="rgba(194,122,92,0.2)" strokeWidth="1.5" />
-                  <path d="M 105,618 L 415,575 L 430,640 L 95,685 Z" fill="rgba(35,20,10,1)" />
+                  <path d="M 105,618 L 415,575 L 430,640 L 95,685 Z" fill="rgba(18,11,6,1)" />
                   <path d="M 115,628 L 410,587 L 422,630 L 108,668 Z" fill="rgba(25,15,8,0.6)" />
                   <ellipse cx="265" cy="680" rx="140" ry="22" fill="rgba(194,122,92,0.14)" />
                   <rect x="428" y="618" width="34" height="38" rx="5" fill="rgba(35,20,10,1)" />
