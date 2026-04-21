@@ -975,7 +975,6 @@ export default function Home() {
   const coupleScale = useTransform(scrollYProgress, [0, 0.4], [1, 0.94]);
   const glowOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0.2]);
   const textOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-  const sceneTransform = isMobile ? "translate(0, -120) scale(0.52)" : "";
   const textY = useTransform(scrollYProgress, [0, 0.2], ["0px", "-40px"]);
 
   return (
@@ -1060,7 +1059,7 @@ export default function Home() {
             style={{ position: "absolute", inset: 0, zIndex: 4, pointerEvents: "none" }}
             width="100%"
             height="100%"
-            viewBox="0 0 1440 900"
+            viewBox={isMobile ? "0 0 400 500" : "0 0 1440 900"}
             preserveAspectRatio="xMidYMid slice"
           >
             <defs>
@@ -1072,139 +1071,145 @@ export default function Home() {
                 <stop offset="0%" stopColor="rgba(210,130,55,0.85)" />
                 <stop offset="100%" stopColor="rgba(210,130,55,0)" />
               </radialGradient>
+              <radialGradient id="mobileGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="rgba(210,130,55,0.65)" />
+                <stop offset="100%" stopColor="rgba(210,130,55,0)" />
+              </radialGradient>
             </defs>
 
-            <g transform={sceneTransform}>
+            {isMobile ? (
+              <g id="mobile-scene">
+                {/* Ground */}
+                <ellipse cx="200" cy="460" rx="240" ry="35" fill="rgba(15,8,3,0.85)" />
 
-            {/* FIX 4 — Ground plane */}
-            <ellipse cx="720" cy="880" rx="1100" ry="90" fill="rgba(15,8,3,0.85)" />
-            {/* Center ground glow */}
-            <ellipse cx="720" cy="820" rx="320" ry="28" fill="rgba(194,122,92,0.12)" />
+                {/* Sofa */}
+                <path d="M 40,340 Q 40,310 65,310 L 335,310 Q 360,310 360,340 L 360,420 Q 360,432 348,432 L 52,432 Q 40,432 40,420 Z"
+                  fill="rgba(32,18,8,1)" />
+                <path d="M 65,311 Q 200,305 335,311" stroke="rgba(194,122,92,0.3)" strokeWidth="1.5" fill="none" />
+                <rect x="26" y="330" width="20" height="90" rx="6" fill="rgba(32,18,8,1)" />
+                <rect x="354" y="330" width="20" height="90" rx="6" fill="rgba(32,18,8,1)" />
 
-            {/* FIX 3 — Sofa + couple (RIGHT zone: x 980–1430) */}
-            <motion.g style={{ x: coupleX, scale: coupleScale, transformOrigin: "1150px 700px", willChange: "transform" }}>
-              {/* Sofa back */}
-              <path
-                d="M 980,580 Q 980,545 1015,545 L 1370,545 Q 1405,545 1405,580 L 1405,730 Q 1405,748 1388,748 L 997,748 Q 980,748 980,730 Z"
-                fill="rgba(35,20,10,1)"
-              />
-              {/* Sofa top rim */}
-              <path d="M 1015,546 Q 1192,538 1370,546" stroke="rgba(194,122,92,0.4)" strokeWidth="1.5" fill="none" />
-              {/* Sofa left arm */}
-              <rect x="962" y="600" width="30" height="130" rx="10" fill="rgba(35,20,10,1)" />
-              {/* Sofa right arm */}
-              <rect x="1398" y="600" width="30" height="130" rx="10" fill="rgba(35,20,10,1)" />
-              {/* Seat cushion line */}
-              <path d="M 980,680 L 1405,680" stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
-              {/* Sofa bottom shadow */}
-              <ellipse cx="1192" cy="758" rx="400" ry="14" fill="rgba(0,0,0,0.5)" />
-              {/* Sofa rim glow */}
-              <ellipse cx="1192" cy="750" rx="350" ry="8" fill="rgba(194,122,92,0.1)" />
-              {/* Warm glow between figures */}
-              <ellipse cx="1145" cy="660" rx="180" ry="60" fill="url(#coupleGlow)" opacity="1" />
+                {/* Couple glow */}
+                <ellipse cx="200" cy="400" rx="100" ry="35" fill="url(#mobileGlow)" opacity="1" />
 
-              {/* Left figure */}
-              <ellipse cx="1105" cy="468" rx="32" ry="35" fill="rgba(35,20,10,1)" />
-              <rect x="1096" y="501" width="18" height="22" fill="rgba(35,20,10,1)" />
-              <path
-                d="M 1055,590 Q 1053,522 1096,510 L 1114,510 Q 1157,520 1158,590 Z"
-                fill="rgba(35,20,10,1)"
-              />
-              {/* Right figure (leaning slightly left) */}
-              <ellipse cx="1175" cy="448" rx="28" ry="31" fill="rgba(35,20,10,1)" />
-              <rect x="1167" y="477" width="16" height="20" fill="rgba(35,20,10,1)" />
-              <path
-                d="M 1145,585 Q 1143,508 1167,498 L 1183,498 Q 1207,506 1212,585 Z"
-                fill="rgba(35,20,10,1)"
-              />
-              {/* Figure rim highlights */}
-              <ellipse cx="1105" cy="468" rx="32" ry="35" fill="none" stroke="rgba(194,122,92,0.22)" strokeWidth="1" />
-              <ellipse cx="1175" cy="448" rx="28" ry="31" fill="none" stroke="rgba(194,122,92,0.18)" strokeWidth="1" />
-            </motion.g>
+                {/* Left figure */}
+                <ellipse cx="170" cy="248" rx="22" ry="24" fill="rgba(32,18,8,1)" />
+                <rect x="162" y="270" width="16" height="18" fill="rgba(32,18,8,1)" />
+                <path d="M 138,355 Q 136,278 162,270 L 178,270 Q 204,278 206,355 Z" fill="rgba(32,18,8,1)" />
+                <ellipse cx="170" cy="248" rx="22" ry="24" fill="none" stroke="rgba(194,122,92,0.18)" strokeWidth="1" />
 
-            {/* FIX 2 — Laptop (LEFT zone: x 60–490) */}
-            <motion.g style={{ x: laptopX, y: laptopY, willChange: "transform" }}>
-              {/* Screen face (perspective-tilted parallelogram) */}
-              <path d="M 120,420 L 380,380 L 400,580 L 140,610 Z" fill="rgba(35,20,10,1)" />
-              {/* Screen inner glow */}
-              <path d="M 132,432 L 372,394 L 390,572 L 152,598 Z" fill="rgba(194,122,92,0.07)" />
-              {/* Screen UI lines */}
-              <line x1="148" y1="460" x2="375" y2="428" stroke="rgba(194,122,92,0.14)" strokeWidth="2" />
-              <line x1="148" y1="490" x2="340" y2="462" stroke="rgba(194,122,92,0.09)" strokeWidth="2" />
-              <line x1="148" y1="518" x2="355" y2="490" stroke="rgba(194,122,92,0.07)" strokeWidth="2" />
-              {/* Hinge line */}
-              <line x1="120" y1="420" x2="380" y2="380" stroke="rgba(194,122,92,0.2)" strokeWidth="1.5" />
-              {/* Keyboard base */}
-              <path d="M 105,618 L 415,575 L 430,640 L 95,685 Z" fill="rgba(35,20,10,1)" />
-              {/* Keyboard surface detail */}
-              <path d="M 115,628 L 410,587 L 422,630 L 108,668 Z" fill="rgba(25,15,8,0.6)" />
-              {/* Screen glow spilling forward */}
-              <ellipse cx="265" cy="680" rx="140" ry="22" fill="rgba(194,122,92,0.14)" />
+                {/* Right figure */}
+                <ellipse cx="224" cy="232" rx="19" ry="21" fill="rgba(32,18,8,1)" />
+                <rect x="217" y="252" width="14" height="16" fill="rgba(32,18,8,1)" />
+                <path d="M 200,350 Q 198,260 217,252 L 231,252 Q 250,258 254,350 Z" fill="rgba(32,18,8,1)" />
+                <ellipse cx="224" cy="232" rx="19" ry="21" fill="none" stroke="rgba(194,122,92,0.15)" strokeWidth="1" />
 
-              {/* Coffee mug */}
-              <rect x="428" y="618" width="34" height="38" rx="5" fill="rgba(35,20,10,1)" />
-              <rect x="426" y="654" width="38" height="6" rx="3" fill="rgba(35,20,10,1)" />
-              <path
-                d="M 462,626 Q 478,626 478,636 Q 478,646 462,646"
-                stroke="rgba(35,20,10,1)"
-                strokeWidth="6"
-                fill="none"
-              />
-              {/* Steam */}
-              <path
-                d="M 436,616 Q 439,606 436,596"
-                stroke="rgba(194,122,92,0.3)"
-                strokeWidth="2"
-                fill="none"
-                strokeLinecap="round"
-                style={{ animation: "steamRise 2.4s ease-in-out infinite" }}
-              />
-              <path
-                d="M 445,614 Q 448,603 445,593"
-                stroke="rgba(194,122,92,0.22)"
-                strokeWidth="2"
-                fill="none"
-                strokeLinecap="round"
-                style={{ animation: "steamRise 2.4s ease-in-out 0.5s infinite" }}
-              />
-              <path
-                d="M 454,616 Q 457,605 454,595"
-                stroke="rgba(194,122,92,0.16)"
-                strokeWidth="2"
-                fill="none"
-                strokeLinecap="round"
-                style={{ animation: "steamRise 2.4s ease-in-out 1s infinite" }}
-              />
-            </motion.g>
+                {/* Laptop */}
+                <path d="M 30,285 L 110,285 L 116,355 L 24,355 Z" fill="rgba(22,12,5,1)" />
+                <path d="M 33,289 L 107,289 L 113,351 L 27,351 Z" fill="rgba(194,122,92,0.07)" />
+                <line x1="36" y1="305" x2="108" y2="305" stroke="rgba(194,122,92,0.15)" strokeWidth="1.5" />
+                <line x1="36" y1="320" x2="100" y2="320" stroke="rgba(194,122,92,0.1)" strokeWidth="1.5" />
+                <path d="M 20,356 L 120,356 L 126,370 L 14,370 Z" fill="rgba(18,10,4,1)" />
+                <ellipse cx="70" cy="375" rx="55" ry="12" fill="rgba(194,122,92,0.1)" />
 
-            {/* FIX 6 — Particles in center zone cx 420–1020 only */}
-            <circle cx="432" cy="750" r="2.5" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 7s linear 0s infinite" }} />
-            <circle cx="468" cy="710" r="3.0" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 9s linear 1.2s infinite" }} />
-            <circle cx="510" cy="740" r="2.0" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 6s linear 2.5s infinite" }} />
-            <circle cx="548" cy="768" r="3.5" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 11s linear 0.8s infinite" }} />
-            <circle cx="582" cy="722" r="2.5" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 8s linear 3.1s infinite" }} />
-            <circle cx="618" cy="758" r="2.0" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 5s linear 1.7s infinite" }} />
-            <circle cx="652" cy="736" r="3.0" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 10s linear 4.0s infinite" }} />
-            <circle cx="688" cy="714" r="2.5" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 7s linear 0.3s infinite" }} />
-            <circle cx="722" cy="752" r="2.0" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 9s linear 2.9s infinite" }} />
-            <circle cx="758" cy="728" r="3.5" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 6s linear 5.4s infinite" }} />
-            <circle cx="792" cy="744" r="2.5" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 11s linear 1.5s infinite" }} />
-            <circle cx="828" cy="710" r="2.0" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 8s linear 3.8s infinite" }} />
-            <circle cx="862" cy="762" r="3.0" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 5s linear 6.2s infinite" }} />
-            <circle cx="898" cy="730" r="2.0" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 10s linear 0.6s infinite" }} />
-            <circle cx="934" cy="748" r="3.0" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 7s linear 4.7s infinite" }} />
-            <circle cx="970" cy="716" r="2.0" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 9s linear 2.2s infinite" }} />
-            <circle cx="450" cy="680" r="2.5" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 6s linear 7.1s infinite" }} />
-            <circle cx="496" cy="658" r="2.0" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 11s linear 3.5s infinite" }} />
-            <circle cx="544" cy="672" r="3.0" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 8s linear 1.0s infinite" }} />
-            <circle cx="596" cy="646" r="3.5" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 5s linear 8.3s infinite" }} />
-            <circle cx="644" cy="664" r="2.5" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 10s linear 2.8s infinite" }} />
-            <circle cx="700" cy="638" r="2.0" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 7s linear 5.9s infinite" }} />
-            <circle cx="756" cy="654" r="2.0" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 9s linear 0.9s infinite" }} />
-            <circle cx="848" cy="642" r="3.0" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 6s linear 6.8s infinite" }} />
-            <circle cx="960" cy="668" r="2.5" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 11s linear 4.2s infinite" }} />
+                {/* Mug */}
+                <rect x="124" y="342" width="20" height="22" rx="3" fill="rgba(22,12,5,1)" />
+                <rect x="122" y="362" width="24" height="4" rx="2" fill="rgba(18,10,4,1)" />
+                <path d="M 144,347 Q 153,347 153,353 Q 153,359 144,359" stroke="rgba(22,12,5,1)" strokeWidth="4" fill="none" />
+                <path d="M 129,340 Q 131,333 129,326" stroke="rgba(194,122,92,0.3)" strokeWidth="1.5" fill="none" strokeLinecap="round"
+                  style={{ animation: "steamRise 2.4s ease-in-out infinite" }} />
+                <path d="M 135,338 Q 137,330 135,323" stroke="rgba(194,122,92,0.2)" strokeWidth="1.5" fill="none" strokeLinecap="round"
+                  style={{ animation: "steamRise 2.4s ease-in-out 0.5s infinite" }} />
 
-            </g>
+                {/* Ground shadow */}
+                <ellipse cx="200" cy="435" rx="200" ry="8" fill="rgba(0,0,0,0.4)" />
+
+                {/* Particles */}
+                <circle cx="80" cy="280" r="2" fill="rgba(194,122,92,0.7)" style={{ animation: "floatParticle 4s linear 0.5s infinite" }} />
+                <circle cx="200" cy="260" r="1.5" fill="rgba(220,160,80,0.6)" style={{ animation: "floatParticle 5s linear 1s infinite" }} />
+                <circle cx="300" cy="290" r="2" fill="rgba(194,122,92,0.5)" style={{ animation: "floatParticle 3.5s linear 0.2s infinite" }} />
+                <circle cx="150" cy="300" r="1.5" fill="rgba(194,122,92,0.6)" style={{ animation: "floatParticle 4.5s linear 1.5s infinite" }} />
+                <circle cx="260" cy="270" r="2" fill="rgba(220,160,80,0.5)" style={{ animation: "floatParticle 3.8s linear 0.8s infinite" }} />
+              </g>
+            ) : (
+              <g id="desktop-scene">
+                {/* Ground plane */}
+                <ellipse cx="720" cy="880" rx="1100" ry="90" fill="rgba(15,8,3,0.85)" />
+                <ellipse cx="720" cy="820" rx="320" ry="28" fill="rgba(194,122,92,0.12)" />
+
+                {/* Sofa + couple */}
+                <motion.g style={{ x: coupleX, scale: coupleScale, transformOrigin: "1150px 700px", willChange: "transform" }}>
+                  <path
+                    d="M 980,580 Q 980,545 1015,545 L 1370,545 Q 1405,545 1405,580 L 1405,730 Q 1405,748 1388,748 L 997,748 Q 980,748 980,730 Z"
+                    fill="rgba(35,20,10,1)"
+                  />
+                  <path d="M 1015,546 Q 1192,538 1370,546" stroke="rgba(194,122,92,0.4)" strokeWidth="1.5" fill="none" />
+                  <rect x="962" y="600" width="30" height="130" rx="10" fill="rgba(35,20,10,1)" />
+                  <rect x="1398" y="600" width="30" height="130" rx="10" fill="rgba(35,20,10,1)" />
+                  <path d="M 980,680 L 1405,680" stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
+                  <ellipse cx="1192" cy="758" rx="400" ry="14" fill="rgba(0,0,0,0.5)" />
+                  <ellipse cx="1192" cy="750" rx="350" ry="8" fill="rgba(194,122,92,0.1)" />
+                  <ellipse cx="1145" cy="660" rx="180" ry="60" fill="url(#coupleGlow)" opacity="1" />
+                  <ellipse cx="1105" cy="468" rx="32" ry="35" fill="rgba(35,20,10,1)" />
+                  <rect x="1096" y="501" width="18" height="22" fill="rgba(35,20,10,1)" />
+                  <path d="M 1055,590 Q 1053,522 1096,510 L 1114,510 Q 1157,520 1158,590 Z" fill="rgba(35,20,10,1)" />
+                  <ellipse cx="1175" cy="448" rx="28" ry="31" fill="rgba(35,20,10,1)" />
+                  <rect x="1167" y="477" width="16" height="20" fill="rgba(35,20,10,1)" />
+                  <path d="M 1145,585 Q 1143,508 1167,498 L 1183,498 Q 1207,506 1212,585 Z" fill="rgba(35,20,10,1)" />
+                  <ellipse cx="1105" cy="468" rx="32" ry="35" fill="none" stroke="rgba(194,122,92,0.22)" strokeWidth="1" />
+                  <ellipse cx="1175" cy="448" rx="28" ry="31" fill="none" stroke="rgba(194,122,92,0.18)" strokeWidth="1" />
+                </motion.g>
+
+                {/* Laptop */}
+                <motion.g style={{ x: laptopX, y: laptopY, willChange: "transform" }}>
+                  <path d="M 120,420 L 380,380 L 400,580 L 140,610 Z" fill="rgba(35,20,10,1)" />
+                  <path d="M 132,432 L 372,394 L 390,572 L 152,598 Z" fill="rgba(194,122,92,0.07)" />
+                  <line x1="148" y1="460" x2="375" y2="428" stroke="rgba(194,122,92,0.14)" strokeWidth="2" />
+                  <line x1="148" y1="490" x2="340" y2="462" stroke="rgba(194,122,92,0.09)" strokeWidth="2" />
+                  <line x1="148" y1="518" x2="355" y2="490" stroke="rgba(194,122,92,0.07)" strokeWidth="2" />
+                  <line x1="120" y1="420" x2="380" y2="380" stroke="rgba(194,122,92,0.2)" strokeWidth="1.5" />
+                  <path d="M 105,618 L 415,575 L 430,640 L 95,685 Z" fill="rgba(35,20,10,1)" />
+                  <path d="M 115,628 L 410,587 L 422,630 L 108,668 Z" fill="rgba(25,15,8,0.6)" />
+                  <ellipse cx="265" cy="680" rx="140" ry="22" fill="rgba(194,122,92,0.14)" />
+                  <rect x="428" y="618" width="34" height="38" rx="5" fill="rgba(35,20,10,1)" />
+                  <rect x="426" y="654" width="38" height="6" rx="3" fill="rgba(35,20,10,1)" />
+                  <path d="M 462,626 Q 478,626 478,636 Q 478,646 462,646" stroke="rgba(35,20,10,1)" strokeWidth="6" fill="none" />
+                  <path d="M 436,616 Q 439,606 436,596" stroke="rgba(194,122,92,0.3)" strokeWidth="2" fill="none" strokeLinecap="round"
+                    style={{ animation: "steamRise 2.4s ease-in-out infinite" }} />
+                  <path d="M 445,614 Q 448,603 445,593" stroke="rgba(194,122,92,0.22)" strokeWidth="2" fill="none" strokeLinecap="round"
+                    style={{ animation: "steamRise 2.4s ease-in-out 0.5s infinite" }} />
+                  <path d="M 454,616 Q 457,605 454,595" stroke="rgba(194,122,92,0.16)" strokeWidth="2" fill="none" strokeLinecap="round"
+                    style={{ animation: "steamRise 2.4s ease-in-out 1s infinite" }} />
+                </motion.g>
+
+                {/* Particles */}
+                <circle cx="432" cy="750" r="2.5" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 7s linear 0s infinite" }} />
+                <circle cx="468" cy="710" r="3.0" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 9s linear 1.2s infinite" }} />
+                <circle cx="510" cy="740" r="2.0" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 6s linear 2.5s infinite" }} />
+                <circle cx="548" cy="768" r="3.5" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 11s linear 0.8s infinite" }} />
+                <circle cx="582" cy="722" r="2.5" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 8s linear 3.1s infinite" }} />
+                <circle cx="618" cy="758" r="2.0" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 5s linear 1.7s infinite" }} />
+                <circle cx="652" cy="736" r="3.0" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 10s linear 4.0s infinite" }} />
+                <circle cx="688" cy="714" r="2.5" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 7s linear 0.3s infinite" }} />
+                <circle cx="722" cy="752" r="2.0" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 9s linear 2.9s infinite" }} />
+                <circle cx="758" cy="728" r="3.5" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 6s linear 5.4s infinite" }} />
+                <circle cx="792" cy="744" r="2.5" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 11s linear 1.5s infinite" }} />
+                <circle cx="828" cy="710" r="2.0" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 8s linear 3.8s infinite" }} />
+                <circle cx="862" cy="762" r="3.0" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 5s linear 6.2s infinite" }} />
+                <circle cx="898" cy="730" r="2.0" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 10s linear 0.6s infinite" }} />
+                <circle cx="934" cy="748" r="3.0" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 7s linear 4.7s infinite" }} />
+                <circle cx="970" cy="716" r="2.0" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 9s linear 2.2s infinite" }} />
+                <circle cx="450" cy="680" r="2.5" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 6s linear 7.1s infinite" }} />
+                <circle cx="496" cy="658" r="2.0" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 11s linear 3.5s infinite" }} />
+                <circle cx="544" cy="672" r="3.0" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 8s linear 1.0s infinite" }} />
+                <circle cx="596" cy="646" r="3.5" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 5s linear 8.3s infinite" }} />
+                <circle cx="644" cy="664" r="2.5" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 10s linear 2.8s infinite" }} />
+                <circle cx="700" cy="638" r="2.0" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 7s linear 5.9s infinite" }} />
+                <circle cx="756" cy="654" r="2.0" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 9s linear 0.9s infinite" }} />
+                <circle cx="848" cy="642" r="3.0" fill="rgba(220,160,80,0.60)" style={{ animation: "floatParticle 6s linear 6.8s infinite" }} />
+                <circle cx="960" cy="668" r="2.5" fill="rgba(194,122,92,0.75)" style={{ animation: "floatParticle 11s linear 4.2s infinite" }} />
+              </g>
+            )}
           </motion.svg>
 
           {/* LAYER 5 — Edge vignette */}
