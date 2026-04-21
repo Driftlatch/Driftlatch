@@ -975,7 +975,7 @@ export default function Home() {
   const coupleScale = useTransform(scrollYProgress, [0, 0.4], [1, 0.94]);
   const glowOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0.2]);
   const textOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-  const sceneTransform = isMobile ? "translate(200, 150) scale(0.5)" : "";
+  const sceneTransform = isMobile ? "translate(0, -120) scale(0.52)" : "";
   const textY = useTransform(scrollYProgress, [0, 0.2], ["0px", "-40px"]);
 
   return (
