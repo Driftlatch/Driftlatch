@@ -1292,10 +1292,13 @@ export default function Home() {
                       lineHeight: 1.58,
                     }}
                   >
-                    Driftlatch is a privacy-first system for founders and
-                    high-drive professionals. It helps you manage your cognitive
-                    state under pressure so work does not follow you home and
-                    home tension does not take your focus at work.
+                    You had a good day. Still lost the evening.
+                    <br /><br />
+                    That is not a character flaw. Unmanaged pressure always
+                    finds the people closest to you.
+                    <br /><br />
+                    Driftlatch gives you one psychologically informed move,
+                    matched to your state, time, and situation.
                   </p>
                 </FadeIn>
               </div>
