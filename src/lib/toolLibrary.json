@@ -57,7 +57,7 @@
       "id": "CH-01",
       "pack_id": "clear_head_pack",
       "title": "Close the Loop",
-      "do": "Write tomorrow's first step — one action only. Then stop.",
+      "do": "Write tomorrow's first step: one action only. Then stop.",
       "why": "Your brain keeps running loops because it doesn't have a next handle. Give it one.",
       "need": [
         "regain_clarity"
@@ -89,7 +89,7 @@
       "pack_id": "clear_head_pack",
       "title": "Open Loops List (3-2-1)",
       "do": "Write 3 things sitting open in your head. Mark 2 as 'can wait.' Pick 1 for tomorrow.",
-      "why": "The overwhelm isn't the work — it's not knowing which work. This makes the order obvious.",
+      "why": "The overwhelm isn't the work. It's not knowing which work. This makes the order obvious.",
       "need": [
         "regain_clarity"
       ],
@@ -116,7 +116,7 @@
       "id": "CH-03",
       "pack_id": "clear_head_pack",
       "title": "Worry Container",
-      "do": "Write the worry down. Set a time tomorrow to actually deal with it — 10 minutes is enough.",
+      "do": "Write the worry down. Set a time tomorrow to actually deal with it. 10 minutes is enough.",
       "why": "Your brain keeps the thought alive because it's afraid you'll forget it. Give it a slot and it lets go.",
       "need": [
         "regain_clarity",
@@ -175,7 +175,7 @@
       "pack_id": "clear_head_pack",
       "title": "The One Screen Rule",
       "do": "Close every tab except the one that matters. Phone face down.",
-      "why": "Half the load isn't the work — it's the switching. Remove the switching.",
+      "why": "Half the load isn't the work. It's the switching. Remove the switching.",
       "need": [
         "regain_clarity"
       ],
@@ -203,7 +203,7 @@
       "id": "CH-06",
       "pack_id": "clear_head_pack",
       "title": "Two-Minute Brain Dump",
-      "do": "Set a timer for 2 minutes. Write everything in your head. Don't organise it — just get it out.",
+      "do": "Set a timer for 2 minutes. Write everything in your head. Don't organise it, just get it out.",
       "why": "Carrying it all in your head is expensive. Getting it out, even messy, is cheaper.",
       "need": [
         "regain_clarity"
@@ -796,7 +796,7 @@
       "id": "WD-13",
       "pack_id": "wind_down_pack",
       "title": "Sensory Anchor",
-      "do": "Hold something warm — a mug, a cup. Focus on the warmth in your hands and your breath.",
+      "do": "Hold something warm: a mug, a cup. Focus on the warmth in your hands and your breath.",
       "why": "Warmth and breath together are two of the most reliable ways to bring your nervous system down.",
       "need": [
         "wind_down"
@@ -852,7 +852,7 @@
       "id": "BH-01",
       "pack_id": "be_here_pack",
       "title": "5-Minute Nearness",
-      "do": "Go sit near them. No phone. Not there to fix anything — just there.",
+      "do": "Go sit near them. No phone. Not there to fix anything. Just there.",
       "why": "Presence without agenda is one of the most effective things you can do when you're drained.",
       "need": [
         "be_here"
@@ -996,7 +996,7 @@
       "id": "BH-06",
       "pack_id": "be_here_pack",
       "title": "Kids: 2-Minute Attention Burst",
-      "do": "Let them lead for 2 minutes — whatever they want to show you or play. No multitasking.",
+      "do": "Let them lead for 2 minutes. Whatever they want to show you or play. No multitasking.",
       "why": "Kids don't need hours. They need undivided. Two minutes fully present beats an evening half there.",
       "need": [
         "be_here"
@@ -1169,7 +1169,7 @@
       "id": "BH-12",
       "pack_id": "be_here_pack",
       "title": "One Touch Anchor",
-      "do": "A hand squeeze, a brief hug, a shoulder touch — if it's welcome.",
+      "do": "A hand squeeze, a brief hug, a shoulder touch, if it's welcome.",
       "why": "When words are hard, physical contact is often the shortest path back.",
       "need": [
         "be_here",
@@ -1397,7 +1397,7 @@
       "id": "CB-06",
       "pack_id": "come_back_pack",
       "title": "Misread Correction",
-      "do": "Say: 'I'm quiet because I'm overloaded — not because I don't care.'",
+      "do": "Say: 'I'm quiet because I'm overloaded, not because I don't care.'",
       "why": "Silence reads as rejection when it's actually just exhaustion. Naming the difference stops the spiral.",
       "need": [
         "come_back"
@@ -1777,7 +1777,7 @@
       "id": "SS-05",
       "pack_id": "settle_the_spiral_pack",
       "title": "Reduce Checking",
-      "do": "Put the phone down for 5 minutes. Not silent — actually away from you.",
+      "do": "Put the phone down for 5 minutes. Not silent. Actually away from you.",
       "why": "Checking makes the anxiety worse, not better. Every check is a vote that something is wrong.",
       "need": [
         "wind_down",
@@ -1834,7 +1834,7 @@
       "id": "SS-07",
       "pack_id": "settle_the_spiral_pack",
       "title": "Repair Without Chase",
-      "do": "Send: 'I miss you. No pressure — just wanted you to know. Whenever you can.'",
+      "do": "Send: 'I miss you. No pressure, just wanted you to know. Whenever you can.'",
       "why": "You can reach out without creating pressure. This is how.",
       "need": [
         "come_back"
@@ -1951,7 +1951,7 @@
       "id": "SS-11",
       "pack_id": "settle_the_spiral_pack",
       "title": "One Grounding Object",
-      "do": "Pick one object near you. Describe it in detail in your head — shape, texture, colour, weight.",
+      "do": "Pick one object near you. Describe it in detail in your head: shape, texture, colour, weight.",
       "why": "Your brain can't spiral and observe at the same time. Give it something concrete to focus on.",
       "need": [
         "wind_down"
@@ -2040,7 +2040,7 @@
       "pack_id": "settle_the_spiral_pack",
       "title": "Steady Breath Anchor",
       "do": "Breathe in for 4, hold for 2, breathe out for 6. Four rounds.",
-      "why": "This specific rhythm — longer exhale than inhale — is one of the most reliable ways to reduce anxious activation.",
+      "why": "This specific rhythm, longer exhale than inhale, is one of the most reliable ways to reduce anxious activation.",
       "need": [
         "wind_down"
       ],
@@ -2100,7 +2100,7 @@
       "id": "SN-02",
       "pack_id": "space_not_distance_pack",
       "title": "Name the State",
-      "do": "Say: 'I'm overloaded right now — not done with you.'",
+      "do": "Say: 'I'm overloaded right now, not done with you.'",
       "why": "Withdrawal looks like rejection until you name it. One sentence changes how it lands.",
       "need": [
         "come_back",
@@ -2217,7 +2217,7 @@
       "id": "SN-06",
       "pack_id": "space_not_distance_pack",
       "title": "Boundary Without Coldness",
-      "do": "Say: 'Not right now — but yes, later. I mean that.'",
+      "do": "Say: 'Not right now, but yes, later. I mean that.'",
       "why": "'No' without a 'yes later' reads as rejection. The second half is what keeps it warm.",
       "need": [
         "come_back"
@@ -2333,7 +2333,7 @@
       "id": "SN-10",
       "pack_id": "space_not_distance_pack",
       "title": "Permission to Be Quiet",
-      "do": "Say: 'I'm not being cold — I just recharge in silence. It's not about you.'",
+      "do": "Say: 'I'm not being cold. I just recharge in silence. It's not about you.'",
       "why": "Your quiet is normal for you. It's not normal for them. Context stops the misread.",
       "need": [
         "come_back",
@@ -2639,7 +2639,7 @@
       "id": "SH-06",
       "pack_id": "sharp_pack",
       "title": "Name what's actually working",
-      "do": "Not gratitude journaling — diagnosis. What conditions made today good? Write them down so you can repeat them.",
+      "do": "Not gratitude journaling. Diagnosis. What conditions made today good? Write them down so you can repeat them.",
       "why": "Turns a good day into repeatable conditions.",
       "need": [
         "regain_clarity"
@@ -2703,7 +2703,7 @@
       "id": "WA-08",
       "pack_id": "warm_pack",
       "title": "Say it before it's obvious",
-      "do": "Tell your partner or kid one specific thing you love about them. Not general — specific.",
+      "do": "Tell your partner or kid one specific thing you love about them. Not general. Specific.",
       "why": "Specificity creates real warmth deposits.",
       "need": [
         "be_here"
@@ -2825,7 +2825,7 @@
       "id": "WA-12",
       "pack_id": "warm_pack",
       "title": "Start a small thing",
-      "do": "Light a candle, put music on, make something warm to drink — for both of you.",
+      "do": "Light a candle, put music on, make something warm to drink, for both of you.",
       "why": "Creates a shared environment shift toward home.",
       "need": [
         "be_here"
@@ -2949,7 +2949,7 @@
       "id": "EX-16",
       "pack_id": "expansive_pack",
       "title": "Write it down before it fades",
-      "do": "What's working right now — in work, at home, in yourself? One sentence each.",
+      "do": "What's working right now, in work, at home, in yourself? One sentence each.",
       "why": "Captures clarity so you can repeat it.",
       "need": [
         "regain_clarity"
@@ -3045,7 +3045,7 @@
       "id": "EX-19",
       "pack_id": "expansive_pack",
       "title": "Tell someone they matter",
-      "do": "Not a partner — a friend, a collaborator, a parent. The one you keep meaning to reach. One message.",
+      "do": "Not a partner. A friend, a collaborator, a parent. The one you keep meaning to reach. One message.",
       "why": "Strengthens your support network before you need it.",
       "need": [
         "be_here"
@@ -3365,7 +3365,7 @@
       "id": "CH-15",
       "pack_id": "clear_head_pack",
       "title": "Think Out Loud",
-      "do": "Ask your partner to just listen for 3 minutes while you talk through what's clogging your head. No input needed from them — just air it.",
+      "do": "Ask your partner to just listen for 3 minutes while you talk through what's clogging your head. No input needed from them. Just air it.",
       "why": "Externalising the load to another person works faster than writing it alone. They don't need to fix it.",
       "need": [
         "regain_clarity"
@@ -3454,7 +3454,7 @@
       "id": "CH-18",
       "pack_id": "clear_head_pack",
       "title": "Text the Open Loop",
-      "do": "Send your partner one message with what's still running in your head. One sentence. Not to solve it — just to externalise it.",
+      "do": "Send your partner one message with what's still running in your head. One sentence. Not to solve it. Just to externalise it.",
       "why": "Your brain keeps it alive because it's afraid you'll lose it. Sending it transfers the load.",
       "need": [
         "regain_clarity"
@@ -3543,7 +3543,7 @@
       "id": "CH-21",
       "pack_id": "clear_head_pack",
       "title": "Long Distance Load Check",
-      "do": "Voice note to your partner: 60 seconds, just what's in your head. You don't have to send it — but try.",
+      "do": "Voice note to your partner: 60 seconds, just what's in your head. You don't have to send it, but try.",
       "why": "Talking through the load, even to a recording, offloads more than writing. Sending it keeps you connected.",
       "need": [
         "regain_clarity"
@@ -3572,7 +3572,7 @@
       "id": "CH-22",
       "pack_id": "clear_head_pack",
       "title": "Weekly Full Clear",
-      "do": "15 minutes, notebook only. Write everything open — work, home, unresolved, avoided. Then circle the one that needs to move first.",
+      "do": "15 minutes, notebook only. Write everything open: work, home, unresolved, avoided. Then circle the one that needs to move first.",
       "why": "Trying to manage everything in your head is the reason the load feels unbearable. Get it all out at once.",
       "need": [
         "regain_clarity"
@@ -3602,7 +3602,7 @@
       "id": "CH-23",
       "pack_id": "clear_head_pack",
       "title": "The Shared Whiteboard",
-      "do": "Sit with your partner and get the shared logistics — bills, plans, tasks — out of your head and onto paper or a shared list. All of it.",
+      "do": "Sit with your partner and get the shared logistics (bills, plans, tasks) out of your head and onto paper or a shared list. All of it.",
       "why": "Shared mental load is double the weight. Getting it out of both your heads and into one place halves the pressure.",
       "need": [
         "regain_clarity"
@@ -3695,7 +3695,7 @@
       "id": "WD-15",
       "pack_id": "wind_down_pack",
       "title": "Hand Them the Phone",
-      "do": "Give your phone to your partner to hold for 20 minutes. Not silent — physically away from you.",
+      "do": "Give your phone to your partner to hold for 20 minutes. Not silent. Physically away from you.",
       "why": "Externalising the temptation removes the decision entirely. You can't check what you can't reach.",
       "need": [
         "wind_down"
@@ -3755,7 +3755,7 @@
       "id": "WD-17",
       "pack_id": "wind_down_pack",
       "title": "Wind Down Call",
-      "do": "Short call with your partner — not to solve anything. 5 minutes. Just to hear their voice before you sleep.",
+      "do": "Short call with your partner. Not to solve anything. 5 minutes. Just to hear their voice before you sleep.",
       "why": "The vagus nerve responds to familiar voices. It's one of the fastest ways to downregulate from a distance.",
       "need": [
         "wind_down"
@@ -3816,7 +3816,7 @@
       "pack_id": "wind_down_pack",
       "title": "Handoff and Out",
       "do": "Tell whoever's around: 'I need 10 minutes to decompress. Then I'm fully here.' Then actually take the 10 minutes.",
-      "why": "You can't be present when you haven't arrived yet. The 10 minutes isn't selfish — it's preparation.",
+      "why": "You can't be present when you haven't arrived yet. The 10 minutes isn't selfish. It's preparation.",
       "need": [
         "wind_down",
         "be_here"
@@ -4001,7 +4001,7 @@
       "id": "WD-25",
       "pack_id": "wind_down_pack",
       "title": "Long Distance End Ritual",
-      "do": "Same time every evening, a short video call or voice note — just to mark the end of the day together. 5 minutes maximum.",
+      "do": "Same time every evening, a short video call or voice note, just to mark the end of the day together. 5 minutes maximum.",
       "why": "Distance makes evenings ambiguous. A small consistent ritual creates the close your nervous system needs.",
       "need": [
         "wind_down"
@@ -4031,7 +4031,7 @@
       "id": "BH-15",
       "pack_id": "be_here_pack",
       "title": "Send the Real Update",
-      "do": "Not 'I'm fine.' What's actually going on with you this week — one honest paragraph to your partner.",
+      "do": "Not 'I'm fine.' What's actually going on with you this week: one honest paragraph to your partner.",
       "why": "Distance makes it easy to perform okay-ness. This keeps the real connection alive.",
       "need": [
         "be_here"
@@ -4090,7 +4090,7 @@
       "id": "BH-17",
       "pack_id": "be_here_pack",
       "title": "The Kid Interview",
-      "do": "Ask them five questions about their life this week — friends, school, what they noticed. Listen like you'd listen to someone you admire.",
+      "do": "Ask them five questions about their life this week: friends, school, what they noticed. Listen like you'd listen to someone you admire.",
       "why": "Kids feel seen when adults treat their world as genuinely interesting. This is full presence, not polite attention.",
       "need": [
         "be_here"
@@ -4120,7 +4120,7 @@
       "id": "BH-18",
       "pack_id": "be_here_pack",
       "title": "I'm Thinking of You",
-      "do": "One text. Not 'miss you' — something specific: a thing you noticed today that made you think of them.",
+      "do": "One text. Not 'miss you'. Something specific: a thing you noticed today that made you think of them.",
       "why": "Specificity is the signal. Anyone can say miss you. A specific thought says you're actually present in their absence.",
       "need": [
         "be_here"
@@ -4210,7 +4210,7 @@
       "id": "BH-21",
       "pack_id": "be_here_pack",
       "title": "Future Cast",
-      "do": "Send a message about something specific and real you're looking forward to doing together. Not abstract — a specific plan.",
+      "do": "Send a message about something specific and real you're looking forward to doing together. Not abstract. A specific plan.",
       "why": "Future plans create felt closeness even across distance. This is the easiest warmth deposit from far away.",
       "need": [
         "be_here"
@@ -4271,7 +4271,7 @@
       "id": "CB-15",
       "pack_id": "come_back_pack",
       "title": "Distance Repair",
-      "do": "One message: 'I've been off lately. It's not you — I'm navigating something hard. I wanted you to know.'",
+      "do": "One message: 'I've been off lately. It's not you. I'm navigating something hard. I wanted you to know.'",
       "why": "When you go quiet from a distance, the story they fill in is usually worse than what's true. This corrects it.",
       "need": [
         "come_back"
@@ -4331,7 +4331,7 @@
       "id": "CB-17",
       "pack_id": "come_back_pack",
       "title": "Voice Note Repair",
-      "do": "Record a voice message — not a text. 60 seconds. Tell them what's been going on and that you're coming back.",
+      "do": "Record a voice message, not a text. 60 seconds. Tell them what's been going on and that you're coming back.",
       "why": "Voice carries tone that text can't. When repairs are needed across distance, your voice does more than your words.",
       "need": [
         "come_back"
@@ -4392,7 +4392,7 @@
       "id": "CB-19",
       "pack_id": "come_back_pack",
       "title": "The Honest Catch-Up",
-      "do": "Not a logistics call. Tell your partner one real thing about how the week has actually felt — not how it went.",
+      "do": "Not a logistics call. Tell your partner one real thing about how the week has actually felt, not how it went.",
       "why": "Status updates maintain connection. Honest feeling updates build it. These are different conversations.",
       "need": [
         "come_back"
@@ -4574,7 +4574,7 @@
       "id": "SS-17",
       "pack_id": "settle_the_spiral_pack",
       "title": "Write Before You Send",
-      "do": "Write the anxious message in full. Read it back. Then decide whether sending it is actually what you need — or just what you want to do right now.",
+      "do": "Write the anxious message in full. Read it back. Then decide whether sending it is actually what you need, or just what you want to do right now.",
       "why": "Messages written from the peak of anxiety almost always escalate things. The gap between writing and sending is where clarity lives.",
       "need": [
         "come_back",
@@ -4635,7 +4635,7 @@
       "id": "SS-19",
       "pack_id": "settle_the_spiral_pack",
       "title": "Externalise It Together",
-      "do": "Ask your partner to just listen while you get it out — 10 minutes, no advice needed. Then stop.",
+      "do": "Ask your partner to just listen while you get it out. 10 minutes, no advice needed. Then stop.",
       "why": "Spirals are often just overloaded internal processing. Getting it out to another person often ends it faster than thinking it through alone.",
       "need": [
         "wind_down",
@@ -4697,7 +4697,7 @@
       "pack_id": "space_not_distance_pack",
       "title": "Parent Handoff",
       "do": "Tell the other parent or whoever is with you: 'I need 15 minutes.' Then use them without guilt.",
-      "why": "You cannot regulate yourself and manage children at the same time when flooded. The handoff is not abandoning — it's responsible.",
+      "why": "You cannot regulate yourself and manage children at the same time when flooded. The handoff is not abandoning. It's responsible.",
       "need": [
         "come_back",
         "wind_down"
@@ -4727,7 +4727,7 @@
       "id": "SN-16",
       "pack_id": "space_not_distance_pack",
       "title": "Low Pressure Call",
-      "do": "Message first: 'Can we talk for 5 minutes? No agenda — I just want to hear your voice.' Then call.",
+      "do": "Message first: 'Can we talk for 5 minutes? No agenda. I just want to hear your voice.' Then call.",
       "why": "No-agenda calls feel different to both of you. The lightness of no purpose is the point.",
       "need": [
         "come_back",
@@ -4757,7 +4757,7 @@
       "id": "SN-17",
       "pack_id": "space_not_distance_pack",
       "title": "Quiet Time Block",
-      "do": "Tell the kids you need quiet time. Set them up with something. Take 10 minutes — no phone, just quiet.",
+      "do": "Tell the kids you need quiet time. Set them up with something. Take 10 minutes, no phone, just quiet.",
       "why": "Kids can handle a parent needing space if it's explained simply and they have something to do. This is better for everyone.",
       "need": [
         "wind_down"
@@ -4817,7 +4817,7 @@
       "id": "SN-19",
       "pack_id": "space_not_distance_pack",
       "title": "Going Quiet Message",
-      "do": "Send: 'Going off for a bit to reset. Not pulling away — just need space. Back at ___.'",
+      "do": "Send: 'Going off for a bit to reset. Not pulling away. Just need space. Back at ___.'",
       "why": "Disappearing without a word is the thing that does damage. This one message prevents the misread.",
       "need": [
         "come_back"
@@ -4846,7 +4846,7 @@
       "id": "SN-20",
       "pack_id": "space_not_distance_pack",
       "title": "Delegate the Room",
-      "do": "Give one of the kids a real small job — 'can you be in charge of setting the table?' Use the 5 minutes you just created.",
+      "do": "Give one of the kids a real small job: 'can you be in charge of setting the table?' Use the 5 minutes you just created.",
       "why": "Kids respond well to responsibility. You get a gap, they get agency. Both genuine.",
       "need": [
         "wind_down"
@@ -4876,7 +4876,7 @@
       "id": "SN-21",
       "pack_id": "space_not_distance_pack",
       "title": "Come Back Smaller",
-      "do": "Re-enter with one small normal thing — make drinks, sit together, watch something brief. No big conversation needed.",
+      "do": "Re-enter with one small normal thing: make drinks, sit together, watch something brief. No big conversation needed.",
       "why": "The re-entry doesn't need to be proportional to the absence. One small normal act closes the gap faster than a speech.",
       "need": [
         "come_back"
@@ -4906,7 +4906,7 @@
       "id": "SN-22",
       "pack_id": "space_not_distance_pack",
       "title": "Explain Your Quiet",
-      "do": "Say: 'I recharge in silence — it's not about you. I'll be back properly in ___.'",
+      "do": "Say: 'I recharge in silence. It's not about you. I'll be back properly in ___.'",
       "why": "What's normal for you isn't obvious to them. Context removes the fear. This takes 10 seconds.",
       "need": [
         "come_back",
@@ -4938,7 +4938,7 @@
       "id": "CH-26",
       "pack_id": "clear_head_pack",
       "title": "Share the Board",
-      "do": "Tell your partner one thing you're still carrying from work. Not to solve it — just to say it out loud to them.",
+      "do": "Tell your partner one thing you're still carrying from work. Not to solve it. Just to say it out loud to them.",
       "why": "Shared verbal offload halves the weight faster than internal processing. They don't need to fix it.",
       "need": [
         "regain_clarity"
@@ -4967,8 +4967,8 @@
       "id": "CH-27",
       "pack_id": "clear_head_pack",
       "title": "Do it Together",
-      "do": "Ask your partner to sit with you while you write your one next step. They don't help — just be there.",
-      "why": "Presence cuts the cognitive weight of difficult tasks. You don't need input from them — just company.",
+      "do": "Ask your partner to sit with you while you write your one next step. They don't help. Just be there.",
+      "why": "Presence cuts the cognitive weight of difficult tasks. You don't need input from them. Just company.",
       "need": [
         "regain_clarity"
       ],
@@ -5055,7 +5055,7 @@
       "id": "CH-30",
       "pack_id": "clear_head_pack",
       "title": "Build the List Together",
-      "do": "Ask your partner to help you write the open loops — they often see what you're missing. 10 minutes, pen and paper.",
+      "do": "Ask your partner to help you write the open loops. They often see what you're missing. 10 minutes, pen and paper.",
       "why": "A second brain sees the gaps yours has become blind to. Two people catching your open loops is faster than one.",
       "need": [
         "regain_clarity"
@@ -5085,7 +5085,7 @@
       "id": "CH-31",
       "pack_id": "clear_head_pack",
       "title": "Voice Note the Load",
-      "do": "Record a 60-second voice note to yourself — talk through what's still open. Then listen back once.",
+      "do": "Record a 60-second voice note to yourself. Talk through what's still open. Then listen back once.",
       "why": "Hearing yourself say the problem externalises it more than writing. Your brain registers the load as filed.",
       "need": [
         "regain_clarity"
@@ -5115,7 +5115,7 @@
       "id": "CH-32",
       "pack_id": "clear_head_pack",
       "title": "Send the Status",
-      "do": "Text your partner one honest line about what's still running in your head tonight. Not to fix it — just to say it.",
+      "do": "Text your partner one honest line about what's still running in your head tonight. Not to fix it. Just to say it.",
       "why": "Externalising the load helps. Sending it to them keeps the connection open while you're apart.",
       "need": [
         "regain_clarity"
@@ -5144,7 +5144,7 @@
       "id": "CH-33",
       "pack_id": "clear_head_pack",
       "title": "Remote Planning Call",
-      "do": "10-minute call: each of you says the one thing you most need to get out of your head this week. No solving — just naming.",
+      "do": "10-minute call: each of you says the one thing you most need to get out of your head this week. No solving. Just naming.",
       "why": "Two people naming their biggest loop cuts both loads simultaneously. Efficiency with connection.",
       "need": [
         "regain_clarity"
@@ -5175,7 +5175,7 @@
       "pack_id": "clear_head_pack",
       "title": "Async Brain Dump",
       "do": "Voice note or long message: everything in your head, unfiltered. Send it to your partner. Don't wait for a reply.",
-      "why": "The act of sending transfers the weight. They don't need to respond — you just needed somewhere to put it.",
+      "why": "The act of sending transfers the weight. They don't need to respond. You just needed somewhere to put it.",
       "need": [
         "regain_clarity"
       ],
@@ -5204,7 +5204,7 @@
       "id": "CH-35",
       "pack_id": "clear_head_pack",
       "title": "Shared Task List",
-      "do": "Write the shared to-do list with your partner over message — divide it, label it, leave it. Not urgent, just visible.",
+      "do": "Write the shared to-do list with your partner over message: divide it, label it, leave it. Not urgent, just visible.",
       "why": "Shared mental load is halved when it lives somewhere neither of you has to hold it in your heads.",
       "need": [
         "regain_clarity"
@@ -5481,7 +5481,7 @@
       "pack_id": "wind_down_pack",
       "title": "Send the Worry",
       "do": "Text your partner the thing keeping you awake tonight. Not to solve. Just to send it somewhere.",
-      "why": "Sending a worry transfers the cognitive custody. You're not alone with it anymore — even at a distance.",
+      "why": "Sending a worry transfers the cognitive custody. You're not alone with it anymore, even at a distance.",
       "need": [
         "wind_down"
       ],
@@ -5509,7 +5509,7 @@
       "id": "WD-33",
       "pack_id": "wind_down_pack",
       "title": "Call Before Sleep",
-      "do": "A 5-minute call — no agenda, no catching up. Just say goodnight properly. Then actually sleep.",
+      "do": "A 5-minute call. No agenda, no catching up. Just say goodnight properly. Then actually sleep.",
       "why": "The goodnight call anchors the end of the day. Without it, long-distance evenings stay open-ended and unsettled.",
       "need": [
         "wind_down"
@@ -5539,7 +5539,7 @@
       "id": "WD-34",
       "pack_id": "wind_down_pack",
       "title": "One Song Each",
-      "do": "Send each other one song — the one that matches tonight. No explanation needed.",
+      "do": "Send each other one song. The one that matches tonight. No explanation needed.",
       "why": "Music is one of the fastest ways to feel understood. This is connection without effort.",
       "need": [
         "wind_down"
@@ -5569,7 +5569,7 @@
       "pack_id": "be_here_pack",
       "title": "Solo Presence Practice",
       "do": "Put the phone down. Sit in the room you're in. Notice five things about it that you've never paid attention to before.",
-      "why": "Presence is a skill, not a state. Practising it alone — without the pressure of others — is where it actually builds.",
+      "why": "Presence is a skill, not a state. Practising it alone, without the pressure of others, is where it actually builds.",
       "need": [
         "be_here"
       ],
@@ -5688,7 +5688,7 @@
       "id": "BH-27",
       "pack_id": "be_here_pack",
       "title": "Guilt Into Action",
-      "do": "Name what you feel guilty about. Then write one specific thing you can do tonight to reduce it. Not fix it — reduce it.",
+      "do": "Name what you feel guilty about. Then write one specific thing you can do tonight to reduce it. Not fix it. Reduce it.",
       "why": "Guilt is only useful if it points somewhere. This converts it from background weight into a small next move.",
       "need": [
         "be_here"
@@ -5747,7 +5747,7 @@
       "id": "BH-29",
       "pack_id": "be_here_pack",
       "title": "Decide Who You Want to Be Tonight",
-      "do": "One sentence before you arrive: 'Tonight I want to be ___.' Not perfect — just intentional.",
+      "do": "One sentence before you arrive: 'Tonight I want to be ___.' Not perfect. Just intentional.",
       "why": "Presence is a choice made in advance. Without the choice, habit decides. This makes it conscious.",
       "need": [
         "be_here"
@@ -5806,7 +5806,7 @@
       "id": "BH-31",
       "pack_id": "be_here_pack",
       "title": "Share Your Day Video",
-      "do": "30-second video or voice note of something from your day — not an update, something specific and real. Send it.",
+      "do": "30-second video or voice note of something from your day. Not an update, something specific and real. Send it.",
       "why": "Sharing small real moments across distance builds more closeness than catch-up calls. Specificity is the active ingredient.",
       "need": [
         "be_here"
@@ -5990,7 +5990,7 @@
       "pack_id": "come_back_pack",
       "title": "Self Repair",
       "do": "Write honestly: what made you hard to be around lately, and one thing you'll do differently tonight.",
-      "why": "Most repair happens outward. This one is inward — naming what's been off without someone to say it to.",
+      "why": "Most repair happens outward. This one is inward, naming what's been off without someone to say it to.",
       "need": [
         "come_back"
       ],
@@ -6079,7 +6079,7 @@
       "id": "CB-26",
       "pack_id": "come_back_pack",
       "title": "Write the Letter",
-      "do": "Write a message you won't send — everything you want to say but can't yet. Let it be messy and complete.",
+      "do": "Write a message you won't send: everything you want to say but can't yet. Let it be messy and complete.",
       "why": "Unsent letters are one of the most effective emotional processing tools. The act of writing it is the release.",
       "need": [
         "come_back"
@@ -6109,7 +6109,7 @@
       "id": "CB-27",
       "pack_id": "come_back_pack",
       "title": "Decide the First Step Back",
-      "do": "Write one thing you'll do tonight that signals to them — without words — that you're back.",
+      "do": "Write one thing you'll do tonight that signals to them, without words, that you're back.",
       "why": "Re-entry doesn't always need a conversation. Sometimes a physical act is clearer than a speech.",
       "need": [
         "come_back"
@@ -6259,7 +6259,7 @@
       "id": "CB-32",
       "pack_id": "come_back_pack",
       "title": "Reconnect Through Play",
-      "do": "Pick a 5-minute game they love — simple, physical, or silly. Let them win. Let yourself be fully in it.",
+      "do": "Pick a 5-minute game they love: simple, physical, or silly. Let them win. Let yourself be fully in it.",
       "why": "Play is the fastest repair language with kids. It signals safety, warmth, and full attention without a single serious word.",
       "need": [
         "come_back",
@@ -6290,7 +6290,7 @@
       "id": "CB-33",
       "pack_id": "come_back_pack",
       "title": "Video Repair",
-      "do": "Short video call — 5 minutes, no agenda, no debrief. Just be face-to-face for a moment.",
+      "do": "Short video call. 5 minutes, no agenda, no debrief. Just be face-to-face for a moment.",
       "why": "Text can't do what a face can. When things have been off, a brief video call repairs faster than 20 messages.",
       "need": [
         "come_back"
@@ -6474,7 +6474,7 @@
       "id": "SS-23",
       "pack_id": "settle_the_spiral_pack",
       "title": "The Two-Minute Rule",
-      "do": "Before any anxious action — the check, the text, the re-read — wait exactly 2 minutes. Then decide.",
+      "do": "Before any anxious action (the check, the text, the re-read) wait exactly 2 minutes. Then decide.",
       "why": "Most anxious impulses peak in under 2 minutes. This gap is enough to let the urgency pass.",
       "need": [
         "wind_down",
@@ -6593,7 +6593,7 @@
       "id": "SS-27",
       "pack_id": "settle_the_spiral_pack",
       "title": "Routine as Regulator",
-      "do": "Do the next routine task with the kids — bath, dinner, homework. Let the structure contain the anxiety.",
+      "do": "Do the next routine task with the kids: bath, dinner, homework. Let the structure contain the anxiety.",
       "why": "Routine is one of the most underrated anxiety tools. The predictable sequence doesn't require decision-making, which is exactly what anxious brains need.",
       "need": [
         "wind_down"
@@ -6656,7 +6656,7 @@
       "pack_id": "space_not_distance_pack",
       "title": "The Blank Hour",
       "do": "Block one hour with no people, no input, no tasks. Just be in a room alone with no agenda.",
-      "why": "Avoidant nervous systems regulate in solitude. Not depression — recovery. This is the legitimate version.",
+      "why": "Avoidant nervous systems regulate in solitude. Not depression. Recovery. This is the legitimate version.",
       "need": [
         "wind_down"
       ],
@@ -6685,7 +6685,7 @@
       "id": "SN-24",
       "pack_id": "space_not_distance_pack",
       "title": "Name the Wall",
-      "do": "Say to yourself: 'I'm shutting down because I'm depleted — not because I don't care.' Say it clearly.",
+      "do": "Say to yourself: 'I'm shutting down because I'm depleted, not because I don't care.' Say it clearly.",
       "why": "Avoidant shutdown feels like not caring. It's usually depletion. The distinction changes what you do next.",
       "need": [
         "come_back"
@@ -6774,8 +6774,8 @@
       "id": "SN-27",
       "pack_id": "space_not_distance_pack",
       "title": "Do One Thing You Enjoy",
-      "do": "One activity you do for yourself alone — read, cook, draw, run. No performance, no productivity. Just yours.",
-      "why": "Avoidant types often deny personal restoration. This isn't escape — it's maintenance. Without it, nothing is available for others.",
+      "do": "One activity you do for yourself alone: read, cook, draw, run. No performance, no productivity. Just yours.",
+      "why": "Avoidant types often deny personal restoration. This isn't escape. It's maintenance. Without it, nothing is available for others.",
       "need": [
         "wind_down"
       ],
@@ -6804,7 +6804,7 @@
       "pack_id": "space_not_distance_pack",
       "title": "No Explanation Needed",
       "do": "Remind yourself: you don't owe anyone a real-time account of your internal state. You're allowed to process privately.",
-      "why": "Avoidant types often feel guilty for needing space. This isn't a flaw — it's a legitimate nervous system pattern.",
+      "why": "Avoidant types often feel guilty for needing space. This isn't a flaw. It's a legitimate nervous system pattern.",
       "need": [
         "wind_down"
       ],
@@ -6832,7 +6832,7 @@
       "id": "SN-29",
       "pack_id": "space_not_distance_pack",
       "title": "Note Then Space",
-      "do": "Before you go quiet, send one message: 'Need some time. Not pulling away — will be back at ___.'",
+      "do": "Before you go quiet, send one message: 'Need some time. Not pulling away. Will be back at ___.'",
       "why": "Taking space from distance is higher risk than at home. The message converts withdrawal to bounded space.",
       "need": [
         "come_back"
@@ -6892,7 +6892,7 @@
       "id": "SN-31",
       "pack_id": "space_not_distance_pack",
       "title": "Ask for Low-Pressure Time",
-      "do": "Message: 'Can we talk tonight? Nothing heavy — I just want to hear your voice.'",
+      "do": "Message: 'Can we talk tonight? Nothing heavy. I just want to hear your voice.'",
       "why": "No-agenda connection is less threatening to avoidant patterns than repair conversations. This is the easier bridge back.",
       "need": [
         "come_back",
@@ -6924,7 +6924,7 @@
       "pack_id": "space_not_distance_pack",
       "title": "Sit With the Discomfort",
       "do": "Don't fix it, don't text, don't scroll. Just sit with whatever is unresolved for 5 minutes and let it be there.",
-      "why": "Avoidant patterns are often about escaping discomfort. Tolerating it for 5 minutes — without acting — is the first step to not being controlled by it.",
+      "why": "Avoidant patterns are often about escaping discomfort. Tolerating it for 5 minutes, without acting, is the first step to not being controlled by it.",
       "need": [
         "wind_down"
       ],
