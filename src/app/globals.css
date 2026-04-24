@@ -1465,6 +1465,41 @@ textarea:focus {
   .hero-text-wrapper {
     padding-top: 72px !important;
   }
+
+  .hero-text-wrapper {
+    padding-top: 44px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+    max-width: 100% !important;
+  }
+
+  .hero-text-wrapper h1 {
+    font-size: clamp(2.2rem, 8.5vw, 2.9rem) !important;
+    line-height: 1.02 !important;
+    letter-spacing: -0.04em !important;
+    margin-bottom: 10px !important;
+  }
+
+  .hero-text-wrapper p {
+    font-size: 15px !important;
+    line-height: 1.5 !important;
+    max-width: 26rem !important;
+  }
+
+  /* Collapse the big double-br gaps on mobile */
+  .hero-text-wrapper br {
+    line-height: 0.6 !important;
+  }
+
+  .hero-text-wrapper .landingHeroActionRow {
+    margin-top: 8px !important;
+  }
+
+  .hero-text-wrapper .landingHeroMeta {
+    margin-top: 10px !important;
+    font-size: 11px !important;
+    letter-spacing: 0.02em !important;
+  }
 }
 
 /* ─── Native app feel ─────────────────────────────────────────────────── */
