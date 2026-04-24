@@ -261,6 +261,18 @@ function DomainBar({
           }}
         />
       </div>
+      {score === 0 && (
+        <div
+          style={{
+            fontSize: 11,
+            color: "rgba(161,161,170,0.35)",
+            fontStyle: "italic",
+            marginTop: 2,
+          }}
+        >
+          Not enough data yet
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -457,6 +469,10 @@ export default function EQDashboardPage() {
       ]);
 
       if (!active) return;
+
+      if (profileRes.error) console.error("EQ profile fetch error:", profileRes.error);
+      if (reviewsRes.error) console.error("Moment reviews fetch error:", reviewsRes.error);
+      if (logsRes.error) console.error("Mood logs fetch error:", logsRes.error);
 
       setEqProfile((profileRes.data as EQProfileRow) ?? null);
       setMomentReviews((reviewsRes.data as MomentReview[]) ?? []);
@@ -776,23 +792,32 @@ export default function EQDashboardPage() {
           </motion.div>
         )}
 
-        {/* ── Recent moment reviews ──────────────────────────────────── */}
-        {momentReviews.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.42, ease: EASE, delay: 0.24 }}
-            style={{ display: "grid", gap: 10 }}
-          >
+        {/* ── Moment reviews ─────────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.42, ease: EASE, delay: 0.24 }}
+          style={{ ...glassCard, padding: "20px 22px" }}
+        >
+          <GlassRimLight />
+          <div style={{ position: "relative", zIndex: 1 }}>
             <div
               style={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                padding: "0 2px",
+                marginBottom: 12,
               }}
             >
-              <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(244,244,245,0.45)", letterSpacing: "0.04em", textTransform: "uppercase" as const }}>
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: "rgba(244,244,245,0.55)",
+                  letterSpacing: "0.04em",
+                  textTransform: "uppercase" as const,
+                }}
+              >
                 Recent reviews
               </div>
               <button
@@ -809,83 +834,66 @@ export default function EQDashboardPage() {
                   letterSpacing: "-0.01em",
                 }}
               >
-                Review a new moment
-              </button>
-            </div>
-
-            {momentReviews.map((review, i) => (
-              <motion.div
-                key={review.id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.32, ease: EASE, delay: 0.28 + i * 0.04 }}
-                style={{
-                  ...glassCard,
-                  padding: "16px 18px",
-                  display: "grid",
-                  gap: 8,
-                }}
-              >
-                <GlassRimLight />
-                <div style={{ position: "relative", zIndex: 1 }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "baseline",
-                      marginBottom: 6,
-                    }}
-                  >
-                    <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(244,244,245,0.6)" }}>
-                      {WHO_LABELS[review.who] ?? review.who} &middot; {MOMENT_LABELS[review.moment] ?? review.moment}
-                    </span>
-                    <span style={{ fontSize: 11, color: "rgba(161,161,170,0.4)" }}>
-                      {timeAgo(review.created_at)}
-                    </span>
-                  </div>
-                  <p style={{ margin: 0, fontSize: 13, color: "rgba(161,161,170,0.65)", lineHeight: 1.55 }}>
-                    {review.reflection ?? review.response}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        )}
-
-        {/* ── No reviews prompt ──────────────────────────────────────── */}
-        {momentReviews.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.42, ease: EASE, delay: 0.24 }}
-            style={{ ...glassCard, padding: "20px 22px" }}
-          >
-            <GlassRimLight />
-            <div style={{ position: "relative", zIndex: 1, display: "grid", gap: 10 }}>
-              <div style={{ fontSize: 13, fontWeight: 500, color: "rgba(244,244,245,0.65)", lineHeight: 1.45 }}>
-                Reviewing real moments sharpens your fingerprint over time.
-              </div>
-              <button
-                type="button"
-                onClick={() => router.push("/app/eq/moment")}
-                style={{
-                  padding: "11px 18px",
-                  borderRadius: 10,
-                  background: "rgba(194,122,92,0.12)",
-                  border: "1px solid rgba(194,122,92,0.2)",
-                  color: "rgba(194,122,92,0.9)",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  alignSelf: "flex-start",
-                  letterSpacing: "-0.01em",
-                }}
-              >
                 Review a moment
               </button>
             </div>
-          </motion.div>
-        )}
+
+            {momentReviews.length > 0 ? (
+              <div>
+                {momentReviews.map((review, i) => (
+                  <div
+                    key={review.id}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "10px 0",
+                      borderBottom:
+                        i < momentReviews.length - 1
+                          ? "1px solid rgba(255,255,255,0.05)"
+                          : "none",
+                      gap: 12,
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: 13,
+                        fontWeight: 500,
+                        color: "rgba(244,244,245,0.7)",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {MOMENT_LABELS[review.moment] ?? review.moment}
+                      {" · "}
+                      {WHO_LABELS[review.who] ?? review.who}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: "rgba(161,161,170,0.4)",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {timeAgo(review.created_at)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div
+                style={{
+                  fontSize: 13,
+                  color: "rgba(161,161,170,0.4)",
+                  fontStyle: "italic",
+                }}
+              >
+                No moments reviewed yet.
+              </div>
+            )}
+          </div>
+        </motion.div>
 
         {/* ── Reassessment prompt ────────────────────────────────────── */}
         {showReassessment && (
