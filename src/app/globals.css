@@ -265,13 +265,13 @@ details summary{
 }
 
 details summary::after{
-  content: “+”;
+  content: "+";
   color: var(--muted);
   font-weight: 700;
 }
 
 details[open] summary::after{
-  content: “−”;
+  content: "-";
 }
 
 details p{
@@ -290,13 +290,13 @@ details p{
 .faqSummary::-webkit-details-marker{ display:none; }
 
 .faqSummary::after{
-  content: “+”;
+  content: "+";
   color: var(--muted);
   font-weight: 700;
 }
 
 details[open] .faqSummary::after{
-  content: “−”;
+  content: "-";
 }
 
 .faq p{ margin-top: 10px; }
@@ -1464,5 +1464,47 @@ textarea:focus {
 
   .hero-text-wrapper {
     padding-top: 72px !important;
+  }
+}
+
+/* ─── Native app feel ─────────────────────────────────────────────────── */
+
+html, body {
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+button,
+a,
+[role="button"],
+.kicker,
+.navLink,
+.navLogo,
+.navWordmark,
+.nav-login,
+.mobileMenuLink,
+.bottomNavItem,
+.bottomNavLabel,
+.bottomNavIcon,
+.faqTrigger,
+h1, h2, h3 {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+p,
+input,
+textarea,
+.selectable,
+.selectable * {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+@media (display-mode: standalone) {
+  body {
+    padding-top: env(safe-area-inset-top);
   }
 }
