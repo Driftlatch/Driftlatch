@@ -33,6 +33,10 @@ const FAQ_ITEMS = [
     a: "Driftlatch still helps. One person ending the day cleanly often changes the tone of the whole dynamic.",
   },
   {
+    q: "Do I need to install anything?",
+    a: "No. Driftlatch works in your browser on any device. On your phone, you can add it to the home screen in one tap so it stays close. Nothing to download.",
+  },
+  {
     q: "What's the refund policy?",
     a: "14-day refund guarantee. If it is not useful, email support and we will refund you.",
   },
