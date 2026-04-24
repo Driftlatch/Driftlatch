@@ -211,6 +211,8 @@ input:focus, select:focus, textarea:focus {
 | `/thanks` | [src/app/thanks/page.tsx](src/app/thanks/page.tsx) | Post-purchase thank you |
 | `/pricing` | [src/app/pricing/page.tsx](src/app/pricing/page.tsx) | Detailed pricing page |
 | `/pressure-profile` | [src/app/pressure-profile/page.tsx](src/app/pressure-profile/page.tsx) | Public Pressure Profile quiz (20 Qs) — no auth needed |
+| `/pressure-eq` | [src/app/pressure-eq/page.tsx](src/app/pressure-eq/page.tsx) | Pressure EQ snapshot — 8 scenario-based questions producing a 6-domain fingerprint. No auth gate; accessible for first-time takers and retakes alike |
+| `/pressure-eq/result` | [src/app/pressure-eq/result/page.tsx](src/app/pressure-eq/result/page.tsx) | Post-quiz result: archetype, opening paragraph, hexagon, domain bars |
 | `/privacy` | [src/app/privacy/page.tsx](src/app/privacy/page.tsx) | Privacy policy |
 | `/terms` | [src/app/terms/page.tsx](src/app/terms/page.tsx) | Terms of service |
 | `/refunds` | [src/app/refunds/page.tsx](src/app/refunds/page.tsx) | Refund policy |
@@ -226,6 +228,8 @@ input:focus, select:focus, textarea:focus {
 | `/app/packs` | [src/app/app/packs/page.tsx](src/app/app/packs/page.tsx) | Tool library — browse all packs, search |
 | `/app/packs/[id]` | [src/app/app/packs/[id]/page.tsx](src/app/app/packs/%5Bid%5D/page.tsx) | Individual pack — tools filtered by pack |
 | `/app/weekly` | [src/app/app/weekly/page.tsx](src/app/app/weekly/page.tsx) | Weekly reflection — 7-day summary, insights, worked tools |
+| `/app/eq` | [src/app/app/eq/page.tsx](src/app/app/eq/page.tsx) | Pressure EQ dashboard — archetype, hexagon fingerprint, 6 domain bars, weekly EQ arc, focus area, recent moment reviews, persistent retake link |
+| `/app/eq/moment` | [src/app/app/eq/moment/page.tsx](src/app/app/eq/moment/page.tsx) | Moment review — logs a single interaction to `user_moment_reviews` for EQ sharpening |
 | `/app/account` | [src/app/app/account/page.tsx](src/app/app/account/page.tsx) | Account — profile, defaults, billing, data export, delete |
 | `/app/onboarding` | [src/app/app/onboarding/page.tsx](src/app/app/onboarding/page.tsx) | Onboarding quiz (same 20 Qs as pressure-profile but in-app, syncs to profile) |
 | `/app/setup` | [src/app/app/setup/page.tsx](src/app/app/setup/page.tsx) | Post-auth setup (username/display name, runs once) |
@@ -339,6 +343,37 @@ One row per check-in. Append-only.
 
 Context key format: `"need={need}|state={state}|situation={situation}|roomTone={roomTone}|time={time}"`
 
+### `user_eq_profile`
+One row per user (unique on `user_id`). Written by `/pressure-eq` on quiz completion via `upsert({ onConflict: "user_id" })`.
+
+| Column | Type | Notes |
+|---|---|---|
+| `user_id` | `uuid` PK | Unique — the upsert conflict target |
+| `pressure_reading` | `integer` | 0–100 score |
+| `repair_instinct` | `integer` | 0–100 score |
+| `presence_quality` | `integer` | 0–100 score |
+| `boundary_intel` | `integer` | 0–100 score |
+| `recovery_aware` | `integer` | 0–100 score |
+| `signal_accuracy` | `integer` | 0–100 score |
+| `weakest_domain` | `text` | One of the six domain keys |
+| `archetype` | `text` | `"The Carrier"`, `"The Avoider"`, `"The Ghost"`, `"The Open Loop"`, `"The Runner"`, `"The Reactor"` |
+| `has_kids_context` | `boolean` | |
+| `has_partner_context` | `boolean` | |
+| `opening_paragraph` | `text` | Generated narrative copy |
+| `completed_at` | `timestamptz` | **Must be explicitly written on every upsert** — the `/app/eq` query orders by `completed_at desc limit 1` so if this field is not bumped on retake, new scores never surface |
+| `version` | `integer` | Snapshot version. The `/app/eq` reassessment prompt triggers only when `version === 1 && daysSinceCompleted > 30` |
+
+### `user_moment_reviews`
+Append-only log of interactions the user reviewed. Feeds the "Recent reviews" section on `/app/eq`.
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `uuid` PK | |
+| `user_id` | `uuid` | |
+| `who_involved` | `text` | **NOT `who`** — full column name is `who_involved`. Values: `"partner"`, `"child"`, `"colleague"`, `"friend"`, `"parent"`, `"other"` |
+| `moment_type` | `text` | **NOT `moment`** — full column name is `moment_type`. Values: `"arrived_home"`, `"dinner"`, `"bedtime"`, `"morning"`, `"weekend"`, `"conversation"`, `"argument"`, `"other"` |
+| `created_at` | `timestamptz` | |
+
 ---
 
 ## 6. KEY FILES
@@ -357,6 +392,10 @@ Context key format: `"need={need}|state={state}|situation={situation}|roomTone={
 | [src/lib/toolLibrary.json](src/lib/toolLibrary.json) | Static tool data — all packs and tools |
 | [src/lib/quickFlow.ts](src/lib/quickFlow.ts) | Builds `QuickRecommendation` from state + defaults |
 | [src/lib/weeklyReflection.ts](src/lib/weeklyReflection.ts) | All weekly reflection logic — `buildWeeklyReflection`, `WeeklyDaySummary`, state ladder |
+| [src/app/app/eq/page.tsx](src/app/app/eq/page.tsx) | EQ dashboard — hexagon + domain bars + weekly arc + moment reviews + persistent retake strip |
+| [src/app/pressure-eq/page.tsx](src/app/pressure-eq/page.tsx) | Pressure EQ quiz page — intro → 8 scenarios → computes scores → upserts `user_eq_profile` → redirects to `/pressure-eq/result`. Stores `optionIndex` (0–3) per scenario, NOT the raw score value |
+| [src/lib/eqQuestions.ts](src/lib/eqQuestions.ts) | Scenario bank (~48 scenarios, 8 per domain), `drawEQScenarios`, `calculateEQScores` (expects `{ scenarioId: optionIndex (0–3) }`), `getWeakestDomain`, `getArchetype`, `generateOpeningParagraph` |
+| [src/components/EQHexagon.tsx](src/components/EQHexagon.tsx) | Radial 6-spoke hexagon visualisation for fingerprint |
 | [src/lib/roomTone.ts](src/lib/roomTone.ts) | `RoomTone` types and options per situation |
 | [src/lib/supportLabels.ts](src/lib/supportLabels.ts) | `NEED_DISPLAY`, `PACK_DISPLAY`, label helpers |
 | [src/lib/publicProfile.ts](src/lib/publicProfile.ts) | localStorage keys + sync for public Pressure Profile results |
@@ -498,6 +537,21 @@ Attachment styles: `"Anxious"`, `"Avoidant"`, `"Mixed"`, `"Unknown"`
 
 20 questions scored 0–4 (Never → Almost always). 4 domains: `work`, `recovery`, `home`, `attach`. Result scored into `attachment_style` + `defaults` (preferred need/time/situation/packs). Stored in localStorage during the quiz, synced to `user_profile` on login.
 
+### Pressure EQ
+
+Separate, shorter assessment from the Pressure Profile. 8 scenario-based questions drawn from a bank of ~48 (1 guaranteed per domain + 2 filler). Each option carries a score (1–4) for the scenario's `primaryDomain`.
+
+**Scoring flow (do not break):**
+1. User picks an option → `handleOptionSelect(optionIndex)` stores `{ [scenario.id]: optionIndex }` — MUST store the 0–3 index, NOT the score value. Earlier bug stored `score` (1–4), causing `options[4]` lookups and 0-scored domains.
+2. On final answer, `calculateEQScores(answers)` reads `scenario.options[optionIndex]` and tallies all 6 domain scores per option (each option scores all 6 domains, not just the primary).
+3. Returns `Record<EQDomain, number>` with values 0–100 (domains with no answers default to 50).
+4. `getWeakestDomain(scores)` picks lowest. `getArchetype(scores)` maps the weakest domain to one of 6 archetypes.
+5. Upserts into `user_eq_profile` with `{ onConflict: "user_id", completed_at: new Date().toISOString() }`. **`completed_at` must be written on every save** — the dashboard orders by it desc limit 1.
+
+**Retake path:** no gate on `/pressure-eq`. Persistent retake strip on `/app/eq` (below the fingerprint card) and small `Retake →` link in the EQ card on `/app/account` (uses `stopPropagation` because the parent card click routes to `/app/eq`).
+
+**Domains (`EQDomain`):** `pressure_reading`, `repair_instinct`, `presence_quality`, `boundary_intel`, `recovery_aware`, `signal_accuracy`.
+
 ---
 
 ## 8. STATE & STORAGE
@@ -629,6 +683,9 @@ npx tsc --noEmit # TypeScript check (zero errors is the baseline)
 - The `user_profile` table historically had duplicate rows per user; migration `20260322000100` deduped them. The query in `auth.ts` always orders by `updated_at desc` and uses the first result as a safeguard
 - `hasCompletedSetup` does NOT require a profile row — it returns true just from session email, so new users skip `/app/setup` immediately. The setup page exists for potential future name-entry flow
 - **Framer Motion + CSS `transform` conflict:** When a `motion.*` element animates `y` (or any transform), Framer Motion owns the entire `transform` property and overwrites CSS `transform: translateX(-50%)`. Always use `x: "-50%"` as a Framer Motion style prop instead of CSS `transform` for centering animated elements. This affects `NavBar.tsx` and any future fixed/floating animated elements.
+- **`isMobile` initial-render flash:** For `"use client"` pages that need a responsive mobile/desktop branch at first paint (landing hero, thanks page flow steps), use a lazy initializer — `useState(() => typeof window !== "undefined" ? window.innerWidth < 640 : false)` — instead of `useState(false)`. Without it, the desktop branch renders for one frame on mobile before the `useEffect` fires, causing a visible flash.
+- **`user_moment_reviews` column names:** the real DB columns are `who_involved` and `moment_type` — NOT `who` or `moment`. A query selecting `who` or `moment` will 400 with a column-not-found error. Same for `response`/`reflection` — those columns don't exist at all.
+- **`user_eq_profile.completed_at` on retake:** the `/app/eq` query reads `.order("completed_at", { ascending: false }).limit(1)`. If the upsert payload does not include `completed_at: new Date().toISOString()`, the old snapshot keeps winning the query and the user will think the retake "didn't save." Always set `completed_at` explicitly in the upsert — DB default only fires on INSERT, not on UPDATE via upsert.
 
 ---
 
@@ -668,7 +725,7 @@ npx tsc --noEmit # TypeScript check (zero errors is the baseline)
 
 ---
 
-## 12. CURRENT STATUS (as of 2026-04-11)
+## 12. CURRENT STATUS (as of 2026-04-21)
 
 ### Done
 - Full marketing landing page (`/`) with hero, pricing, FAQ
@@ -693,6 +750,12 @@ npx tsc --noEmit # TypeScript check (zero errors is the baseline)
 - **Pain section** — "If this feels familiar" glass card redesigned with two-column layout; 7 pain lines including home→work direction; left column states "it goes both ways"
 - **"A system that protects both" tagline** — updated to "Work pressure and home tension feed each other. Driftlatch helps you interrupt that loop — before it costs you both."
 - **In-app NavBar centering fixed** — was broken by Framer Motion overwriting CSS `transform`; fixed by using `x: "-50%"` as motion style prop
+- **Pressure EQ full loop** — quiz at `/pressure-eq`, dashboard at `/app/eq` (archetype + hexagon + domain bars + weekly arc + moment reviews + persistent retake strip), account page shortcut with small `Retake →`. Quiz scoring bug fixed (stores `optionIndex` 0–3, not score 1–4). Upsert now writes `completed_at` explicitly so retakes surface.
+- **Hero (mobile)** — separate mobile SVG scene with its own viewBox `"0 0 400 500"` and `<g id="mobile-scene">`. Desktop scene moved into `<g id="desktop-scene">`. `isMobile` uses lazy initializer to avoid first-frame flash. `willChange: "opacity"` / `"transform"` on warm glow and motion groups for GPU compositing.
+- **Hero copy** — subtext rewritten to lead with the moment ("You had a good day. Still lost the evening.")
+- **Page title** — em dash removed from metadata title, openGraph, and twitter cards (now "Driftlatch. Closeness at home. Clarity at work.")
+- **Thanks page upgrade** — glass status card with warm ambient glow, animated flow steps (horizontal desktop / vertical mobile) with pulse animation on active step and animated green fill on completed connectors, success state with checkmark circle before redirect (1.2s delay on `state === "ready"`), PWA section glass card with phone SVG icon, `dlStepPulse` keyframe in `globals.css`
+- **`.chrome-headless/` removed** from repo and added to `.gitignore` (1176 files dropped from tracking)
 
 ### In Progress / Pending
 - No known in-progress items as of this session
