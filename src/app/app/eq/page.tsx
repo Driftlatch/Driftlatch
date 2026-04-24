@@ -19,10 +19,8 @@ type EQProfileRow = EQProfileSnapshot & {
 type MomentReview = {
   id: string;
   created_at: string;
-  who: string;
-  moment: string;
-  response: string;
-  reflection: string | null;
+  who_involved: string;
+  moment_type: string;
 };
 
 type MoodLog = {
@@ -444,7 +442,7 @@ export default function EQDashboardPage() {
 
       const userId = session.user.id;
 
-      const [profileRes, reviewsRes, logsRes] = await Promise.all([
+      const [profileRes, logsRes] = await Promise.all([
         (supabase as any)
           .from("user_eq_profile")
           .select(
@@ -454,12 +452,6 @@ export default function EQDashboardPage() {
           .order("completed_at", { ascending: false })
           .limit(1)
           .maybeSingle(),
-        (supabase as any)
-          .from("user_moment_reviews")
-          .select("id,created_at,who,moment,response,reflection")
-          .eq("user_id", userId)
-          .order("created_at", { ascending: false })
-          .limit(7),
         supabase
           .from("user_checkins")
           .select("created_at,state")
@@ -469,14 +461,28 @@ export default function EQDashboardPage() {
           .order("created_at", { ascending: true }),
       ]);
 
+      const { data: reviewsData, error: reviewsError } = await (supabase as any)
+        .from("user_moment_reviews")
+        .select("id, who_involved, moment_type, created_at")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(3);
+
       if (!active) return;
 
       if (profileRes.error) console.error("EQ profile fetch error:", profileRes.error);
-      if (reviewsRes.error) console.error("Moment reviews fetch error:", reviewsRes.error);
+      if (reviewsError) {
+        console.error(
+          "Moment reviews fetch error:",
+          reviewsError.message,
+          reviewsError.code,
+          reviewsError.details,
+        );
+      }
       if (logsRes.error) console.error("Mood logs fetch error:", logsRes.error);
 
       setEqProfile((profileRes.data as EQProfileRow) ?? null);
-      setMomentReviews((reviewsRes.data as MomentReview[]) ?? []);
+      setMomentReviews((reviewsData as MomentReview[]) ?? []);
       setMoodLogs((logsRes.data as MoodLog[]) ?? []);
       setLoading(false);
     };
@@ -909,9 +915,9 @@ export default function EQDashboardPage() {
                         whiteSpace: "nowrap",
                       }}
                     >
-                      {MOMENT_LABELS[review.moment] ?? review.moment}
+                      {MOMENT_LABELS[review.moment_type] ?? review.moment_type}
                       {" · "}
-                      {WHO_LABELS[review.who] ?? review.who}
+                      {WHO_LABELS[review.who_involved] ?? review.who_involved}
                     </div>
                     <div
                       style={{
