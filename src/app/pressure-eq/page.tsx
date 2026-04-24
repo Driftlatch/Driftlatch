@@ -89,9 +89,8 @@ export default function PressureEQPage() {
     const option = scenario.options[optionIndex];
     if (!option) return;
 
-    const score = option.scores[scenario.primaryDomain] ?? 2;
     setSelectedOption(optionIndex);
-    const newAnswers = { ...answers, [scenario.id]: score };
+    const newAnswers = { ...answers, [scenario.id]: optionIndex };
 
     await new Promise<void>((resolve) => setTimeout(resolve, 280));
 
