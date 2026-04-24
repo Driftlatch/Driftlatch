@@ -1474,9 +1474,9 @@ textarea:focus {
   }
 
   .hero-text-wrapper h1 {
-    font-size: clamp(2.2rem, 8.5vw, 2.9rem) !important;
-    line-height: 1.02 !important;
-    letter-spacing: -0.04em !important;
+    font-size: clamp(1.95rem, 7.6vw, 2.55rem) !important;
+    line-height: 1.05 !important;
+    letter-spacing: -0.035em !important;
     margin-bottom: 10px !important;
   }
 
@@ -1492,7 +1492,21 @@ textarea:focus {
   }
 
   .hero-text-wrapper .landingHeroActionRow {
-    margin-top: 8px !important;
+    margin-top: 18px !important;
+    gap: 12px !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+
+  .hero-text-wrapper .landingHeroActionRow .btn.primary {
+    padding: 14px 22px !important;
+    font-size: 15px !important;
+  }
+
+  .hero-text-wrapper .heroSecondaryCta {
+    font-size: 14px !important;
+    padding: 6px 4px !important;
   }
 
   .hero-text-wrapper .landingHeroMeta {
