@@ -190,10 +190,10 @@ export default function EQHexagon({
               <motion.circle
                 cx={pt.x}
                 cy={pt.y}
-                r={9}
                 fill="none"
                 stroke={color.replace("0.9)", "0.3)")}
                 strokeWidth={1}
+                initial={{ r: 9, opacity: 0.3 }}
                 animate={{ r: [9, 14, 9], opacity: [0.3, 0, 0.3] }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
               />
