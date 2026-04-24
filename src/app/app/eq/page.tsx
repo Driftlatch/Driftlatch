@@ -1,6 +1,7 @@
 "use client";
 
 import { type CSSProperties, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { supabaseBrowser } from "@/lib/supabaseBrowser";
@@ -715,6 +716,49 @@ export default function EQDashboardPage() {
             </div>
           </div>
         </motion.div>
+
+        {/* ── Persistent retake link ─────────────────────────────────── */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "14px 18px",
+            background: "rgba(18,18,22,0.6)",
+            border: "1px solid rgba(255,255,255,0.06)",
+            borderRadius: 14,
+            marginTop: 12,
+          }}
+        >
+          <div>
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 500,
+                color: "rgba(244,244,245,0.65)",
+                marginBottom: 3,
+              }}
+            >
+              Your Pressure EQ fingerprint
+            </div>
+            <div style={{ fontSize: 12, color: "rgba(161,161,170,0.4)" }}>
+              Retake anytime to track how your EQ shifts over time.
+            </div>
+          </div>
+          <Link
+            href="/pressure-eq"
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "rgba(194,122,92,0.7)",
+              textDecoration: "none",
+              flexShrink: 0,
+              paddingLeft: 16,
+            }}
+          >
+            Retake →
+          </Link>
+        </div>
 
         {/* ── This week EQ graph ─────────────────────────────────────── */}
         <motion.div

@@ -860,16 +860,36 @@ export default function AccountPage() {
             </div>
           </div>
           <div
-            aria-hidden
             style={{
               position: "relative",
               zIndex: 1,
-              fontSize: 18,
-              color: "rgba(161,161,170,0.35)",
+              display: "flex",
+              alignItems: "center",
+              gap: 16,
               flexShrink: 0,
             }}
           >
-            →
+            <Link
+              href="/pressure-eq"
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                fontSize: 12,
+                fontWeight: 500,
+                color: "rgba(194,122,92,0.6)",
+                textDecoration: "none",
+              }}
+            >
+              Retake →
+            </Link>
+            <div
+              aria-hidden
+              style={{
+                fontSize: 18,
+                color: "rgba(161,161,170,0.35)",
+              }}
+            >
+              →
+            </div>
           </div>
         </motion.div>
 

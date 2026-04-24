@@ -125,7 +125,7 @@ export default function PressureEQPage() {
         const supabase = supabaseBrowser();
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user?.id) {
-          await supabase.from("user_eq_profile").upsert(
+          const { error: upsertError } = await supabase.from("user_eq_profile").upsert(
             {
               user_id: session.user.id,
               pressure_reading: scores.pressure_reading,
@@ -139,12 +139,14 @@ export default function PressureEQPage() {
               has_kids_context: hasKids,
               has_partner_context: hasPartner,
               opening_paragraph: openingParagraph,
+              completed_at: new Date().toISOString(),
             },
             { onConflict: "user_id" },
           );
+          if (upsertError) console.error("EQ profile upsert error:", upsertError);
         }
-      } catch {
-        // ignore DB errors — result is safely in localStorage
+      } catch (err) {
+        console.error("EQ profile save threw:", err);
       }
 
       router.push("/pressure-eq/result");
