@@ -150,10 +150,10 @@ export const EQ_QUESTION_BANK: EQScenario[] = [
     primaryDomain: "pressure_reading",
     secondaryDomain: "signal_accuracy",
     situation:
-      "Your partner is quieter than usual for the third evening in a row. When you ask directly they say they are tired. You are also exhausted. What do you do with what you are noticing?",
+      "Your partner is quieter than usual for the third evening in a row. When you ask directly they say they are tired. You are also exhausted. What do you actually do?",
     options: [
       {
-        text: "Name it gently. Something like: you seem like there might be more going on.",
+        text: "Name it gently. Something like: it seems like there might be more going on.",
         scores: { pressure_reading: 4, signal_accuracy: 4 },
       },
       {
@@ -422,7 +422,7 @@ export const EQ_QUESTION_BANK: EQScenario[] = [
     primaryDomain: "repair_instinct",
     secondaryDomain: "signal_accuracy",
     situation:
-      "You and your partner had a proper disagreement last week. It got resolved on the surface but something still feels unresolved underneath. They have not brought it back up. You are not sure if they have actually moved on or are waiting.",
+      "You and your partner had a proper disagreement last week. It got resolved on the surface but something still feels unresolved underneath. They have not brought it back up. You are not sure if they have actually moved on or are waiting. What do you do?",
     options: [
       {
         text: "I check in properly. Something like: are we actually okay or is there more to say?",
@@ -1118,7 +1118,7 @@ export const EQ_QUESTION_BANK: EQScenario[] = [
     primaryDomain: "recovery_aware",
     secondaryDomain: "presence_quality",
     situation:
-      "What does a genuinely restorative evening look like for you? Not ideal. What actually happens when you are running low?",
+      "You are running low and have an evening to yourself. What actually happens?",
     options: [
       {
         text: "I know exactly what I need and I usually get there within a couple of hours.",
@@ -1208,7 +1208,7 @@ export const EQ_QUESTION_BANK: EQScenario[] = [
     primaryDomain: "recovery_aware",
     secondaryDomain: "presence_quality",
     situation:
-      "You notice you have not had a proper break in several weeks. What is the most accurate description of what happens next?",
+      "You notice you have not had a proper break in several weeks. What happens next?",
     options: [
       {
         text: "I schedule something that will genuinely restore me and I follow through.",
@@ -1480,7 +1480,7 @@ export const EQ_QUESTION_BANK: EQScenario[] = [
     primaryDomain: "signal_accuracy",
     secondaryDomain: "boundary_intel",
     situation:
-      "Your partner says you have been distant lately. Your honest read is that you have just been tired. When you consider that response carefully, how confident are you that tiredness is actually the full story?",
+      "Your partner says you have been distant lately. Your first read is that you have just been tired. How confident are you that is the full story?",
     options: [
       {
         text: "Very confident. I know the difference when I take the time to check.",
