@@ -53,7 +53,7 @@ const QUESTIONS: Question[] = [
   {
     id: 3,
     domain: "work",
-    text: "One Slack message, Teams notification, or unexpected work message can knock me out of deep work for over an hour.",
+    text: "One Slack message, Teams notification, or unexpected work message can pull my presence away at home.",
   },
   {
     id: 4,
