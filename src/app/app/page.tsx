@@ -238,27 +238,44 @@ function parsePrimaryPack(value: unknown, defaults: unknown) {
 
 // ─── Tutorial tooltip ─────────────────────────────────────────────────────────
 type TutorialStepMeta = { headline: string; body: string; arrow: "up" | "down" };
-const TUTORIAL_COPY: Record<1 | 2, TutorialStepMeta> = {
+const TUTORIAL_COPY: Record<1 | 2 | 3 | 4 | 5, TutorialStepMeta> = {
   1: {
-    headline: "Start here — pick your state",
-    body: "Tap the one that's closest to how you feel right now. Everything below updates to match.",
+    headline: "Start here. Pick your state",
+    body: "Tap the one closest to how you feel right now. Everything below updates to match.",
     arrow: "down",
   },
   2: {
-    headline: "This is your step",
-    body: "Picked for your state. Open it, do it, close the app. That's the whole loop.",
+    headline: "Pick how much time you have",
+    body: "One minute, three, five, or ten. The step you get fits the time.",
+    arrow: "down",
+  },
+  3: {
+    headline: "This is your move",
+    body: "One step, picked for you. Open it, swap it, or pin it. That is the whole loop.",
+    arrow: "up",
+  },
+  4: {
+    headline: "Something off tonight?",
+    body: "Review a real moment with your partner or kid in three minutes. It builds your Pressure EQ.",
+    arrow: "up",
+  },
+  5: {
+    headline: "Your week at a glance",
+    body: "Your patterns show up here. Open it anytime to see what is shifting.",
     arrow: "up",
   },
 };
 
 function TutorialTooltip({
   step,
+  totalSteps,
   targetRef,
   onNext,
   onDismiss,
   isFinal,
 }: {
-  step: 1 | 2;
+  step: 1 | 2 | 3 | 4 | 5;
+  totalSteps: number;
   targetRef: React.RefObject<HTMLElement | null>;
   onNext: () => void;
   onDismiss: () => void;
@@ -329,11 +346,11 @@ function TutorialTooltip({
       {/* Progress */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
         <span style={{ color: "rgba(194,122,92,0.85)", fontSize: 10, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
-          {step} of 2
+          {step} of {totalSteps}
         </span>
         <div style={{ flex: 1, height: 2, borderRadius: 999, background: "rgba(255,255,255,0.07)", overflow: "hidden" }}>
           <motion.div
-            animate={{ width: step === 1 ? "50%" : "100%" }}
+            animate={{ width: `${(step / totalSteps) * 100}%` }}
             transition={{ duration: 0.4, ease: EASE }}
             style={{ height: "100%", background: "rgba(194,122,92,0.75)", borderRadius: 999 }}
           />
@@ -667,10 +684,14 @@ export default function Page() {
   const [momentContext, setMomentContext] = useState<UserMomentContext | null>(null);
   const [inlineExcludedIds, setInlineExcludedIds] = useState<string[]>([]);
 
-  // Tutorial: 0 = not started, 1 = step 1 (state strip), 2 = step 2 (hero), 3 = done
-  const [tutorialStep, setTutorialStep] = useState<0 | 1 | 2 | 3>(0);
+  // Tutorial: 0 = not started, 1-5 = active steps, 6 = done
+  const TUTORIAL_VERSION = 2;
+  const [tutorialStep, setTutorialStep] = useState<0 | 1 | 2 | 3 | 4 | 5 | 6>(0);
   const stateStripRef = useRef<HTMLDivElement | null>(null);
+  const timeSelectorRef = useRef<HTMLDivElement | null>(null);
   const heroSectionRef = useRef<HTMLDivElement | null>(null);
+  const momentReviewRef = useRef<HTMLDivElement | null>(null);
+  const weeklySectionRef = useRef<HTMLElement | null>(null);
   const latestHomeLoadRef = useRef(0);
   const homeSourceRef = useRef(homeSource);
   const lastRouteKeyRef = useRef<string | null>(null);
@@ -915,16 +936,36 @@ export default function Page() {
     };
   }, [hydrateHomeState]);
 
-  // Start tutorial for first-time users
+  // Start tutorial for first-time users OR existing users who have not seen the current version
   useEffect(() => {
     if (loading || !isLoggedIn) return;
-    const done = safeReadJSON<number>("driftlatch_tutorial_done", 0);
-    if (done < 3) {
+    const storedVersion = safeReadJSON<number>("driftlatch_tutorial_version", 0);
+    if (storedVersion < TUTORIAL_VERSION) {
       // Small delay so page finishes rendering before tooltip appears
       const t = window.setTimeout(() => setTutorialStep(1), 800);
       return () => window.clearTimeout(t);
     }
   }, [loading, isLoggedIn]);
+
+  // Scroll the active tutorial target into view when step changes
+  useEffect(() => {
+    if (tutorialStep < 1 || tutorialStep > 5) return;
+    const refMap: Record<1 | 2 | 3 | 4 | 5, React.RefObject<HTMLElement | null>> = {
+      1: stateStripRef,
+      2: timeSelectorRef,
+      3: heroSectionRef,
+      4: momentReviewRef,
+      5: weeklySectionRef,
+    };
+    const activeRef = refMap[tutorialStep as 1 | 2 | 3 | 4 | 5];
+    const el = activeRef?.current;
+    if (!el) return;
+    // Small delay so the DOM has settled and the tooltip can reposition after scroll
+    const t = window.setTimeout(() => {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 80);
+    return () => window.clearTimeout(t);
+  }, [tutorialStep]);
 
   const hasSavedDefaults =
     typeof savedDefaults.default_need === "string" ||
@@ -1241,12 +1282,23 @@ export default function Page() {
 
   // Tutorial helpers
   function advanceTutorial() {
-    if (tutorialStep === 1) { setTutorialStep(2); return; }
+    if (tutorialStep === 1) {
+      // If user picked a non-hard state, time chips did not render — skip step 2
+      if (selectedState && !isHardState(selectedState)) {
+        setTutorialStep(3);
+      } else {
+        setTutorialStep(2);
+      }
+      return;
+    }
+    if (tutorialStep === 2) { setTutorialStep(3); return; }
+    if (tutorialStep === 3) { setTutorialStep(4); return; }
+    if (tutorialStep === 4) { setTutorialStep(5); return; }
     dismissTutorial();
   }
   function dismissTutorial() {
-    setTutorialStep(3);
-    safeWriteJSON("driftlatch_tutorial_done", 3);
+    setTutorialStep(6);
+    safeWriteJSON("driftlatch_tutorial_version", TUTORIAL_VERSION);
   }
 
   async function handlePinMoment() {
@@ -1280,9 +1332,11 @@ export default function Page() {
     setSelectedTime(null);
     setInlineExcludedIds([]);
     safeWriteJSON("driftlatch_last_state", nextState);
-    // Tutorial: tapping a state chip advances from step 1 to step 2
+    // Tutorial: tapping a state chip auto-advances.
+    // Hard states go to step 2 (time chips). Non-hard states skip to step 3 (hero).
     if (tutorialStep === 1) {
-      window.setTimeout(() => setTutorialStep(2), 350);
+      const jumpTo = isHardState(nextState) ? 2 : 3;
+      window.setTimeout(() => setTutorialStep(jumpTo), 350);
     }
   }
 
@@ -1341,7 +1395,7 @@ export default function Page() {
   }
 
   const heroHref = quickRecommendation?.href ?? "/app/checkin";
-  const tutorialActive = tutorialStep === 1 || tutorialStep === 2;
+  const tutorialActive = tutorialStep >= 1 && tutorialStep <= 5;
 
   if (loading) return (
     <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "#18181B", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -1402,6 +1456,7 @@ export default function Page() {
           <TutorialTooltip
             key="tut-1"
             step={1}
+            totalSteps={5}
             targetRef={stateStripRef}
             onNext={advanceTutorial}
             onDismiss={dismissTutorial}
@@ -1412,7 +1467,41 @@ export default function Page() {
           <TutorialTooltip
             key="tut-2"
             step={2}
+            totalSteps={5}
+            targetRef={timeSelectorRef}
+            onNext={advanceTutorial}
+            onDismiss={dismissTutorial}
+            isFinal={false}
+          />
+        )}
+        {tutorialStep === 3 && (
+          <TutorialTooltip
+            key="tut-3"
+            step={3}
+            totalSteps={5}
             targetRef={heroSectionRef}
+            onNext={advanceTutorial}
+            onDismiss={dismissTutorial}
+            isFinal={false}
+          />
+        )}
+        {tutorialStep === 4 && (
+          <TutorialTooltip
+            key="tut-4"
+            step={4}
+            totalSteps={5}
+            targetRef={momentReviewRef}
+            onNext={advanceTutorial}
+            onDismiss={dismissTutorial}
+            isFinal={false}
+          />
+        )}
+        {tutorialStep === 5 && (
+          <TutorialTooltip
+            key="tut-5"
+            step={5}
+            totalSteps={5}
+            targetRef={weeklySectionRef}
             onNext={dismissTutorial}
             onDismiss={dismissTutorial}
             isFinal={true}
@@ -1550,10 +1639,12 @@ export default function Page() {
           {selectedState && (
             <motion.div
               key={`time-sel-${selectedState}`}
+              ref={timeSelectorRef}
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.3, ease: EASE }}
+              style={tutorialStep === 2 ? { position: "relative", zIndex: 52, borderRadius: 16, outline: "2px solid rgba(194,122,92,0.5)", outlineOffset: 8, boxShadow: "0 0 0 8px rgba(194,122,92,0.07)" } : undefined}
             >
               {!isHardState(selectedState) ? (
                 <div style={{ fontSize: 13, color: "rgba(161,161,170,0.45)", textAlign: "center", paddingTop: 12 }}>
@@ -1641,6 +1732,7 @@ export default function Page() {
 
         {/* ── Moment entry ── */}
         <motion.div
+          ref={momentReviewRef}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.5, ease: EASE }}
@@ -1660,6 +1752,7 @@ export default function Page() {
             position: "relative",
             overflow: "hidden",
             WebkitTapHighlightColor: "transparent",
+            ...(tutorialStep === 4 ? { zIndex: 52, outline: "2px solid rgba(194,122,92,0.5)", outlineOffset: 4, boxShadow: "0 0 0 8px rgba(194,122,92,0.07)" } : {}),
           }}
         >
           {/* Subtle left accent */}
@@ -1706,7 +1799,7 @@ export default function Page() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.48, delay: 0.14, ease: EASE }}
-          style={tutorialStep === 2 ? { position: "relative", zIndex: 52, borderRadius: 22, outline: "2px solid rgba(194,122,92,0.5)", outlineOffset: 4, boxShadow: "0 0 0 8px rgba(194,122,92,0.07)" } : undefined}
+          style={tutorialStep === 3 ? { position: "relative", zIndex: 52, borderRadius: 22, outline: "2px solid rgba(194,122,92,0.5)", outlineOffset: 4, boxShadow: "0 0 0 8px rgba(194,122,92,0.07)" } : undefined}
         >
         {selectedTime === null ? (<>
           {profileLoadFailed ? (
@@ -1869,7 +1962,13 @@ export default function Page() {
         </motion.section>
 
         {/* ── This week ── */}
-        <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.42, delay: 0.2, ease: EASE }}>
+        <motion.section
+          ref={weeklySectionRef}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.42, delay: 0.2, ease: EASE }}
+          style={tutorialStep === 5 ? { position: "relative", zIndex: 52, borderRadius: 20, outline: "2px solid rgba(194,122,92,0.5)", outlineOffset: 4, boxShadow: "0 0 0 8px rgba(194,122,92,0.07)" } : undefined}
+        >
           <motion.button whileHover={{ scale: 1.005 }} whileTap={{ scale: 0.98 }} type="button" onClick={() => router.push(showHomeWeeklyFetchErrorCard ? "/app/weekly" : weeklyReflection.mode === "empty" ? "/app/checkin" : "/app/weekly")} style={{ ...cardStyle, ...weeklyCardStyle }}>
             <div className="home-top-highlight" />
             <div style={{ position: "relative", zIndex: 1, display: "grid", gap: 14 }}>
