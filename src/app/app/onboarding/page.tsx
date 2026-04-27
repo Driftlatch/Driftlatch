@@ -36,6 +36,13 @@ const SCALE: { label: string; value: Answer }[] = [
   { label: "Almost always", value: 4 },
 ];
 
+const SECTION_INTRO_COPY: Record<Question["domain"], { title: string; tagline: string }> = {
+  work: { title: "Work", tagline: "How pressure builds while you are on." },
+  recovery: { title: "Recovery", tagline: "How you come down from pressure." },
+  home: { title: "Home", tagline: "How pressure shows up with people." },
+  attach: { title: "Connection", tagline: "How you handle tension with people close to you." },
+};
+
 type Question = { id: number; text: string; domain: "work" | "recovery" | "home" | "attach" };
 
 const QUESTIONS: Question[] = [
@@ -446,7 +453,7 @@ function buildPersonalizedResultCopy(input: ResultInsightInput): PersonalizedRes
 
   return {
     summary: `${getSpilloverSummary(input.spillover, input.homeSetup)} ${getPrimaryDomainImpactLine(input.groups.primaryDomain, input.homeSetup)}`,
-    detail: `${workIntro}the clearest patterns look like ${primaryPattern}${secondaryPattern ? ` and ${secondaryPattern}` : ""}. ${getGoalLine(input.priority, input.homeSetup)}`,
+    detail: `The clearest patterns: ${primaryPattern}${secondaryPattern ? ` and ${secondaryPattern}` : ""}.`,
     startSummary: input.groups.secondaryPack
       ? `Driftlatch will start with ${input.groups.primaryPack}, and keep ${input.groups.secondaryPack} close behind, because ${packReason}, with ${secondaryPackReason} also showing up clearly.`
       : `Driftlatch will start with ${input.groups.primaryPack} because ${packReason} is the clearest place to lower pressure first.`,
@@ -528,7 +535,7 @@ function getWorkCardCopy(topPattern?: string): ResultCardCopy {
       label: "AT WORK",
       heading: "Work is pulling your attention apart",
       body:
-        "When too many things feel urgent at once, it becomes harder to think clearly and finish one thing well. That pressure often stays with you after the workday ends.",
+        "Too many things feel urgent at once. Clear thinking becomes harder, and the pressure stays with you after the day ends.",
       startHere: getNeedLabel("regain_clarity"),
     };
   }
@@ -537,7 +544,7 @@ function getWorkCardCopy(topPattern?: string): ResultCardCopy {
     label: "AT WORK",
     heading: "Work is staying with you after the day ends",
     body:
-      "Even when the day ends, part of your mind is still working in the background. That makes it harder to rest and harder to arrive fully at home.",
+      "Part of your mind keeps working after the day ends. Harder to rest, harder to arrive fully at home.",
     startHere: getNeedLabel("regain_clarity"),
   };
 }
@@ -548,7 +555,7 @@ function getRecoveryCardCopy(topPattern?: string): ResultCardCopy {
       label: "AFTER WORK RECOVERY",
       heading: "Stress may still be following you into the night",
       body:
-        "When pressure carries into sleep, recovery becomes harder. The next day often starts with less energy and less room.",
+        "Pressure is carrying into sleep. The next day starts with less energy and less room.",
       startHere: getNeedLabel("wind_down"),
     };
   }
@@ -558,7 +565,7 @@ function getRecoveryCardCopy(topPattern?: string): ResultCardCopy {
       label: "AFTER WORK RECOVERY",
       heading: "Switching off is taking more effort than it should",
       body:
-        "When the day has taken a lot out of you, zoning out can feel like the easiest way to come down. It may help in the moment, but it does not always leave you feeling restored.",
+        "Zoning out is easier than settling. It quiets the noise but does not leave you restored.",
       startHere: getNeedLabel("wind_down"),
     };
   }
@@ -567,7 +574,7 @@ function getRecoveryCardCopy(topPattern?: string): ResultCardCopy {
     label: "AFTER WORK RECOVERY",
     heading: "You may still be on after the day ends",
     body:
-      "Stress can stay in your body even when you are trying to rest. That often looks like tension, restlessness, or a long delay before you actually feel off.",
+      "Stress is staying in the body even when you try to rest. Tension, restlessness, or a long delay before you feel off.",
     startHere: getNeedLabel("wind_down"),
   };
 }
@@ -578,7 +585,7 @@ function getHomeCardCopy(topPattern?: string): ResultCardCopy {
       label: "AT HOME",
       heading: "Home may be slipping into task mode",
       body:
-        "When pressure is high, connection can quietly turn into coordination. Home starts to feel more functional than restorative.",
+        "Connection is turning into coordination. Home feels more functional than restorative.",
       startHere: getNeedLabel("be_here"),
     };
   }
@@ -588,7 +595,7 @@ function getHomeCardCopy(topPattern?: string): ResultCardCopy {
       label: "AT HOME",
       heading: "Your patience may be thinner than you want it to be",
       body:
-        "When stress builds up, home is often where it shows first. Small moments start costing more than they should.",
+        "Patience wears thin at home first. Small moments start costing more than they should.",
       startHere: getNeedLabel("be_here"),
     };
   }
@@ -598,7 +605,7 @@ function getHomeCardCopy(topPattern?: string): ResultCardCopy {
       label: "AT HOME",
       heading: "Work may be taking more of you than feels right",
       body:
-        "When work gets the best of your attention, it can leave a lingering sense that home is getting what is left. That feeling creates pressure of its own.",
+        "Work takes the best of you. Home gets what's left, and the guilt adds its own pressure.",
       startHere: getNeedLabel("be_here"),
     };
   }
@@ -607,7 +614,7 @@ function getHomeCardCopy(topPattern?: string): ResultCardCopy {
     label: "AT HOME",
     heading: "It may be harder to arrive fully at home",
     body:
-      "Part of your attention may still be on work, planning, or whatever needs to happen next. Even when you are there physically, it can be hard to feel settled.",
+      "Attention stays on work or planning. Physically home but not fully settled.",
     startHere: getNeedLabel("be_here"),
   };
 }
@@ -647,7 +654,7 @@ const ONBOARDING_THEME_STYLES_BASE = `
   .profile-section, .profile-stack, .profile-results-block, .profile-results-section-head, .profile-progress-copy, .profile-hero-inner, .profile-primary-pack-content, .profile-content-wrap, .profile-card-content { display: grid; }
   .profile-section { gap: 24px; }
   .profile-stack { gap: 22px; }
-  .profile-results-stack { gap: 26px; }
+  .profile-results-stack { gap: 36px; }
   .profile-card { position: relative; overflow: hidden; border-radius: 24px; border: 1px solid rgba(255,255,255,0.08); background: linear-gradient(180deg, rgba(45,45,49,0.82) 0%, rgba(29,29,33,0.76) 100%), radial-gradient(circle at top left, rgba(194,122,92,0.08) 0%, rgba(39,39,42,0) 42%); box-shadow: 0 28px 80px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -28px 60px rgba(0,0,0,0.16); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
   .profile-top-rim { position: absolute; top: 0; left: 22px; right: 22px; height: 1px; background: linear-gradient(90deg, rgba(194,122,92,0), rgba(255,255,255,0.16), rgba(194,122,92,0)); pointer-events: none; }
   .profile-top-rim-strong { background: linear-gradient(90deg, rgba(194,122,92,0), rgba(194,122,92,0.68), rgba(194,122,92,0)); }
@@ -707,7 +714,7 @@ const ONBOARDING_THEME_STYLES_LAYOUT = `
   .profile-choice:hover { transform: translateY(-1px); border-color: rgba(255,255,255,0.16); }
   .profile-choice.is-selected { color: rgba(244,244,245,0.96); border-color: var(--choice-border); background: linear-gradient(180deg, color-mix(in srgb, var(--choice-accent) 28%, rgba(24,24,27,1)) 0%, color-mix(in srgb, var(--choice-accent) 18%, rgba(24,24,27,1)) 100%); box-shadow: 0 16px 32px color-mix(in srgb, var(--choice-accent) 12%, transparent), inset 0 1px 0 rgba(255,255,255,0.08); }
   .profile-divider, .profile-soft-divider { height: 1px; margin: 18px 0; background: linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.12), rgba(255,255,255,0.04)); }
-  .profile-results-section-head { gap: 6px; }
+  .profile-results-section-head { gap: 10px; margin-bottom: 4px; }
   .profile-section-title { color: rgba(244,244,245,0.9); font-family: "Zodiak", Georgia, serif; font-size: clamp(1.5rem, 3vw, 2.1rem); line-height: 1.08; letter-spacing: -0.04em; }
   .profile-results-hero { padding: 34px 34px 32px; background: linear-gradient(180deg, rgba(48,48,52,0.86) 0%, rgba(29,29,34,0.82) 100%), radial-gradient(circle at 18% 12%, rgba(194,122,92,0.18) 0%, rgba(39,39,42,0) 48%); }
   .profile-results-hero-inner { display: grid; gap: 14px; }
@@ -776,6 +783,8 @@ export default function OnboardingPage() {
   const [page, setPage] = useState<PageKey>("intro");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [displayNameInput, setDisplayNameInput] = useState("");
+  const [sectionIntroFor, setSectionIntroFor] = useState<Question["domain"] | null>(null);
+  const [isRevealing, setIsRevealing] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const [homeSetup, setHomeSetup] = useState<HomeSetup>("Partner + kids");
@@ -1088,14 +1097,38 @@ export default function OnboardingPage() {
   };
 
   const goNextQuestion = () => {
-    if (currentQuestionIndex >= 19) { setPage("results"); return; }
-    goToQuestion(currentQuestionIndex + 1);
+    if (currentQuestionIndex >= 19) {
+      setIsRevealing(true);
+      window.setTimeout(() => {
+        setIsRevealing(false);
+        setPage("results");
+      }, 2400);
+      return;
+    }
+    const nextIdx = currentQuestionIndex + 1;
+    const nextDomain = QUESTIONS[nextIdx].domain;
+    const currentDomain = QUESTIONS[currentQuestionIndex].domain;
+    if (nextDomain !== currentDomain) {
+      setSectionIntroFor(nextDomain);
+      return;
+    }
+    goToQuestion(nextIdx);
   };
 
   const goBackQuestion = () => {
     if (currentQuestionIndex <= 0) return;
     goToQuestion(currentQuestionIndex - 1);
   };
+
+  useEffect(() => {
+    if (!sectionIntroFor) return;
+    const t = window.setTimeout(() => {
+      setSectionIntroFor(null);
+      goToQuestion(currentQuestionIndex + 1);
+    }, 1800);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sectionIntroFor]);
 
   useEffect(() => {
     const supabase = getSupabase();
@@ -1334,16 +1367,51 @@ export default function OnboardingPage() {
                 </div>
 
                 {/* Domain progress row */}
-                <div style={{ display: "flex", gap: 0, marginBottom: 40 }}>
-                  {(["Work", "Recovery", "Home", "Connection"] as DomainName[]).map((label) => {
-                    const domainKey = RESULT_DOMAIN_TO_QUESTION_DOMAIN[label];
-                    const isActive = currentQuestion.domain === domainKey;
-                    return (
-                      <div key={label} style={{ flex: 1, textAlign: "center" as const }}>
-                        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: isActive ? "rgba(194,122,92,0.8)" : "rgba(161,161,170,0.25)" }}>{label}</span>
+                <div style={{ display: "flex", gap: 6, marginBottom: 40 }}>
+                  {groupedProgress.map((segment) => (
+                    <div key={segment.label} style={{ flex: 1, display: "grid", gap: 6 }}>
+                      <span
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 700,
+                          letterSpacing: "0.08em",
+                          textTransform: "uppercase" as const,
+                          color:
+                            currentQuestion.domain === RESULT_DOMAIN_TO_QUESTION_DOMAIN[segment.label]
+                              ? "rgba(194,122,92,0.85)"
+                              : segment.value >= 100
+                                ? "rgba(244,244,245,0.55)"
+                                : "rgba(161,161,170,0.28)",
+                          textAlign: "center" as const,
+                          transition: "color 0.22s ease",
+                        }}
+                      >
+                        {segment.label}
+                      </span>
+                      <div
+                        style={{
+                          height: 3,
+                          borderRadius: 999,
+                          background: "rgba(255,255,255,0.06)",
+                          overflow: "hidden",
+                        }}
+                      >
+                        <motion.div
+                          initial={false}
+                          animate={{ width: `${segment.value}%` }}
+                          transition={{ duration: 0.4, ease: EASE }}
+                          style={{
+                            height: "100%",
+                            borderRadius: 999,
+                            background:
+                              currentQuestion.domain === RESULT_DOMAIN_TO_QUESTION_DOMAIN[segment.label]
+                                ? "rgba(194,122,92,0.8)"
+                                : "rgba(194,122,92,0.32)",
+                          }}
+                        />
                       </div>
-                    );
-                  })}
+                    </div>
+                  ))}
                 </div>
 
                 {/* Question card */}
@@ -1400,21 +1468,89 @@ export default function OnboardingPage() {
           {page === "results" && (
             <motion.div key="results" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.28, ease: EASE }}>
             <div className="profile-stack profile-results-stack">
-              <div className="profile-card profile-results-hero">
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: EASE, delay: 0 }}
+                className="profile-card profile-results-hero"
+              >
                 <div className="profile-top-rim profile-top-rim-strong" />
                 <div className="profile-results-hero-inner">
                   <span className="profile-eyebrow-pill">Pressure Profile</span>
-                  <h1 className="profile-display profile-display-results">Your Pressure Profile</h1>
+                  <h1 className="profile-display profile-display-results">
+                    {displayNameInput.trim() ? `Here's your profile, ${displayNameInput.trim()}.` : "Your Pressure Profile"}
+                  </h1>
                   <p className="profile-lead profile-meta-width">
                     This profile shows where pressure is landing most often right now and where Driftlatch can help first.
                   </p>
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.55, ease: EASE, delay: 0.2 }}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 12,
+                      padding: "12px 20px",
+                      borderRadius: 999,
+                      border: "1px solid rgba(194,122,92,0.36)",
+                      background: "linear-gradient(180deg, rgba(194,122,92,0.14) 0%, rgba(194,122,92,0.06) 100%)",
+                      boxShadow: "0 12px 32px rgba(194,122,92,0.18), inset 0 1px 0 rgba(255,255,255,0.08)",
+                      width: "fit-content",
+                      marginTop: 8,
+                    }}
+                  >
+                    <motion.span
+                      animate={{ scale: [1, 1.3, 1], opacity: [0.7, 1, 0.7] }}
+                      transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+                      style={{
+                        width: 7,
+                        height: 7,
+                        borderRadius: 999,
+                        background: "rgba(194,122,92,0.95)",
+                        boxShadow: "0 0 14px rgba(194,122,92,0.7)",
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 600,
+                        color: "rgba(244,244,245,0.92)",
+                        letterSpacing: "-0.01em",
+                      }}
+                    >
+                      Pressure lands hardest in{" "}
+                      <motion.span
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.7, ease: EASE, delay: 0.55 }}
+                        style={{
+                          color: "rgba(220,155,122,1)",
+                          fontWeight: 800,
+                          textShadow: "0 0 22px rgba(194,122,92,0.4)",
+                        }}
+                      >
+                        {groups.primaryDomain}
+                      </motion.span>
+                      . Driftlatch starts there.
+                    </span>
+                  </motion.div>
                   <p className="profile-results-summary profile-meta-width">{personalizedResultCopy.summary}</p>
                   <p className="profile-meta-copy profile-meta-width">{personalizedResultCopy.detail}</p>
+                  <p className="profile-meta-copy profile-meta-width profile-meta-spaced">
+                    {getGoalLine(priority, homeSetup)}
+                  </p>
                   <p className="profile-meta-copy profile-meta-width">{getAttachmentStyleQualifier()}</p>
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="profile-results-block">
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: EASE, delay: 0.18 }}
+                className="profile-results-block"
+              >
                 <div className="profile-results-section-head">
                   <div className="profile-eyebrow">PRESSURE METERS</div>
                   <div className="profile-section-title">Where pressure is landing</div>
@@ -1444,9 +1580,14 @@ export default function OnboardingPage() {
                     );
                   })}
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="profile-results-block">
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: EASE, delay: 0.36 }}
+                className="profile-results-block"
+              >
                 <div className="profile-results-section-head">
                   <div className="profile-eyebrow">DOMAIN CARDS</div>
                   <div className="profile-section-title">How pressure is showing up</div>
@@ -1479,9 +1620,14 @@ export default function OnboardingPage() {
                     );
                   })}
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="profile-card profile-primary-pack-card">
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, ease: EASE, delay: 0.54 }}
+                className="profile-card profile-primary-pack-card"
+              >
                 <div className="profile-top-rim profile-top-rim-strong" />
                 <div className="profile-primary-pack-glow" />
                 <div className="profile-primary-pack-content">
@@ -1549,8 +1695,151 @@ export default function OnboardingPage() {
                     <span className="profile-inline-strong">{spillover.toLowerCase()}</span>.
                   </p>
                 </div>
-              </div>
+              </motion.div>
             </div>
+            </motion.div>
+          )}
+
+          {sectionIntroFor && (
+            <motion.div
+              key={`section-intro-${sectionIntroFor}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.32, ease: EASE }}
+              onClick={() => {
+                setSectionIntroFor(null);
+                goToQuestion(currentQuestionIndex + 1);
+              }}
+              style={{
+                position: "fixed",
+                inset: 0,
+                zIndex: 20,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                background: "rgba(11,11,14,0.96)",
+                backdropFilter: "blur(12px)",
+                WebkitBackdropFilter: "blur(12px)",
+              }}
+            >
+              <div style={{ textAlign: "center", padding: "0 32px", maxWidth: 440 }}>
+                <div style={{ display: "flex", justifyContent: "center", gap: 8, marginBottom: 36 }}>
+                  {(["work", "recovery", "home", "attach"] as Question["domain"][]).map((d, i) => {
+                    const currentSectionIdx = ["work", "recovery", "home", "attach"].indexOf(sectionIntroFor);
+                    const isFilled = i < currentSectionIdx;
+                    const isActive = i === currentSectionIdx;
+                    return (
+                      <span
+                        key={d}
+                        style={{
+                          width: isActive ? 24 : 8,
+                          height: 8,
+                          borderRadius: 999,
+                          background: isFilled || isActive ? "rgba(194,122,92,0.85)" : "rgba(255,255,255,0.12)",
+                          transition: "width 0.3s ease",
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+                <motion.div
+                  initial={{ y: 8, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.5, ease: EASE, delay: 0.12 }}
+                  style={{
+                    fontFamily: "var(--font-serif)",
+                    fontSize: "clamp(2.4rem, 7vw, 3.6rem)",
+                    fontWeight: 600,
+                    letterSpacing: "-0.04em",
+                    color: "rgba(244,244,245,0.94)",
+                    lineHeight: 1,
+                    marginBottom: 14,
+                  }}
+                >
+                  {SECTION_INTRO_COPY[sectionIntroFor].title}
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, ease: EASE, delay: 0.32 }}
+                  style={{
+                    fontSize: 15,
+                    color: "rgba(161,161,170,0.72)",
+                    lineHeight: 1.55,
+                  }}
+                >
+                  {SECTION_INTRO_COPY[sectionIntroFor].tagline}
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+
+          {isRevealing && (
+            <motion.div
+              key="revealing"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4, ease: EASE }}
+              style={{
+                position: "fixed",
+                inset: 0,
+                zIndex: 20,
+                display: "flex",
+                flexDirection: "column" as const,
+                alignItems: "center",
+                justifyContent: "center",
+                background: "rgba(11,11,14,0.98)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+              }}
+            >
+              <div style={{ display: "flex", gap: 10, marginBottom: 28 }}>
+                {[0, 1, 2].map((i) => (
+                  <motion.span
+                    key={i}
+                    animate={{
+                      opacity: [0.25, 1, 0.25],
+                      scale: [0.9, 1.15, 0.9],
+                    }}
+                    transition={{
+                      duration: 1.4,
+                      repeat: Infinity,
+                      delay: i * 0.18,
+                      ease: "easeInOut",
+                    }}
+                    style={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: 999,
+                      background: "rgba(194,122,92,0.85)",
+                      boxShadow: "0 0 20px rgba(194,122,92,0.5)",
+                    }}
+                  />
+                ))}
+              </div>
+              <div
+                style={{
+                  fontFamily: "var(--font-serif)",
+                  fontSize: "clamp(1.4rem, 4vw, 1.8rem)",
+                  fontWeight: 600,
+                  letterSpacing: "-0.02em",
+                  color: "rgba(244,244,245,0.9)",
+                }}
+              >
+                Reading your pattern
+              </div>
+              <div
+                style={{
+                  marginTop: 10,
+                  fontSize: 13,
+                  color: "rgba(161,161,170,0.55)",
+                }}
+              >
+                This takes a moment.
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
