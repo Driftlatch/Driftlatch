@@ -1270,7 +1270,7 @@ export default function Home() {
             >
             <div>
               <FadeIn delay={0.04} duration={0.55} distance={10}>
-                  <div className="kicker">DRIFTLATCH</div>
+                  <div className="kicker">FOUNDERS AND PROFESSIONALS</div>
                 </FadeIn>
                 <FadeIn delay={0.12} duration={0.62} distance={16}>
                   <h1
@@ -1298,11 +1298,7 @@ export default function Home() {
                   >
                     You had a good day. Still lost the evening.
                     <br /><br />
-                    That is not a character flaw. Unmanaged pressure always
-                    finds the people closest to you.
-                    <br /><br />
-                    Driftlatch gives you one psychologically informed move,
-                    matched to your state, time, and situation.
+                    Work follows you home. Home tension takes your focus at work. Driftlatch helps you break the loop in under ten minutes a day.
                   </p>
                 </FadeIn>
               </div>
