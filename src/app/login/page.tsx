@@ -17,11 +17,11 @@ const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 // Rotating statements — the emotional anchor of the left panel
 const STATEMENTS = [
-  { top: "Where ambition", bottom: "comes home." },
-  { top: "Love and drive,", bottom: "finally aligned." },
+  { top: "Closeness at home.", bottom: "Clarity at work." },
+  { top: "You had a good day.", bottom: "Don't lose the evening." },
   { top: "Carry less.", bottom: "Give more." },
-  { top: "The gap between", bottom: "work and warmth." },
-  { top: "You don't have", bottom: "to choose." },
+  { top: "Break the loop.", bottom: "Reclaim the evening." },
+  { top: "Where ambition", bottom: "comes home." },
 ];
 
 function isValidEmail(v: string) {
@@ -258,14 +258,14 @@ export default function LoginPage() {
           transition={{ duration: 0.7, ease: EASE }}
           style={{ display: "flex", alignItems: "center", gap: 11, position: "relative", zIndex: 2 }}
         >
-          <div style={{
-            width: 34, height: 34, borderRadius: 11,
-            background: "linear-gradient(140deg, rgba(194,122,92,0.95), rgba(155,88,55,0.95))",
-            boxShadow: "0 0 28px rgba(194,122,92,0.4), inset 0 1px 0 rgba(255,255,255,0.18)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <div style={{ width: 9, height: 9, borderRadius: 999, background: "rgba(255,255,255,0.95)" }} />
-          </div>
+          <Image
+            src="/icon.png"
+            alt="Driftlatch mark"
+            width={34}
+            height={34}
+            priority
+            style={{ objectFit: "contain", display: "block" }}
+          />
           <span style={{ color: "rgba(244,244,245,0.88)", fontSize: 16, fontWeight: 700, letterSpacing: "-0.025em", fontFamily: "Zodiak, Georgia, serif" }}>
             Driftlatch
           </span>
@@ -382,14 +382,14 @@ export default function LoginPage() {
         >
           {/* Mobile brand */}
           <div className="login-mobile-brand" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 44 }}>
-            <div style={{
-              width: 30, height: 30, borderRadius: 9,
-              background: "linear-gradient(140deg, rgba(194,122,92,0.95), rgba(155,88,55,0.95))",
-              boxShadow: "0 0 20px rgba(194,122,92,0.32)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              <div style={{ width: 8, height: 8, borderRadius: 999, background: "rgba(255,255,255,0.95)" }} />
-            </div>
+            <Image
+              src="/icon.png"
+              alt="Driftlatch mark"
+              width={30}
+              height={30}
+              priority
+              style={{ objectFit: "contain", display: "block" }}
+            />
             <span style={{ color: "rgba(244,244,245,0.86)", fontSize: 15, fontWeight: 700, letterSpacing: "-0.025em", fontFamily: "Zodiak, Georgia, serif" }}>
               Driftlatch
             </span>
@@ -435,14 +435,14 @@ export default function LoginPage() {
                 fontWeight: 400,
               }}>
                 {phase === "email" ? (
-                  <>"Welcome<br />back."</>
+                  <>Welcome<br />back.</>
                 ) : (
                   <>Check your<br />inbox.</>
                 )}
               </h1>
               <p style={{ margin: "10px 0 0", color: "rgba(161,161,170,0.60)", fontSize: 14, lineHeight: 1.7 }}>
                 {phase === "email"
-                  ? "Enter your email. We'll send a code — no password, no friction."
+                  ? "Enter your email. We'll send a code. No password, no friction."
                   : <>Code sent to <span style={{ color: "rgba(244,244,245,0.72)" }}>{email}</span>. Enter it below.</>
                 }
               </p>
