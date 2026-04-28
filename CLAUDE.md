@@ -195,7 +195,38 @@ input:focus, select:focus, textarea:focus {
 }
 .nav-login:hover { color: rgba(244,244,245,0.88); }
 /* Hidden at ≤768px alongside other nav links */
+
+/* Step flow pulse — used by thanks page flow + home tutorial */
+@keyframes dlStepPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(194,122,92,0.4); }
+  70%  { box-shadow: 0 0 0 12px rgba(194,122,92,0); }
+  100% { box-shadow: 0 0 0 0 rgba(194,122,92,0); }
+}
+
+/* Native app feel */
+html, body {
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+button, a, [role="button"],
+.kicker, .navLink, .navLogo, .navWordmark, .nav-login,
+.mobileMenuLink, .bottomNavItem, .bottomNavLabel, .bottomNavIcon,
+.faqTrigger, h1, h2, h3 {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+p, input, textarea, .selectable, .selectable * {
+  -webkit-user-select: text;
+  user-select: text;
+}
+@media (display-mode: standalone) {
+  body { padding-top: env(safe-area-inset-top); }
+}
 ```
+
+**Smart-quote bug (fixed):** the `details summary::after` and `.faqSummary::after` rules previously used curly quotes (U+201C/U+201D) around `+` and `-`, which CSS silently rejects. Always use straight ASCII `"..."` in `content:` values.
 
 ---
 
@@ -511,7 +542,9 @@ Status values: `"active"`, `"inactive"`, `"canceled"`, `"expired"`, `"past_due"`
 
 ### Packs and Tool Library
 
-All content is in `src/lib/toolLibrary.json` (static, bundled at build time).
+All content is in `src/lib/toolLibrary.json` (static, bundled at build time). Currently ~220 entries across 10 packs.
+
+**Terminology:** the code/schema calls these `tool`/`tool_id`/`toolLibrary` for historical reasons. User-facing copy calls them **supports**. Do not rename the code identifiers, but do not write "tools" in product copy either — use "supports", "steps", or "moves" depending on context.
 
 Pack IDs and display names:
 - `clear_head_pack` → "Clear Head"
@@ -533,9 +566,33 @@ Situations (`DriftSituation`): `"partner_nearby"`, `"kids_around"`, `"alone"`, `
 
 Attachment styles: `"Anxious"`, `"Avoidant"`, `"Mixed"`, `"Unknown"`
 
+### Home Page Tutorial (v2)
+
+5-step onboarding tour rendered on `/app` for first-time users or anyone whose stored version is below current. Lives inline in [src/app/app/page.tsx](src/app/app/page.tsx).
+
+- FSM: `tutorialStep: 0 | 1 | 2 | 3 | 4 | 5 | 6` — 0 = not started, 1–5 = active, 6 = done.
+- Version gate: `TUTORIAL_VERSION = 2` constant + localStorage key `driftlatch_tutorial_version` (number). Tutorial starts if stored value < current. The old key `driftlatch_tutorial_done` is no longer written but remains on the `account/page.tsx` data-wipe list for backwards compat.
+- Step targets (via refs): state chips row, time chips row, hero recommendation card, moment review strip, weekly section.
+- Step 2 auto-skips to step 3 if the selected state is non-hard (`clear_light` / `steady`), since the time chips row does not render in that case.
+- `handleQuickStateTap` auto-advances step 1 → step 2 (hard state) or step 1 → step 3 (non-hard).
+- Spotlight: inline `outline` + `outlineOffset` + `boxShadow` at `zIndex: 52` on the active target; backdrop sits at `zIndex: 50`.
+- Every step change triggers `scrollIntoView({ behavior: "smooth", block: "center" })` on the active ref after an 80 ms settle delay so the tooltip can reposition.
+- `TutorialTooltip` is an inline component (not exported). Progress reads `{step} of {totalSteps}` with an animated fill bar.
+
 ### Onboarding / Pressure Profile
 
 20 questions scored 0–4 (Never → Almost always). 4 domains: `work`, `recovery`, `home`, `attach`. Result scored into `attachment_style` + `defaults` (preferred need/time/situation/packs). Stored in localStorage during the quiz, synced to `user_profile` on login.
+
+**Result page structure** (shared by `/pressure-profile` and `/app/onboarding`, rendered from [src/app/app/onboarding/page.tsx](src/app/app/onboarding/page.tsx)):
+
+- **Section intro cards:** 1.8 s full-screen transition when crossing a domain boundary (Q5→6, 10→11, 15→16). Tap anywhere to skip. Copy lives in the `SECTION_INTRO_COPY` constant.
+- **Segmented domain progress row:** driven by the `groupedProgress` memo — one bar segment per domain, active segment highlighted in clay.
+- **Reveal overlay:** on submitting Q20, a 2.4 s "Reading your pattern" overlay (three-dot breathing loop) plays before `setPage("results")`.
+- **Name-aware h1:** `"Here's your profile, {name}."` when `displayNameInput` is non-empty, else `"Your Pressure Profile"`.
+- **Hero highlight pill:** animated clay-glow pill with pulsing dot and delayed opacity reveal on the primary domain. Text: `"Pressure lands hardest in {primaryDomain}. Driftlatch starts there."`
+- **Staggered reveal:** hero, pressure meters, domain cards, and primary-pack card each wrapped in `motion.div` with sequential delays (0, 0.18, 0.36, 0.54 s).
+- **Trimmed domain card bodies:** `getWorkCardCopy`, `getRecoveryCardCopy`, `getHomeCardCopy` each kept to ≤ 2 sentences. `getConnectionCardCopy` is intentionally left verbatim because it carries `homeSetup`/style personalization nuance.
+- **Detail paragraph:** `buildPersonalizedResultCopy.detail` now only names the patterns (`"The clearest patterns: X and Y."`). The goal line is rendered as its own paragraph via a direct `getGoalLine(priority, homeSetup)` call.
 
 ### Pressure EQ
 
@@ -551,6 +608,19 @@ Separate, shorter assessment from the Pressure Profile. 8 scenario-based questio
 **Retake path:** no gate on `/pressure-eq`. Persistent retake strip on `/app/eq` (below the fingerprint card) and small `Retake →` link in the EQ card on `/app/account` (uses `stopPropagation` because the parent card click routes to `/app/eq`).
 
 **Domains (`EQDomain`):** `pressure_reading`, `repair_instinct`, `presence_quality`, `boundary_intel`, `recovery_aware`, `signal_accuracy`.
+
+**Scenario copy style:** plain-language, ≤ 3 sentences, no em dashes. Scenarios `PR-04`, `RI-04`, `RA-02`, `RA-05`, `SA-06` were rewritten for readability — keep scenario prompts concise if expanding the bank.
+
+### Landing Page Copy Reference
+
+Canonical landing copy lives in [src/app/page.tsx](src/app/page.tsx). Update this section whenever the wording ships.
+
+- **Hero kicker:** `FOUNDERS AND PROFESSIONALS`
+- **Hero h1:** `Closeness at home. Clarity at work.`
+- **Hero subtext:** `You had a good day. Still lost the evening.` + `Work follows you home. Home tension takes your focus at work. Driftlatch helps you break the loop in under ten minutes a day.`
+- **Meta line under CTAs:** `2-minute profile. One clear step. Under 10 minutes a day. Private by default.`
+- **FAQ order** (in `FAQ_ITEMS`): therapy, pricing, messages/tracking, relationship app, partner doesn't use it, install (`Do I need to install anything?`), refund.
+- **Mobile hero composition** lives in [src/app/globals.css](src/app/globals.css) under `@media (max-width: 640px)`. Key overrides: `.hero-text-wrapper` `padding-top: 44px` + `max-width: 100%`, tightened h1 clamp (`1.95rem`–`2.55rem`), CTA row `margin-top: 18px`, `gap: 12px`, `flex-wrap: wrap`, `justify-content: center`. The SVG scene is swapped (not resized) on mobile via a separate viewBox inside the TSX.
 
 ---
 
@@ -686,6 +756,17 @@ npx tsc --noEmit # TypeScript check (zero errors is the baseline)
 - **`isMobile` initial-render flash:** For `"use client"` pages that need a responsive mobile/desktop branch at first paint (landing hero, thanks page flow steps), use a lazy initializer — `useState(() => typeof window !== "undefined" ? window.innerWidth < 640 : false)` — instead of `useState(false)`. Without it, the desktop branch renders for one frame on mobile before the `useEffect` fires, causing a visible flash.
 - **`user_moment_reviews` column names:** the real DB columns are `who_involved` and `moment_type` — NOT `who` or `moment`. A query selecting `who` or `moment` will 400 with a column-not-found error. Same for `response`/`reflection` — those columns don't exist at all.
 - **`user_eq_profile.completed_at` on retake:** the `/app/eq` query reads `.order("completed_at", { ascending: false }).limit(1)`. If the upsert payload does not include `completed_at: new Date().toISOString()`, the old snapshot keeps winning the query and the user will think the retake "didn't save." Always set `completed_at` explicitly in the upsert — DB default only fires on INSERT, not on UPDATE via upsert.
+- **SVG `motion.circle` attribute race:** when a `motion.circle` (or similar motion SVG element) animates `r`, `cx`, or `cy`, do NOT also set a static same-name JSX prop. React commits the static attribute on first render before Framer Motion takes over, producing a visible flash and a console warning like `<circle> attribute r: Expected length, "undefined"`. Fix: remove the static prop and give the motion element an explicit `initial={{ r: 9, opacity: 0.3 }}` instead.
+
+### Scale Checklist
+
+Verify before or shortly after launch. Most items are Supabase dashboard checks, not code.
+
+- **Indexes:** every user-scoped table (`user_checkins`, `user_moment_reviews`, `user_eq_profile`, `user_pins`, `user_tool_feedback`, `user_recent_tools`, `user_saved_tools`) should have a composite index on `(user_id, created_at)` or equivalent. Verify in the Supabase dashboard.
+- **RLS:** every user-scoped table must have Row-Level Security enabled with policy `auth.uid() = user_id`. Managed in the dashboard, not in migration files in this repo.
+- **Latency monitoring:** watch query p95 in the Supabase dashboard once ~100 active users are on.
+- **Tier upgrade:** Free tier caps at 500 MB. Upgrade Supabase to Pro when the database reaches ~400 MB.
+- **Ceiling expectation:** at ~10k DAU, expect 50–100 GB/year of storage growth and ~$40–60/month infra cost. Known ceiling, not a code problem.
 
 ---
 
@@ -722,6 +803,12 @@ npx tsc --noEmit # TypeScript check (zero errors is the baseline)
 15. **Do not use CSS `transform: translateX(-50%)` on animated `motion.*` elements.** Framer Motion takes ownership of `transform` the moment any motion value (`y`, `x`, `scale`, etc.) is active — your CSS centring will be silently dropped. Use `x: "-50%"` as a Framer Motion style prop instead.
 
 16. **Do not import or render `HeroVisual` from `src/components/HeroVisual.tsx`.** That component (floating product screenshot cards) has been replaced by the cinematic SVG scene built directly in `src/app/page.tsx`. The file still exists but is no longer used.
+
+17. **Do not use em dashes (`—`) in any user-facing copy.** Replace with period, comma, colon, or parentheses depending on what the dash was doing. Code comments can use them; copy strings cannot.
+
+18. **Do not use "system" as a product buzzword in copy.** In marketing and in-app text, prefer concrete language: "one step", "what actually helps", "the move for right now". `system` is fine in engineering comments and this doc.
+
+19. **Write plain language a tired founder would recognize.** Short sentences. Concrete verbs. Avoid therapy-speak, no "journey" / "unlock potential" / "transformation". If a line would not survive being read out loud at 11pm after a hard day, rewrite it.
 
 ---
 
