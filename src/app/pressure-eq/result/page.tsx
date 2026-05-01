@@ -2,11 +2,15 @@
 
 import { type CSSProperties, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { type EQDomain } from "@/lib/eqQuestions";
 import { supabaseBrowser } from "@/lib/supabaseBrowser";
 import EQHexagon from "@/components/EQHexagon";
+import {
+  clearStoredPublicEQResult,
+  writeStoredPublicEQResult,
+} from "@/lib/publicEQ";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -205,6 +209,8 @@ function DomainBar({
 
 export default function PressureEQResultPage() {
   const router = useRouter();
+  const pathname = usePathname();
+  const isPublicFlow = !pathname.startsWith("/app/");
   const [result, setResult] = useState<EQResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -223,7 +229,14 @@ export default function PressureEQResultPage() {
             const {
               data: { session },
             } = await supabase.auth.getSession();
-            setIsLoggedIn(Boolean(session?.user?.id));
+            const loggedIn = Boolean(session?.user?.id);
+            setIsLoggedIn(loggedIn);
+
+            // Persist a save-for-later copy in public flow only
+            if (!loggedIn && isPublicFlow) {
+              writeStoredPublicEQResult(parsed);
+            }
+
             if (session?.user?.id) {
               const { scores } = parsed;
               const { data: existing } = await supabase
@@ -263,7 +276,18 @@ export default function PressureEQResultPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isPublicFlow]);
+
+  function handleRetake() {
+    try {
+      localStorage.removeItem("driftlatch_eq_result");
+      localStorage.removeItem("driftlatch_eq_completed_at");
+    } catch {
+      // ignore
+    }
+    clearStoredPublicEQResult();
+    router.push("/pressure-eq");
+  }
 
   const basePageStyle: CSSProperties = {
     minHeight: "100dvh",
@@ -578,33 +602,10 @@ export default function PressureEQResultPage() {
             gap: 12,
           }}
         >
-          {isLoggedIn ? (
-            <button
-              type="button"
-              onClick={() => router.push("/app")}
-              style={{
-                width: "100%",
-                maxWidth: 320,
-                display: "block",
-                textAlign: "center",
-                padding: "16px 0",
-                borderRadius: 12,
-                fontSize: 15,
-                fontWeight: 700,
-                background:
-                  "linear-gradient(170deg, rgba(206,132,98,0.97), rgba(162,96,62,0.97))",
-                border: "1px solid rgba(194,122,92,0.3)",
-                color: "white",
-                boxShadow: "0 8px 32px rgba(194,122,92,0.25)",
-                cursor: "pointer",
-              }}
-            >
-              Back to the app
-            </button>
-          ) : (
+          {isPublicFlow && !isLoggedIn ? (
             <>
               <Link
-                href="/pressure-profile"
+                href="/pricing"
                 style={{
                   width: "100%",
                   maxWidth: 320,
@@ -622,27 +623,198 @@ export default function PressureEQResultPage() {
                   textDecoration: "none",
                 }}
               >
-                Take the Pressure Profile
+                See pricing →
               </Link>
 
+              <div
+                style={{
+                  display: "flex",
+                  gap: 8,
+                  width: "100%",
+                  maxWidth: 320,
+                }}
+              >
+                <Link
+                  href="/buy?plan=annual"
+                  style={{
+                    flex: 1,
+                    display: "block",
+                    textAlign: "center",
+                    padding: "13px 0",
+                    borderRadius: 12,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    border: "1px solid rgba(194,122,92,0.22)",
+                    background: "rgba(194,122,92,0.08)",
+                    color: "rgba(244,244,245,0.85)",
+                    textDecoration: "none",
+                  }}
+                >
+                  Start annual
+                </Link>
+                <Link
+                  href="/buy?plan=monthly"
+                  style={{
+                    flex: 1,
+                    display: "block",
+                    textAlign: "center",
+                    padding: "13px 0",
+                    borderRadius: 12,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    border: "1px solid rgba(194,122,92,0.22)",
+                    background: "rgba(194,122,92,0.08)",
+                    color: "rgba(244,244,245,0.85)",
+                    textDecoration: "none",
+                  }}
+                >
+                  Start monthly
+                </Link>
+              </div>
+
               <Link
-                href="/login"
+                href="/pressure-profile"
                 style={{
                   width: "100%",
                   maxWidth: 320,
                   display: "block",
                   textAlign: "center",
-                  padding: "14px 0",
+                  padding: "13px 0",
                   borderRadius: 12,
-                  fontSize: 14,
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  background: "rgba(255,255,255,0.04)",
-                  color: "rgba(161,161,170,0.6)",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: "rgba(255,255,255,0.03)",
+                  color: "rgba(244,244,245,0.78)",
                   textDecoration: "none",
                 }}
               >
-                Log in to save your fingerprint
+                Take the Pressure Profile
               </Link>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: 8,
+                  width: "100%",
+                  maxWidth: 320,
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={handleRetake}
+                  style={{
+                    flex: 1,
+                    padding: "11px 0",
+                    borderRadius: 12,
+                    fontSize: 13,
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    background: "rgba(255,255,255,0.03)",
+                    color: "rgba(161,161,170,0.6)",
+                    cursor: "pointer",
+                  }}
+                >
+                  Retake
+                </button>
+                <Link
+                  href="/"
+                  style={{
+                    flex: 1,
+                    display: "block",
+                    textAlign: "center",
+                    padding: "11px 0",
+                    borderRadius: 12,
+                    fontSize: 13,
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    background: "rgba(255,255,255,0.03)",
+                    color: "rgba(161,161,170,0.6)",
+                    textDecoration: "none",
+                  }}
+                >
+                  Back to site
+                </Link>
+              </div>
+
+              <p
+                style={{
+                  marginTop: 8,
+                  maxWidth: 360,
+                  textAlign: "center",
+                  fontSize: 12,
+                  lineHeight: 1.6,
+                  color: "rgba(161,161,170,0.45)",
+                }}
+              >
+                This result is saved in this browser until you log in or start a plan.
+              </p>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => router.push("/app/checkin")}
+                style={{
+                  width: "100%",
+                  maxWidth: 320,
+                  display: "block",
+                  textAlign: "center",
+                  padding: "16px 0",
+                  borderRadius: 12,
+                  fontSize: 15,
+                  fontWeight: 700,
+                  background:
+                    "linear-gradient(170deg, rgba(206,132,98,0.97), rgba(162,96,62,0.97))",
+                  border: "1px solid rgba(194,122,92,0.3)",
+                  color: "white",
+                  boxShadow: "0 8px 32px rgba(194,122,92,0.25)",
+                  cursor: "pointer",
+                }}
+              >
+                Open your first step →
+              </button>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: 8,
+                  width: "100%",
+                  maxWidth: 320,
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={handleRetake}
+                  style={{
+                    flex: 1,
+                    padding: "11px 0",
+                    borderRadius: 12,
+                    fontSize: 13,
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    background: "rgba(255,255,255,0.03)",
+                    color: "rgba(161,161,170,0.6)",
+                    cursor: "pointer",
+                  }}
+                >
+                  Retake
+                </button>
+                <Link
+                  href="/app"
+                  style={{
+                    flex: 1,
+                    display: "block",
+                    textAlign: "center",
+                    padding: "11px 0",
+                    borderRadius: 12,
+                    fontSize: 13,
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    background: "rgba(255,255,255,0.03)",
+                    color: "rgba(161,161,170,0.6)",
+                    textDecoration: "none",
+                  }}
+                >
+                  Back to home
+                </Link>
+              </div>
             </>
           )}
         </motion.div>

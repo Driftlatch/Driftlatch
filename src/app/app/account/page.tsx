@@ -82,6 +82,8 @@ const DELETE_ACCOUNT_LOCAL_KEYS = [
   ...PERSONALIZATION_KEYS,
   "driftlatch_saved_tools",
   "driftlatch_tutorial_done",
+  "driftlatch_public_eq_result",
+  "driftlatch_public_eq_completed_at",
 ] as const;
 type OrientationVisualKind = "home" | "packs" | "weekly";
 

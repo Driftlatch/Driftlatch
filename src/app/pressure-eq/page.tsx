@@ -1,7 +1,7 @@
 "use client";
 
 import { type CSSProperties, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   drawEQScenarios,
@@ -13,6 +13,7 @@ import {
   type EQScenario,
 } from "@/lib/eqQuestions";
 import { supabaseBrowser } from "@/lib/supabaseBrowser";
+import { hasStoredPublicEQResult } from "@/lib/publicEQ";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -40,6 +41,8 @@ function shuffle<T>(arr: T[]): T[] {
 
 export default function PressureEQPage() {
   const router = useRouter();
+  const pathname = usePathname();
+  const isPublicFlow = !pathname.startsWith("/app/");
 
   const [phase, setPhase] = useState<Phase>("intro");
   const [hasKids, setHasKids] = useState(false);
@@ -49,6 +52,14 @@ export default function PressureEQPage() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [shuffledOptions, setShuffledOptions] = useState<number[]>([0, 1, 2, 3]);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
+
+  // If public flow already has a saved result, skip straight to the result page
+  useEffect(() => {
+    if (!isPublicFlow) return;
+    if (hasStoredPublicEQResult()) {
+      router.replace("/pressure-eq/result");
+    }
+  }, [isPublicFlow, router]);
 
   // Read existing profile context from localStorage on mount
   useEffect(() => {
