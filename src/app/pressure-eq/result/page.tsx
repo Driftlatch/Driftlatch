@@ -25,6 +25,16 @@ const DOMAIN_LABELS: Record<EQDomain, string> = {
   signal_accuracy: "Signal Accuracy",
 };
 
+// Sentence-case labels for share copy (reads more natural inline)
+const SHARE_DOMAIN_LABELS: Record<EQDomain, string> = {
+  pressure_reading: "Pressure reading",
+  repair_instinct: "Repair instinct",
+  presence_quality: "Presence quality",
+  boundary_intel: "Boundary intelligence",
+  recovery_aware: "Recovery awareness",
+  signal_accuracy: "Signal accuracy",
+};
+
 const DOMAIN_RGB: Record<EQDomain, string> = {
   pressure_reading: "194,122,92",
   repair_instinct: "120,190,150",
@@ -214,6 +224,16 @@ export default function PressureEQResultPage() {
   const [result, setResult] = useState<EQResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "error">("idle");
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth < 640 : false,
+  );
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   useEffect(() => {
     try {
@@ -287,6 +307,32 @@ export default function PressureEQResultPage() {
     }
     clearStoredPublicEQResult();
     router.push("/pressure-eq");
+  }
+
+  function buildShareMessage(weakest: EQDomain) {
+    const label = SHARE_DOMAIN_LABELS[weakest];
+    return `Just took this 4-min test on how I handle pressure. My weakest domain: ${label}.\n\nIf you're a founder, it's worth 4 minutes. driftlatch.com/pressure-eq`;
+  }
+
+  function handleShareX() {
+    if (!result) return;
+    const msg = buildShareMessage(result.weakestDomain);
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(msg)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+    console.info("[eq-share]", { type: "x", weakest_domain: result.weakestDomain });
+  }
+
+  async function handleCopyLink() {
+    if (!result) return;
+    const msg = buildShareMessage(result.weakestDomain);
+    try {
+      await navigator.clipboard.writeText(msg);
+      setCopyState("copied");
+      console.info("[eq-share]", { type: "copy", weakest_domain: result.weakestDomain });
+    } catch {
+      setCopyState("error");
+    }
+    window.setTimeout(() => setCopyState("idle"), 2000);
   }
 
   const basePageStyle: CSSProperties = {
@@ -588,6 +634,90 @@ export default function PressureEQResultPage() {
             {STARTING_POINT_ACTIONS[result.weakestDomain]}
           </p>
         </motion.div>
+
+        {/* Share your result — public flow only */}
+        {isPublicFlow && !isLoggedIn && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.7, ease: EASE }}
+            style={{
+              marginTop: 32,
+              borderRadius: 18,
+              background: "rgba(18,18,22,0.6)",
+              border: "1px solid rgba(255,255,255,0.06)",
+              padding: 18,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: "rgba(161,161,170,0.4)",
+              }}
+            >
+              Share your result
+            </div>
+            <p
+              style={{
+                fontSize: 13,
+                color: "rgba(244,244,245,0.7)",
+                margin: "4px 0 14px",
+                lineHeight: 1.5,
+              }}
+            >
+              A line about your pattern helps others find this.
+            </p>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: isMobile ? "column" : "row",
+                gap: 8,
+              }}
+            >
+              <button
+                type="button"
+                onClick={handleShareX}
+                style={{
+                  flex: 1,
+                  minHeight: 44,
+                  borderRadius: 12,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  border: "1px solid rgba(194,122,92,0.28)",
+                  background: "rgba(194,122,92,0.12)",
+                  color: "rgba(194,122,92,0.95)",
+                  cursor: "pointer",
+                }}
+              >
+                Share on X
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleCopyLink()}
+                style={{
+                  flex: 1,
+                  minHeight: 44,
+                  borderRadius: 12,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: "rgba(255,255,255,0.04)",
+                  color: "rgba(244,244,245,0.85)",
+                  cursor: "pointer",
+                }}
+              >
+                {copyState === "copied"
+                  ? "Copied ✓"
+                  : copyState === "error"
+                    ? "Copy failed"
+                    : "Copy link"}
+              </button>
+            </div>
+          </motion.div>
+        )}
 
         {/* 5. CTA row */}
         <motion.div
