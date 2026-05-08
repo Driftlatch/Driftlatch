@@ -3131,11 +3131,12 @@ export default function Home() {
         <footer
           className="section public-footer"
           style={{
-            marginTop: 20,
-            paddingTop: 26,
-            paddingBottom: 40,
-            borderTop: "1px solid var(--border)",
-            background: "rgba(255,255,255,0.02)",
+            marginTop: 32,
+            marginBottom: 40,
+            padding: "32px 28px",
+            border: "1px solid rgba(255,255,255,0.06)",
+            borderRadius: 22,
+            background: "rgba(18,18,22,0.6)",
           }}
         >
           <div
