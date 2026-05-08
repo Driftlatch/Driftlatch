@@ -1,8 +1,8 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Driftlatch — Closeness at home. Clarity at work.";
-export const size = { width: 1200, height: 600 };
+export const alt = "Driftlatch. Closeness at home. Clarity at work.";
+export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default function Image() {
@@ -11,7 +11,7 @@ export default function Image() {
       <div
         style={{
           width: 1200,
-          height: 600,
+          height: 630,
           background: "#0B0B0E",
           display: "flex",
           flexDirection: "column",
@@ -25,7 +25,7 @@ export default function Image() {
         <div
           style={{
             position: "absolute",
-            top: 165,
+            top: 180,
             left: 480,
             width: 240,
             height: 240,

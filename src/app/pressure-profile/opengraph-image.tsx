@@ -1,7 +1,11 @@
 import { ImageResponse } from "next/og";
 
+// Note: using Georgia/serif fallback. Zodiak (the brand serif) is not loaded into
+// the edge ImageResponse runtime; loading would require fetching the woff2 as
+// ArrayBuffer at request time. Skipped for risk vs. visual gain on a short wordmark.
+
 export const runtime = "edge";
-export const alt = "Driftlatch. Closeness at home. Clarity at work.";
+export const alt = "Pressure Profile. 2 minutes. See where pressure is landing.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -35,7 +39,7 @@ export default function Image() {
           }}
         />
 
-        {/* Chevron mark — two rectangles meeting at centre-top */}
+        {/* Chevron mark */}
         <div
           style={{
             position: "relative",
@@ -47,7 +51,6 @@ export default function Image() {
             marginBottom: 32,
           }}
         >
-          {/* Left arm */}
           <div
             style={{
               position: "absolute",
@@ -61,7 +64,6 @@ export default function Image() {
               left: 28,
             }}
           />
-          {/* Right arm */}
           <div
             style={{
               position: "absolute",
@@ -89,7 +91,7 @@ export default function Image() {
             fontFamily: "Georgia, serif",
           }}
         >
-          Driftlatch
+          Pressure Profile
         </div>
 
         {/* Tagline */}
@@ -102,7 +104,7 @@ export default function Image() {
             lineHeight: 1.4,
           }}
         >
-          Closeness at home. Clarity at work.
+          2 minutes. See where pressure is landing.
         </div>
       </div>
     ),
