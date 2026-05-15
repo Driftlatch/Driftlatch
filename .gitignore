@@ -46,3 +46,6 @@ public/workbox-*.js
 public/sw.js.map
 public/workbox-*.js.map
 .chrome-headless/
+
+# Local Claude Code settings
+.claude/
