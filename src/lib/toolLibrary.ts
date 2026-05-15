@@ -5,6 +5,7 @@ export type DriftState = "carrying_work" | "wired" | "drained" | "overloaded" | 
 export type DriftSituation = "partner_nearby" | "kids_around" | "alone" | "long_distance";
 export type ToolSituation = DriftSituation | "any";
 export type DriftNeed = "regain_clarity" | "wind_down" | "be_here" | "come_back";
+export type PressureDirection = "work_to_home" | "home_to_work" | "both" | "none";
 export type AttachmentStyle = "Anxious" | "Avoidant" | "Mixed" | "Unknown";
 export type EnergyDemand = "very_low" | "low" | "medium" | "high";
 export type SocialDemand = "solo" | "light_contact" | "active_conversation";

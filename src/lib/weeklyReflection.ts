@@ -2,7 +2,7 @@
 
 import { getRoomToneLabel, isRoomToneForSituation, type RoomTone } from "@/lib/roomTone";
 import { getNeedLabel } from "@/lib/supportLabels";
-import { LIBRARY, type DriftNeed, type DriftSituation, type DriftState } from "@/lib/toolLibrary";
+import { LIBRARY, type DriftNeed, type DriftSituation, type DriftState, type PressureDirection } from "@/lib/toolLibrary";
 import type { Tables } from "@/lib/types/supabase";
 
 export type WeeklyMode = "full" | "partial" | "empty";
@@ -12,6 +12,7 @@ export type WeeklyCheckinRow = {
   created_at: string;
   did_complete: boolean | null;
   need: DriftNeed | null;
+  pressure_direction?: string | null;
   room_tone?: string | null;
   shift?: string | null;
   situation?: DriftSituation | null;
@@ -19,6 +20,16 @@ export type WeeklyCheckinRow = {
   state: DriftState | null;
   time_minutes?: number | null;
   tool_id: string | null;
+};
+
+export type PressureDirectionStats = {
+  work_to_home: number;
+  home_to_work: number;
+  both: number;
+  none: number;
+  skipped: number;
+  total: number;
+  observation: string | null;
 };
 
 export type WeeklyRecentRow = {
@@ -81,12 +92,13 @@ export type WeeklyReflection = {
   visibleWeekStart: string;
   weekRangeTitle: string;
   workedSection: WorkedSection;
+  pressureDirectionStats: PressureDirectionStats;
 };
 
 export const RANGE_DAYS = 7;
 export const STATE_LADDER: DriftState[] = ["clear_light", "steady", "carrying_work", "wired", "drained", "overloaded"];
 export const HEAVY_ENDING_THRESHOLD = 3;
-export const FULL_SELECT = "created_at,state,need,tool_id,did_complete,time_minutes,situation,room_tone,source,shift";
+export const FULL_SELECT = "created_at,state,need,tool_id,did_complete,time_minutes,situation,room_tone,source,shift,pressure_direction";
 export const SAFE_SELECT = "created_at,state,need,tool_id,did_complete";
 
 export const STATE_LABEL: Record<DriftState, string> = {
@@ -879,6 +891,43 @@ function buildWeekRangeTitle(rangeDays: number) {
   return formatRangeTitle(start, visibleEnd);
 }
 
+function isPressureDirectionValue(v: unknown): v is PressureDirection {
+  return v === "work_to_home" || v === "home_to_work" || v === "both" || v === "none";
+}
+
+function computePressureDirectionStats(checkins: WeeklyCheckinRow[], rangeDays: number): PressureDirectionStats {
+  // Per-day collapse: one direction per calendar day (latest reported wins).
+  const byDay = new Map<string, PressureDirection | null>();
+  for (const row of checkins) {
+    const day = row.created_at.slice(0, 10);
+    const dir = isPressureDirectionValue(row.pressure_direction) ? row.pressure_direction : null;
+    if (!byDay.has(day) || dir !== null) byDay.set(day, dir);
+  }
+  let work_to_home = 0;
+  let home_to_work = 0;
+  let both = 0;
+  let none = 0;
+  let answered = 0;
+  for (const dir of byDay.values()) {
+    if (dir === "work_to_home") { work_to_home++; answered++; }
+    else if (dir === "home_to_work") { home_to_work++; answered++; }
+    else if (dir === "both") { both++; answered++; }
+    else if (dir === "none") { none++; answered++; }
+  }
+  const skipped = rangeDays - answered;
+  const total = answered;
+  let observation: string | null = null;
+  if (total > 0) {
+    const dominantShare = (n: number) => total > 0 && n / total > 0.6;
+    if (dominantShare(work_to_home)) observation = "Most days this week, pressure leaked work into home.";
+    else if (dominantShare(home_to_work)) observation = "Most days this week, pressure leaked home into work.";
+    else if (dominantShare(both)) observation = "Most days this week, pressure moved in both directions.";
+    else if (dominantShare(none)) observation = "A quieter week. Pressure mostly stayed in its lanes.";
+    else observation = "Pressure moved in different directions this week.";
+  }
+  return { work_to_home, home_to_work, both, none, skipped, total, observation };
+}
+
 export function buildWeeklyReflection({
   checkins,
   feedbackRows,
@@ -891,6 +940,7 @@ export function buildWeeklyReflection({
   recentRows: WeeklyRecentRow[];
 }): WeeklyReflection {
   const { start, visibleEnd } = getWeeklyRangeBounds(rangeDays);
+  const pressureDirectionStats = computePressureDirectionStats(checkins, rangeDays);
   const explicitCheckins = checkins.filter((row) => row.source !== "implicit");
   const signalMode: WeeklySignalMode = explicitCheckins.length > 0 ? "explicit" : checkins.length > 0 ? "implicit" : recentRows.length > 0 ? "recent" : "none";
   const mode: WeeklyMode = signalMode === "explicit" ? "full" : signalMode === "none" ? "empty" : "partial";
@@ -933,5 +983,6 @@ export function buildWeeklyReflection({
     visibleWeekStart: start.toISOString(),
     weekRangeTitle: buildWeekRangeTitle(rangeDays),
     workedSection,
+    pressureDirectionStats,
   };
 }

@@ -1199,6 +1199,39 @@ export default function WeeklyPage() {
           </motion.section>
         ) : null}
 
+        {currentSummary.pressureDirectionStats.total > 0 ? (
+          <motion.section initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.46, delay: 0.18, ease: EASE }}>
+            <GlassCard style={patternCardStyle}>
+              <div className="home-top-highlight" />
+              <div style={{ position: "relative", zIndex: 1, display: "grid", gap: 14 }}>
+                <div style={{ display: "grid", gap: 4 }}>
+                  <span style={eyebrowStyle}>Weekly</span>
+                  <div style={sectionTitleStyle}>Where pressure landed this week</div>
+                </div>
+                <div style={{ display: "grid", gap: 8 }}>
+                  {[
+                    { label: "Work into home", count: currentSummary.pressureDirectionStats.work_to_home },
+                    { label: "Home into work", count: currentSummary.pressureDirectionStats.home_to_work },
+                    { label: "Both directions", count: currentSummary.pressureDirectionStats.both },
+                    { label: "Not today", count: currentSummary.pressureDirectionStats.none },
+                    { label: "Days skipped", count: currentSummary.pressureDirectionStats.skipped },
+                  ].map((row) => (
+                    <div key={row.label} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "rgba(244,244,245,0.78)" }}>
+                      <span>{row.label}</span>
+                      <span style={{ fontVariantNumeric: "tabular-nums", color: row.count > 0 ? "rgba(244,244,245,0.92)" : "rgba(161,161,170,0.4)" }}>{row.count}</span>
+                    </div>
+                  ))}
+                </div>
+                {currentSummary.pressureDirectionStats.observation ? (
+                  <p style={{ margin: 0, fontSize: 12, color: "rgba(161,161,170,0.55)", lineHeight: 1.55, fontStyle: "italic" }}>
+                    {currentSummary.pressureDirectionStats.observation}
+                  </p>
+                ) : null}
+              </div>
+            </GlassCard>
+          </motion.section>
+        ) : null}
+
         {eqProfile ? (
           <EQPulseSection
             eqProfile={eqProfile}

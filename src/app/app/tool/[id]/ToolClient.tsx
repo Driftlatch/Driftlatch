@@ -10,7 +10,15 @@ import { loadSavedToolIds, saveTool, unsaveTool } from "@/lib/store";
 import { selectTool } from "@/lib/selectTool";
 import { getSupabase } from "@/lib/supabase";
 import { getPackName } from "@/lib/toolLibrary";
-import type { AttachmentStyle, DriftNeed, DriftSituation, DriftState, Tool } from "@/lib/toolLibrary";
+import type { AttachmentStyle, DriftNeed, DriftSituation, DriftState, PressureDirection, Tool } from "@/lib/toolLibrary";
+
+const HARD_STATES: ReadonlySet<DriftState> = new Set(["carrying_work", "wired", "drained", "overloaded"]);
+function isHardState(state: DriftState): boolean {
+  return HARD_STATES.has(state);
+}
+function isPressureDirection(v: string | null): v is PressureDirection {
+  return v === "work_to_home" || v === "home_to_work" || v === "both" || v === "none";
+}
 
 type HelpfulScore = 1 | 2 | 3;
 type ShiftValue = "no_change" | "bit_lighter" | "lighter";
@@ -35,6 +43,7 @@ type CheckinContext = {
   attachmentStyle: AttachmentStyle;
   preferredPackIds: string[];
   source: CheckinSource;
+  pressureDirection: PressureDirection | null;
 };
 type ExcludedToolsMap = Record<string, string[]>;
 
@@ -208,6 +217,7 @@ async function insertCheckinDraft(
   payload: {
     did_complete: boolean;
     need: DriftNeed;
+    pressure_direction: PressureDirection | null;
     room_tone: RoomTone | null;
     situation: DriftSituation;
     source: CheckinSource;
@@ -229,21 +239,40 @@ async function insertCheckinDraft(
     time_minutes: isHome ? null : payload.time_minutes,
     tool_id: isHome ? null : payload.tool_id,
     did_complete: isHome ? null : payload.did_complete,
+    pressure_direction: isHome ? null : payload.pressure_direction,
   };
 
-  const insertWithSource = await supabase
+  const insertWithFull = await supabase
     .from("user_checkins")
     .insert(insertPayload)
     .select("id")
     .single();
 
+  const directionMissing =
+    insertWithFull.error?.message?.toLowerCase().includes("pressure_direction") ||
+    insertWithFull.error?.details?.toLowerCase().includes("pressure_direction");
   const sourceMissing =
-    insertWithSource.error?.message?.toLowerCase().includes("source") ||
-    insertWithSource.error?.details?.toLowerCase().includes("source");
+    insertWithFull.error?.message?.toLowerCase().includes("source") ||
+    insertWithFull.error?.details?.toLowerCase().includes("source");
 
-  if (!sourceMissing) return insertWithSource;
+  if (!insertWithFull.error) return insertWithFull;
 
-  // Fallback: DB schema predates the source column — omit it.
+  // Fallback 1: DB schema predates pressure_direction — retry without it.
+  if (directionMissing) {
+    const { pressure_direction: _omit, ...withoutDirection } = insertPayload;
+    void _omit;
+    const retry = await supabase
+      .from("user_checkins")
+      .insert(withoutDirection)
+      .select("id")
+      .single();
+    if (!retry.error) return retry;
+    return retry;
+  }
+
+  if (!sourceMissing) return insertWithFull;
+
+  // Fallback 2: DB schema predates both pressure_direction and source — omit both.
   return supabase
     .from("user_checkins")
     .insert({
@@ -334,6 +363,7 @@ export default function ToolClient({ tool }: { tool: Tool }) {
   const modeParam = searchParams.get("mode");
   const attachmentStyleParam = searchParams.get("attachmentStyle");
   const preferredPackIdsParam = searchParams.get("preferredPackIds");
+  const pressureDirectionParam = searchParams.get("pressureDirection");
   const activeState = isDriftState(stateParam) ? stateParam : null;
   const activeNeed = isDriftNeed(needParam) ? needParam : null;
   const activeSituation = isDriftSituation(situationParam) ? situationParam : null;
@@ -364,8 +394,9 @@ export default function ToolClient({ tool }: { tool: Tool }) {
       attachmentStyle,
       preferredPackIds: preferredPackIds.length > 0 ? preferredPackIds : readStoredPreferredPackIds(),
       source: fromCheckin ? "checkin" : "home",
+      pressureDirection: isPressureDirection(pressureDirectionParam) ? pressureDirectionParam : null,
     };
-  }, [attachmentStyleParam, fromCheckin, modeParam, needParam, preferredPackIdsParam, roomToneParam, situationParam, stateParam, timeParam, tool]);
+  }, [attachmentStyleParam, fromCheckin, modeParam, needParam, preferredPackIdsParam, pressureDirectionParam, roomToneParam, situationParam, stateParam, timeParam, tool]);
   const whyThisNow = useMemo(
     () =>
       buildWhyThisNowCopy({
@@ -391,6 +422,7 @@ export default function ToolClient({ tool }: { tool: Tool }) {
   const [toolSaved, setToolSaved] = useState(false);
   const [toolSavePending, setToolSavePending] = useState(false);
   const [alternateStatus, setAlternateStatus] = useState<string | null>(null);
+  const [hasMomentReviewToday, setHasMomentReviewToday] = useState<boolean | null>(null);
   const draftPromiseRef = useRef<Promise<CheckinId | null> | null>(null);
   const trackedToolOpenRef = useRef<string | null>(null);
   const checkinExcludeBucketKey = useMemo(
@@ -462,6 +494,7 @@ export default function ToolClient({ tool }: { tool: Tool }) {
         tool_id: tool.id,
         did_complete: false,
         source: checkinContext.source,
+        pressure_direction: checkinContext.pressureDirection,
       });
 
       if (error) return null;
@@ -500,6 +533,7 @@ export default function ToolClient({ tool }: { tool: Tool }) {
             tool_id: tool.id,
             did_complete: false,
             source: checkinContext.source,
+            pressure_direction: checkinContext.pressureDirection,
           });
 
           if (error) return null;
@@ -554,6 +588,41 @@ export default function ToolClient({ tool }: { tool: Tool }) {
       cancelled = true;
     };
   }, [checkinContext, ensureCheckinDraft, tool.id]);
+
+  // Surface Moment Review prompt only when the user is in a hard state and
+  // hasn't already logged a moment review today.
+  useEffect(() => {
+    if (!checkinContext) return;
+    if (!isHardState(checkinContext.state)) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const supabase = getSupabase();
+        const { data: authData } = await supabase.auth.getUser();
+        if (cancelled || !authData.user) return;
+        const start = new Date();
+        start.setHours(0, 0, 0, 0);
+        const { data, error } = await supabase
+          .from("user_moment_reviews")
+          .select("id")
+          .eq("user_id", authData.user.id)
+          .gte("created_at", start.toISOString())
+          .limit(1);
+        if (cancelled) return;
+        if (error) {
+          // Don't gate the prompt on a query failure — show it conservatively.
+          setHasMomentReviewToday(false);
+          return;
+        }
+        setHasMomentReviewToday((data?.length ?? 0) > 0);
+      } catch {
+        if (!cancelled) setHasMomentReviewToday(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [checkinContext]);
 
   async function syncCheckinFeedback(userId: string, nextHelpfulScore: HelpfulScore, nextShift: ShiftValue) {
     const nextCheckinId = await ensureCheckinDraft(userId);
@@ -692,6 +761,7 @@ export default function ToolClient({ tool }: { tool: Tool }) {
       attachmentStyle: checkinContext.attachmentStyle,
       preferredPackIds: checkinContext.preferredPackIds,
       excludeToolIds: nextExcludeIds,
+      pressureDirection: checkinContext.pressureDirection,
     });
 
     setExcludeIds(nextExcludeIds);
@@ -805,6 +875,53 @@ export default function ToolClient({ tool }: { tool: Tool }) {
             {alternateStatus ? <div style={statusTextStyle}>{alternateStatus}</div> : null}
           </div>
         </motion.section>
+
+        {checkinContext && isHardState(checkinContext.state) && hasMomentReviewToday === false ? (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            style={{
+              marginTop: 16,
+              padding: "16px 18px",
+              borderRadius: 16,
+              background: "rgba(18,18,22,0.6)",
+              border: "1px solid rgba(255,255,255,0.06)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+              flexWrap: "wrap",
+            }}
+          >
+            <div style={{ display: "grid", gap: 4, minWidth: 0, flex: "1 1 200px" }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(244,244,245,0.78)" }}>
+                Something hard happened today?
+              </div>
+              <div style={{ fontSize: 12, color: "rgba(161,161,170,0.55)", lineHeight: 1.5 }}>
+                Capture the moment while it is fresh.
+              </div>
+            </div>
+            <Link
+              href="/app/eq/moment"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                padding: "9px 14px",
+                borderRadius: 10,
+                background: "rgba(194,122,92,0.12)",
+                border: "1px solid rgba(194,122,92,0.22)",
+                color: "rgba(194,122,92,0.92)",
+                fontSize: 12,
+                fontWeight: 600,
+                textDecoration: "none",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Add a Moment Review →
+            </Link>
+          </motion.div>
+        ) : null}
 
         <AnimatePresence initial={false}>
           {showFeedback ? (

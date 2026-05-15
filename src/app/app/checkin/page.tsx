@@ -16,7 +16,7 @@ import {
 import { getRoomToneLabel, getRoomToneOptions, isRoomToneForSituation, type RoomTone } from "@/lib/roomTone";
 import { getNeedLabel, getNeedSubtitle } from "@/lib/supportLabels";
 import { getSupabase } from "@/lib/supabase";
-import type { AttachmentStyle, DriftNeed, DriftSituation, DriftState } from "@/lib/toolLibrary";
+import type { AttachmentStyle, DriftNeed, DriftSituation, DriftState, PressureDirection } from "@/lib/toolLibrary";
 
 type CheckinMode = "quick" | "standard";
 type LastCtx = ToolContext;
@@ -54,6 +54,13 @@ const NEEDS: { id: DriftNeed; label: string; sub: string }[] = [
   { id: "wind_down", label: getNeedLabel("wind_down"), sub: getNeedSubtitle("wind_down") },
   { id: "be_here", label: getNeedLabel("be_here"), sub: getNeedSubtitle("be_here") },
   { id: "come_back", label: getNeedLabel("come_back"), sub: getNeedSubtitle("come_back") },
+];
+
+const PRESSURE_DIRECTIONS: { id: PressureDirection; label: string; sub: string }[] = [
+  { id: "work_to_home", label: "Work into home", sub: "The day is following you" },
+  { id: "home_to_work", label: "Home into work", sub: "Home tension is in your head" },
+  { id: "both", label: "Both directions", sub: "Pressure is moving both ways" },
+  { id: "none", label: "Not today", sub: "Pressure is staying in its lane" },
 ];
 
 const STATE_ATMOSPHERE: Record<DriftState, string> = {
@@ -288,6 +295,7 @@ export default function CheckinPage() {
   const [situationVal, setSituationVal] = useState<DriftSituation>(initialPreferences?.situation ?? "alone");
   const [roomToneVal, setRoomToneVal] = useState<RoomTone | null>(null);
   const [needVal, setNeedVal] = useState<DriftNeed>(initialPreferences?.need ?? "wind_down");
+  const [pressureDirectionVal, setPressureDirectionVal] = useState<PressureDirection | null>(null);
   const [attachmentStyle, setAttachmentStyle] = useState<AttachmentStyle>(readAttachmentStyle());
   const [preferredPackIds, setPreferredPackIds] = useState<string[]>(readPreferredPackIds);
   const [lastState, setLastState] = useState<DriftState | null>(readLastState());
@@ -371,6 +379,9 @@ export default function CheckinPage() {
   }
 
   function routeToTool(nextCtx: LastCtx, mode: CheckinMode, nextExcludeToolIds: string[]) {
+    // Quick mode never asks for pressure direction; standard mode uses the value
+    // selected in the new step (or null if the user skipped).
+    const directionForRoute = mode === "quick" ? null : pressureDirectionVal;
     const recommendation = buildQuickRecommendation({
       attachmentStyle,
       defaults: {
@@ -383,6 +394,7 @@ export default function CheckinPage() {
       from: "checkin",
       mode,
       preferredPackIds,
+      pressureDirection: directionForRoute,
       state: nextCtx.state,
     });
     persistLastStateAndCtx(nextCtx);
@@ -585,6 +597,59 @@ export default function CheckinPage() {
                         </motion.button>
                       ))}
                     </div>
+                  </div>
+                </div>
+
+                <div className="checkin-glass" style={{ position: "relative", padding: 18 }}>
+                  <div className="top-highlight" />
+                  <div style={{ display: "grid", gap: 12 }}>
+                    <div style={{ display: "grid", gap: 6 }}>
+                      <span style={panelLabelStyle}>Where is pressure leaking right now?</span>
+                      <p style={{ ...subtextStyle, margin: 0, maxWidth: "none", fontSize: 13 }}>
+                        Optional. Helps pick the right next step.
+                      </p>
+                    </div>
+                    <div className="need-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
+                      {PRESSURE_DIRECTIONS.map((dir) => (
+                        <motion.button
+                          key={dir.id}
+                          whileTap={{ scale: 0.97 }}
+                          type="button"
+                          onClick={() =>
+                            setPressureDirectionVal((current) => (current === dir.id ? null : dir.id))
+                          }
+                          style={gridChoiceStyle(dir.id === pressureDirectionVal)}
+                        >
+                          <div style={{ color: dir.id === pressureDirectionVal ? "var(--accent)" : "var(--text)", fontSize: 14, fontWeight: 800 }}>
+                            {dir.label}
+                          </div>
+                          <div style={{ color: "var(--muted)", fontSize: 11, marginTop: 4, lineHeight: 1.45 }}>
+                            {dir.sub}
+                          </div>
+                        </motion.button>
+                      ))}
+                    </div>
+                    {pressureDirectionVal !== null ? (
+                      <button
+                        type="button"
+                        onClick={() => setPressureDirectionVal(null)}
+                        style={{
+                          alignSelf: "flex-start",
+                          background: "none",
+                          border: "none",
+                          padding: 0,
+                          cursor: "pointer",
+                          color: "rgba(161,161,170,0.55)",
+                          fontSize: 12,
+                          fontWeight: 500,
+                          letterSpacing: "-0.01em",
+                          textDecoration: "underline",
+                          textUnderlineOffset: 3,
+                        }}
+                      >
+                        Skip this step
+                      </button>
+                    ) : null}
                   </div>
                 </div>
 

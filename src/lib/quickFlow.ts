@@ -1,7 +1,7 @@
 import { selectTool } from "@/lib/selectTool";
 import { type RoomTone } from "@/lib/roomTone";
 import { getNeedLabel } from "@/lib/supportLabels";
-import type { AttachmentStyle, DriftNeed, DriftSituation, DriftState } from "@/lib/toolLibrary";
+import type { AttachmentStyle, DriftNeed, DriftSituation, DriftState, PressureDirection } from "@/lib/toolLibrary";
 
 export type StoredProfileDefaults = {
   default_need?: DriftNeed;
@@ -118,6 +118,7 @@ export function buildRecommendedToolHref(
     from: "checkin" | "home";
     mode?: "quick" | "standard";
     preferredPackIds?: string[];
+    pressureDirection?: PressureDirection | null;
   },
 ) {
   const params = new URLSearchParams({
@@ -134,6 +135,9 @@ export function buildRecommendedToolHref(
   if ((options.preferredPackIds?.length ?? 0) > 0) {
     params.set("preferredPackIds", options.preferredPackIds!.join(","));
   }
+  if (options.pressureDirection) {
+    params.set("pressureDirection", options.pressureDirection);
+  }
 
   return `/app/tool/${toolId}?${params.toString()}`;
 }
@@ -145,6 +149,7 @@ export function buildQuickRecommendation(options: {
   from: "checkin" | "home";
   mode?: "quick" | "standard";
   preferredPackIds?: string[];
+  pressureDirection?: PressureDirection | null;
   state: DriftState;
 }): QuickRecommendation {
   const ctx = buildToolContext(options.state, options.defaults);
@@ -154,6 +159,7 @@ export function buildQuickRecommendation(options: {
     mode: options.mode,
     need: ctx.need,
     preferredPackIds: options.preferredPackIds,
+    pressureDirection: options.pressureDirection ?? null,
     roomTone: ctx.roomTone,
     situation: ctx.situation,
     state: ctx.state,
@@ -170,6 +176,7 @@ export function buildQuickRecommendation(options: {
       from: options.from,
       mode: options.mode,
       preferredPackIds: options.preferredPackIds,
+      pressureDirection: options.pressureDirection ?? null,
     }),
     primary,
     selectorDebug: selection.debug ?? null,

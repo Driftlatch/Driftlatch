@@ -5,6 +5,7 @@ import {
   DriftState,
   EnergyDemand,
   LIBRARY,
+  PressureDirection,
   SocialDemand,
   Tool,
   ToolSituation,
@@ -24,7 +25,105 @@ export type SelectInput = {
   // optional: used to avoid repeating the same exact tool when user taps "Another option"
   excludeToolIds?: string[];
   weakestEQDomain?: EQDomain | null;
+  pressureDirection?: PressureDirection | null;
 };
+
+// ─── Pressure direction heuristic ────────────────────────────────────────────
+// Tools are not explicitly tagged for direction. We infer a per-tool "virtual
+// tag" at runtime from pack identity + keyword scan over the tool's do/why.
+// Cheap, debuggable, overridable later by adding explicit tags.
+
+type DirectionTag = "transition_home" | "work_decompression" | "work_focus" | "home_to_work_reset" | "maintenance";
+
+const DIRECTION_PACK_PRIORS: Record<string, DirectionTag[]> = {
+  // wind down packs lean transition_home
+  wind_down_pack: ["transition_home", "work_decompression"],
+  // settling overthinking is decompression-flavored
+  settle_the_spiral_pack: ["work_decompression"],
+  // clear head packs lean home_to_work_reset (open the day, find the next step)
+  clear_head_pack: ["home_to_work_reset", "work_focus"],
+  // be present + repair + stay close + space all serve home arrivals
+  be_here_pack: ["transition_home"],
+  come_back_pack: ["transition_home"],
+  warm_pack: ["transition_home"],
+  space_not_distance_pack: ["transition_home"],
+  // sharp + expansive are about using a good window — work-focus flavored
+  sharp_pack: ["work_focus"],
+  expansive_pack: ["work_focus"],
+  // maintain_light is the explicit maintenance pack
+  maintain_light_pack: ["maintenance"],
+};
+
+const TRANSITION_HOME_KEYWORDS = [
+  "evening",
+  "arrive home",
+  "arriving home",
+  "close the laptop",
+  "after work",
+  "after the day",
+  "transition",
+  "wind down",
+  "before bed",
+  "tonight",
+];
+
+const HOME_TO_WORK_KEYWORDS = [
+  "first 10 minutes",
+  "before standup",
+  "open the day",
+  "tomorrow's first",
+  "first step",
+  "morning",
+  "before the call",
+  "before you start",
+];
+
+const MAINTENANCE_KEYWORDS = [
+  "protect",
+  "preserve",
+  "stay steady",
+  "stay close",
+  "keep the",
+  "baseline",
+];
+
+function getDirectionTags(tool: Tool): Set<DirectionTag> {
+  const tags = new Set<DirectionTag>(DIRECTION_PACK_PRIORS[tool.pack_id] ?? []);
+  const hay = `${tool.do} ${tool.why}`.toLowerCase();
+  if (TRANSITION_HOME_KEYWORDS.some((k) => hay.includes(k))) {
+    tags.add("transition_home");
+    tags.add("work_decompression");
+  }
+  if (HOME_TO_WORK_KEYWORDS.some((k) => hay.includes(k))) {
+    tags.add("home_to_work_reset");
+    tags.add("work_focus");
+  }
+  if (MAINTENANCE_KEYWORDS.some((k) => hay.includes(k))) {
+    tags.add("maintenance");
+  }
+  return tags;
+}
+
+function directionScoreFor(tool: Tool, direction: PressureDirection | null | undefined): number {
+  if (!direction) return 0;
+  const tags = getDirectionTags(tool);
+  if (direction === "work_to_home") {
+    return tags.has("transition_home") || tags.has("work_decompression") ? 3 : 0;
+  }
+  if (direction === "home_to_work") {
+    return tags.has("home_to_work_reset") || tags.has("work_focus") ? 3 : 0;
+  }
+  if (direction === "both") {
+    const matchesHome = tags.has("transition_home") || tags.has("work_decompression");
+    const matchesWork = tags.has("home_to_work_reset") || tags.has("work_focus");
+    return matchesHome || matchesWork ? 2 : 0;
+  }
+  if (direction === "none") {
+    // surface maintenance / general regulation instead
+    return tags.has("maintenance") ? 3 : 0;
+  }
+  return 0;
+}
 
 export type SelectOutput = {
   primary: Tool;
@@ -857,6 +956,9 @@ function scoreTool(
   applyScore(demandWeight.score, "demand_fit");
   reasons.push(...demandWeight.reasons);
   suppressions.push(...demandWeight.suppressions);
+
+  const directionDelta = directionScoreFor(t, input.pressureDirection ?? null);
+  if (directionDelta !== 0) applyScore(directionDelta, "pressure_direction_fit");
 
   const roomToneWeight = getRoomToneWeight(t, input);
   applyScore(roomToneWeight.score, "room_tone_fit");
