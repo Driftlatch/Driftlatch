@@ -50,7 +50,7 @@ const QUESTIONS: Question[] = [
   {
     id: 1,
     domain: "work",
-    text: "When I close the laptop, my mind keeps working.",
+    text: "When I close the laptop, my mind still keeps working in the background.",
   },
   {
     id: 2,
@@ -109,7 +109,7 @@ const QUESTIONS: Question[] = [
   {
     id: 12,
     domain: "home",
-    text: "On hard weeks, dinner conversations turn into logistics.",
+    text: "On hard weeks, dinner stops feeling like connection and starts feeling like coordination.",
   },
   {
     id: 13,
@@ -119,12 +119,12 @@ const QUESTIONS: Question[] = [
   {
     id: 14,
     domain: "home",
-    text: "Work gets my best. The people I'm doing it all for get what's left.",
+    text: "Work gets my best energy and time. The people I'm doing it all for get what's left.",
   },
   {
     id: 15,
     domain: "home",
-    text: "I check my phone when no one is looking, even when I do not want to.",
+    text: "I check my phone when no one is looking at home, even when I do not want to.",
   },
 
   // D) Conflict Pattern & Connection Style (16–20)
