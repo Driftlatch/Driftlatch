@@ -39,7 +39,14 @@ import {
   type WeeklyFeedbackRow,
   type WeeklyRecentRow,
 } from "@/lib/weeklyReflection";
-import type { AttachmentStyle, DriftNeed, DriftState } from "@/lib/toolLibrary";
+import type { AttachmentStyle, DriftNeed, DriftState, PressureDirection } from "@/lib/toolLibrary";
+
+const HOME_PRESSURE_DIRECTIONS: { id: PressureDirection; label: string }[] = [
+  { id: "work_to_home", label: "Work → home" },
+  { id: "home_to_work", label: "Home → work" },
+  { id: "both", label: "Both" },
+  { id: "none", label: "Not today" },
+];
 import { buildUserMomentContext, generateHomeGreeting, type UserMomentContext } from "@/lib/userContext";
 import LogoAnimation from "@/components/LogoAnimation";
 
@@ -665,6 +672,7 @@ export default function Page() {
   });
   const [lastState, setLastState] = useState<DriftState | null>(null);
   const [selectedState, setSelectedState] = useState<DriftState | null>(null);
+  const [pressureDirectionPicked, setPressureDirectionPicked] = useState<PressureDirection | "skipped" | null>(null);
   const [last14Checkins, setLast14Checkins] = useState<CheckinRow[]>([]);
   const [last7Checkins, setLast7Checkins] = useState<CheckinRow[]>([]);
   const [weeklyCheckins, setWeeklyCheckins] = useState<WeeklyCheckinRow[]>([]);
@@ -1038,6 +1046,7 @@ export default function Page() {
       applyRouteRepeatAvoidance?: boolean;
       extraExcludeToolIds?: string[];
       sessionExcludeToolIds?: string[];
+      pressureDirection?: PressureDirection | null;
     },
   ) => {
     const contextKey = buildToolContextKey({
@@ -1056,6 +1065,7 @@ export default function Page() {
       from: "home",
       mode: "quick",
       preferredPackIds: primaryPack ? [primaryPack] : [],
+      pressureDirection: options?.pressureDirection ?? null,
       state,
     });
     const recentShownToolsForRoute =
@@ -1073,6 +1083,7 @@ export default function Page() {
             from: "home",
             mode: "quick",
             preferredPackIds: primaryPack ? [primaryPack] : [],
+            pressureDirection: options?.pressureDirection ?? null,
             state,
           })
         : baseRecommendation;
@@ -1120,12 +1131,20 @@ export default function Page() {
       setQuickRecommendation(null);
       return;
     }
+    // Quick flow now waits for the user to pick a pressure direction (or skip).
+    // Recommendation only computes once that engagement happens.
+    if (pressureDirectionPicked === null) {
+      setQuickRecommendation(null);
+      return;
+    }
+    const directionForRec = pressureDirectionPicked === "skipped" ? null : pressureDirectionPicked;
     const nextRecommendation = getHomeRecommendation(selectedState, {
       applyRouteRepeatAvoidance: true,
       sessionExcludeToolIds: [],
+      pressureDirection: directionForRec,
     });
     setQuickRecommendation(nextRecommendation);
-  }, [activeRouteKey, getHomeRecommendation, selectedState]);
+  }, [activeRouteKey, getHomeRecommendation, pressureDirectionPicked, selectedState]);
 
   const ensureDifferentRecommendation = useCallback((recommendation: QuickRecommendation, currentToolId: string) => {
     if (recommendation.primary.id !== currentToolId) return recommendation;
@@ -1234,6 +1253,9 @@ export default function Page() {
 
   const inlineRecommendation = useMemo(() => {
     if (!selectedState || !isHardState(selectedState) || !selectedTime) return null;
+    // Gate: don't compute until the user has picked a pressure direction (or skipped).
+    if (pressureDirectionPicked === null) return null;
+    const directionForSelect = pressureDirectionPicked === "skipped" ? null : pressureDirectionPicked;
     return selectTool({
       state: selectedState,
       need: savedDefaults.default_need ?? "regain_clarity",
@@ -1244,8 +1266,9 @@ export default function Page() {
       mode: "quick",
       excludeToolIds: inlineExcludedIds,
       weakestEQDomain: momentContext?.weakestDomainUnderPressure ?? null,
+      pressureDirection: directionForSelect,
     });
-  }, [selectedState, selectedTime, inlineExcludedIds, savedDefaults.default_need, attachmentStyle, primaryPack, momentContext]);
+  }, [selectedState, selectedTime, inlineExcludedIds, savedDefaults.default_need, attachmentStyle, primaryPack, momentContext, pressureDirectionPicked]);
 
   useEffect(() => {
     if (process.env.NODE_ENV === "production") return;
@@ -1324,10 +1347,11 @@ export default function Page() {
   }
 
   function handleQuickStateTap(nextState: DriftState) {
-    const recommendation = getHomeRecommendation(nextState, { sessionExcludeToolIds: [] });
     setSelectedState(nextState);
     setExcludedToolIds([]);
-    setQuickRecommendation(recommendation);
+    // Reset direction every time state changes — fresh tap, fresh question.
+    setPressureDirectionPicked(null);
+    setQuickRecommendation(null);
     setLastState(nextState);
     setSelectedTime(null);
     setInlineExcludedIds([]);
@@ -1343,9 +1367,13 @@ export default function Page() {
   function handleAnotherOption() {
     if (!quickRecommendation || !selectedState) return;
     const nextExcludedToolIds = [...new Set([...excludedToolIds, quickRecommendation.primary.id])];
+    const directionForRec = pressureDirectionPicked && pressureDirectionPicked !== "skipped"
+      ? pressureDirectionPicked
+      : null;
     const selectorRecommendation = getHomeRecommendation(selectedState, {
       applyRouteRepeatAvoidance: false,
       sessionExcludeToolIds: nextExcludedToolIds,
+      pressureDirection: directionForRec,
     });
     const reshuffledRecommendation = ensureDifferentRecommendation(
       selectorRecommendation,
@@ -1373,10 +1401,13 @@ export default function Page() {
   }
 
   async function handleInlineOpen(toolId: string) {
+    const directionForInsert = pressureDirectionPicked && pressureDirectionPicked !== "skipped"
+      ? pressureDirectionPicked
+      : null;
     try {
       if (profileIdentity?.userId && selectedState && selectedTime) {
         const supabase = getSupabase();
-        await supabase.from("user_checkins").insert({
+        const baseRow = {
           user_id: profileIdentity.userId,
           state: selectedState,
           tool_id: toolId,
@@ -1386,12 +1417,29 @@ export default function Page() {
           need: null,
           situation: null,
           room_tone: null,
+        };
+        const insertResult = await supabase.from("user_checkins").insert({
+          ...baseRow,
+          pressure_direction: directionForInsert,
         });
+        const directionMissing =
+          insertResult.error?.message?.toLowerCase().includes("pressure_direction") ||
+          insertResult.error?.details?.toLowerCase().includes("pressure_direction");
+        if (insertResult.error && directionMissing) {
+          // Fallback: schema predates the column.
+          await supabase.from("user_checkins").insert(baseRow);
+        }
       }
     } catch {
       // ignore DB errors
     }
-    router.push(`/app/tool/${toolId}?from=home&state=${selectedState}&time=${selectedTime}`);
+    const params = new URLSearchParams({
+      from: "home",
+      state: String(selectedState),
+      time: String(selectedTime),
+    });
+    if (directionForInsert) params.set("pressureDirection", directionForInsert);
+    router.push(`/app/tool/${toolId}?${params.toString()}`);
   }
 
   const heroHref = quickRecommendation?.href ?? "/app/checkin";
@@ -1681,6 +1729,83 @@ export default function Page() {
           )}
         </AnimatePresence>
 
+        {/* ── Pressure direction picker (occupies the tool slot until picked/skipped) ── */}
+        {selectedState
+          && (!isHardState(selectedState) || selectedTime !== null)
+          && pressureDirectionPicked === null ? (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.32, ease: EASE }}
+            style={{
+              marginTop: 16,
+              padding: "14px 16px",
+              borderRadius: 16,
+              background: "rgba(18,18,22,0.6)",
+              border: "1px solid rgba(255,255,255,0.06)",
+              display: "grid",
+              gap: 12,
+            }}
+          >
+            <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(244,244,245,0.78)", letterSpacing: "-0.01em" }}>
+              Where is pressure leaking right now?
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 8,
+              }}
+            >
+              {HOME_PRESSURE_DIRECTIONS.map((dir) => (
+                <motion.button
+                  key={dir.id}
+                  type="button"
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setPressureDirectionPicked(dir.id)}
+                  style={{
+                    flex: "1 1 calc(50% - 4px)",
+                    minHeight: 40,
+                    padding: "10px 16px",
+                    borderRadius: 12,
+                    fontSize: 13,
+                    fontWeight: 600,
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    background: "rgba(255,255,255,0.04)",
+                    color: "rgba(244,244,245,0.85)",
+                    cursor: "pointer",
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  {dir.label}
+                </motion.button>
+              ))}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+              <span style={{ fontSize: 11, color: "rgba(161,161,170,0.45)", lineHeight: 1.5 }}>
+                Pick a direction to see your next move.
+              </span>
+              <button
+                type="button"
+                onClick={() => setPressureDirectionPicked("skipped")}
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  cursor: "pointer",
+                  fontSize: 12,
+                  color: "rgba(161,161,170,0.55)",
+                  textDecoration: "underline",
+                  textUnderlineOffset: 3,
+                  fontWeight: 500,
+                }}
+              >
+                Skip
+              </button>
+            </div>
+          </motion.div>
+        ) : null}
+
         {/* ── Inline recommendation ── */}
         <AnimatePresence>
           {inlineRecommendation && (
@@ -1691,39 +1816,160 @@ export default function Page() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.35, ease: EASE }}
             >
-              <div style={{ background: "rgba(18,18,22,0.9)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 18, padding: "20px 18px", marginTop: 12, position: "relative", overflow: "hidden" }}>
-                <div className="home-top-highlight" />
-                <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(161,161,170,0.35)", marginBottom: 8 }}>
+              <div
+                style={{
+                  background: "rgba(18,18,22,0.6)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                  borderRadius: 20,
+                  padding: "28px 24px",
+                  marginTop: 12,
+                  position: "relative",
+                  overflow: "hidden",
+                  display: "grid",
+                  gap: 14,
+                }}
+              >
+                {/* Top edge tint — matches hero's state-based color */}
+                <div
+                  aria-hidden
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 16,
+                    right: 16,
+                    height: 1,
+                    background: isClearLight
+                      ? "linear-gradient(90deg, transparent, rgba(120,200,150,0.18), transparent)"
+                      : "linear-gradient(90deg, transparent, rgba(194,122,92,0.20), transparent)",
+                    pointerEvents: "none",
+                  }}
+                />
+
+                {/* Tag pill */}
+                <span
+                  style={{
+                    alignSelf: "flex-start",
+                    display: "inline-flex",
+                    padding: "6px 14px",
+                    borderRadius: 999,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    letterSpacing: "0.01em",
+                    border: isClearLight ? "1px solid rgba(120,200,150,0.28)" : "1px solid rgba(194,122,92,0.28)",
+                    background: isClearLight ? "rgba(120,200,150,0.10)" : "rgba(194,122,92,0.10)",
+                    color: isClearLight ? "rgba(160,220,180,0.92)" : "rgba(214,154,124,0.92)",
+                  }}
+                >
                   {getPackName(inlineRecommendation.primary.pack_id)}
-                </div>
-                <div style={{ fontFamily: "var(--font-serif)", fontSize: "1.15rem", fontWeight: 700, letterSpacing: "-0.025em", color: "rgba(244,244,245,0.92)", marginBottom: 6 }}>
+                </span>
+
+                {/* Title */}
+                <div
+                  style={{
+                    fontFamily: "var(--font-serif)",
+                    fontSize: "clamp(1.4rem, 3.4vw, 1.8rem)",
+                    fontWeight: 700,
+                    letterSpacing: "-0.03em",
+                    lineHeight: 1.1,
+                    color: "rgba(244,244,245,0.95)",
+                  }}
+                >
                   {inlineRecommendation.primary.title}
                 </div>
-                <div style={{ fontSize: 13, color: "rgba(161,161,170,0.6)", lineHeight: 1.55, marginBottom: 18 }}>
+
+                {/* Description */}
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: 14,
+                    lineHeight: 1.6,
+                    color: "rgba(161,161,170,0.85)",
+                  }}
+                >
                   {firstSentence(inlineRecommendation.primary.do)}
-                </div>
-                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                  <button
+                </p>
+
+                {/* Primary Open button — full width, state-based color */}
+                <motion.button
+                  type="button"
+                  whileTap={{ scale: 0.985 }}
+                  whileHover={{ scale: 1.008 }}
+                  onClick={() => handleInlineOpen(inlineRecommendation.primary.id)}
+                  style={{
+                    width: "100%",
+                    minHeight: 56,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 8,
+                    borderRadius: 14,
+                    border: `1px solid ${isClearLight ? "rgba(100,170,120,0.32)" : "rgba(194,122,92,0.30)"}`,
+                    background: isClearLight
+                      ? "linear-gradient(180deg, rgba(80,155,105,0.92) 0%, rgba(62,135,88,0.92) 100%)"
+                      : "linear-gradient(180deg, rgba(194,122,92,0.96) 0%, rgba(173,103,77,0.96) 100%)",
+                    boxShadow: isClearLight
+                      ? "0 14px 36px rgba(80,155,105,0.26), inset 0 1px 0 rgba(255,255,255,0.14)"
+                      : "0 14px 36px rgba(194,122,92,0.26), inset 0 1px 0 rgba(255,255,255,0.14)",
+                    color: "#fff",
+                    fontSize: 16,
+                    fontWeight: 700,
+                    letterSpacing: "-0.01em",
+                    cursor: "pointer",
+                    marginTop: 6,
+                  }}
+                >
+                  Open
+                  <span style={{ opacity: 0.72, fontSize: 16 }}>→</span>
+                </motion.button>
+
+                {/* Secondary actions — side by side */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
+                  <motion.button
                     type="button"
-                    onClick={() => handleInlineOpen(inlineRecommendation.primary.id)}
-                    style={{ background: "var(--accent)", color: "white", padding: "10px 22px", borderRadius: 8, fontSize: 14, fontWeight: 600, border: "none", cursor: "pointer", minHeight: 44 }}
-                  >
-                    Open
-                  </button>
-                  <button
-                    type="button"
+                    whileTap={{ scale: 0.97 }}
                     onClick={() => setInlineExcludedIds((prev) => [...prev, inlineRecommendation.primary.id])}
-                    style={{ border: "1px solid rgba(255,255,255,0.09)", background: "transparent", padding: "10px 16px", borderRadius: 8, fontSize: 13, cursor: "pointer", color: "rgba(161,161,170,0.5)", minHeight: 44 }}
+                    style={{
+                      minHeight: 46,
+                      borderRadius: 14,
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      background: "rgba(255,255,255,0.04)",
+                      color: "rgba(244,244,245,0.85)",
+                      fontSize: 14,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
                   >
                     Another option
-                  </button>
-                  <button
+                  </motion.button>
+                  <motion.button
                     type="button"
-                    onClick={() => router.push(`/app/checkin?state=${selectedState}&from=home`)}
-                    style={{ fontSize: 12, color: "rgba(161,161,170,0.3)", marginLeft: "auto", cursor: "pointer", textDecoration: "none", alignSelf: "center", background: "none", border: "none" }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => void handlePinMoment()}
+                    disabled={pinning || !quickRecommendation}
+                    style={{
+                      minHeight: 46,
+                      borderRadius: 14,
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      background: "rgba(255,255,255,0.04)",
+                      color: "rgba(244,244,245,0.85)",
+                      fontSize: 14,
+                      fontWeight: 600,
+                      cursor: quickRecommendation ? "pointer" : "not-allowed",
+                      opacity: quickRecommendation ? 1 : 0.5,
+                    }}
                   >
-                    More options
-                  </button>
+                    <AnimatePresence mode="wait">
+                      <motion.span
+                        key={justPinned ? "pinned" : pinnedMoment ? "unpin" : "pin"}
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        transition={{ duration: 0.18, ease: EASE }}
+                      >
+                        {justPinned ? "Pinned ✓" : pinnedMoment ? "Unpin" : "Pin this moment"}
+                      </motion.span>
+                    </AnimatePresence>
+                  </motion.button>
                 </div>
               </div>
             </motion.div>
