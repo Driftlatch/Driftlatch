@@ -1370,6 +1370,131 @@ export default function Home() {
       {/* ── CONTENT SECTIONS ─────────────────────────────────────────────── */}
       <div className="container">
 
+        {/* ── 02 WHAT CHANGES WHEN THIS WORKS ──────────────────────────── */}
+        <section className="section" id="what-changes" style={{ scrollMarginTop: "96px" }}>
+          <FadeIn>
+            <div style={{ display: "grid", gap: 14, textAlign: "center", marginBottom: 36 }}>
+              <div
+                style={{
+                  color: "rgba(194,122,92,0.82)",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                }}
+              >
+                What changes
+              </div>
+              <h2
+                style={{
+                  margin: "0 auto",
+                  maxWidth: "20ch",
+                  fontSize: "clamp(2rem, 4.4vw, 3rem)",
+                  fontWeight: 700,
+                  lineHeight: 1.06,
+                  letterSpacing: "-0.03em",
+                  color: "var(--text)",
+                  textWrap: "balance",
+                }}
+              >
+                What changes when this works
+              </h2>
+              <p
+                style={{
+                  margin: "0 auto",
+                  maxWidth: "32ch",
+                  color: "rgba(161,161,170,0.75)",
+                  fontSize: 15,
+                  lineHeight: 1.55,
+                }}
+              >
+                Not a productivity gain. A return of presence.
+              </p>
+            </div>
+          </FadeIn>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: 24,
+            }}
+          >
+            {[
+              {
+                title: "Your mornings open clear",
+                body:
+                  "Start the day without yesterday's tension running underneath. Decisions land sharper. The first hour stops being recovery from the last one.",
+              },
+              {
+                title: "Your evenings come back",
+                body:
+                  "Close the laptop and actually arrive home. The 4pm Slack thread stops running in the background of dinner. Be present where you are.",
+              },
+              {
+                title: "Your weeks feel lighter",
+                body:
+                  "Pressure stops compounding. Sleep stops running on inbox replay. The people closest to you feel the difference before you do.",
+              },
+            ].map((card, index) => (
+              <FadeIn key={card.title} delay={0.08 + index * 0.08}>
+                <div
+                  style={{
+                    position: "relative",
+                    overflow: "hidden",
+                    padding: "32px 28px",
+                    borderRadius: 20,
+                    background: "rgba(18,18,22,0.6)",
+                    border: "1px solid rgba(255,255,255,0.06)",
+                    height: "100%",
+                    display: "grid",
+                    gap: 14,
+                    alignContent: "start",
+                  }}
+                >
+                  {/* Clay-tinted top accent */}
+                  <div
+                    aria-hidden
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 20,
+                      right: 20,
+                      height: 1,
+                      background:
+                        "linear-gradient(90deg, transparent, rgba(194,122,92,0.34), transparent)",
+                      pointerEvents: "none",
+                    }}
+                  />
+                  <h3
+                    style={{
+                      margin: 0,
+                      fontFamily: "Zodiak, Georgia, serif",
+                      fontSize: "clamp(1.45rem, 2.4vw, 1.65rem)",
+                      fontWeight: 700,
+                      letterSpacing: "-0.025em",
+                      lineHeight: 1.15,
+                      color: "rgba(244,244,245,0.95)",
+                    }}
+                  >
+                    {card.title}
+                  </h3>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 16,
+                      lineHeight: 1.62,
+                      color: "rgba(161,161,170,0.85)",
+                    }}
+                  >
+                    {card.body}
+                  </p>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </section>
+
         {/* ── 02 HOW IT WORKS ──────────────────────────────────────────── */}
         <section className="section" id="how-it-works" style={{ scrollMarginTop: "96px" }}>
           <FadeIn>
@@ -3003,6 +3128,323 @@ export default function Home() {
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* ── 06.5 SAMPLE WEEKLY REFLECTION ────────────────────────────── */}
+        <section className="section" id="sample-weekly" style={{ scrollMarginTop: "96px" }}>
+          <FadeIn>
+            <div style={{ display: "grid", gap: 14, textAlign: "center", marginBottom: 32 }}>
+              <div
+                style={{
+                  color: "rgba(194,122,92,0.82)",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                }}
+              >
+                Inside the product
+              </div>
+              <h2
+                style={{
+                  margin: "0 auto",
+                  maxWidth: "22ch",
+                  fontSize: "clamp(2rem, 4.4vw, 3rem)",
+                  fontWeight: 700,
+                  lineHeight: 1.06,
+                  letterSpacing: "-0.03em",
+                  color: "var(--text)",
+                  textWrap: "balance",
+                }}
+              >
+                Here&apos;s what a week of using Driftlatch looks like
+              </h2>
+              <p
+                style={{
+                  margin: "0 auto",
+                  maxWidth: "32ch",
+                  color: "rgba(161,161,170,0.55)",
+                  fontSize: 14,
+                  lineHeight: 1.55,
+                  fontStyle: "italic",
+                }}
+              >
+                Sample data. Your reflection draws from your actual check-ins.
+              </p>
+            </div>
+          </FadeIn>
+
+          <div style={{ maxWidth: 560, margin: "0 auto", display: "grid", gap: 16 }}>
+            {/* Block A — Where pressure landed this week */}
+            <FadeIn delay={0.08}>
+              <div
+                style={{
+                  position: "relative",
+                  overflow: "hidden",
+                  padding: "26px 24px",
+                  borderRadius: 20,
+                  background: "rgba(18,18,22,0.6)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                }}
+              >
+                <div
+                  aria-hidden
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 16,
+                    right: 16,
+                    height: 1,
+                    background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent)",
+                    pointerEvents: "none",
+                  }}
+                />
+                <div style={{ position: "relative", zIndex: 1, display: "grid", gap: 14 }}>
+                  <div style={{ display: "grid", gap: 4 }}>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        letterSpacing: "0.1em",
+                        textTransform: "uppercase",
+                        color: "rgba(194,122,92,0.7)",
+                      }}
+                    >
+                      Weekly
+                    </span>
+                    <div
+                      style={{
+                        fontFamily: "Zodiak, Georgia, serif",
+                        fontSize: "1.25rem",
+                        fontWeight: 700,
+                        letterSpacing: "-0.025em",
+                        color: "rgba(244,244,245,0.95)",
+                      }}
+                    >
+                      Where pressure landed this week
+                    </div>
+                  </div>
+                  <div style={{ display: "grid", gap: 8 }}>
+                    {[
+                      { label: "Work into home", count: 3 },
+                      { label: "Home into work", count: 2 },
+                      { label: "Both directions", count: 1 },
+                      { label: "Not today", count: 1 },
+                      { label: "Days skipped", count: 0 },
+                    ].map((row) => (
+                      <div
+                        key={row.label}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          fontSize: 13,
+                          color: "rgba(244,244,245,0.78)",
+                        }}
+                      >
+                        <span>{row.label}</span>
+                        <span
+                          style={{
+                            fontVariantNumeric: "tabular-nums",
+                            color: row.count > 0 ? "rgba(244,244,245,0.92)" : "rgba(161,161,170,0.4)",
+                          }}
+                        >
+                          {row.count}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 12,
+                      color: "rgba(161,161,170,0.55)",
+                      lineHeight: 1.55,
+                      fontStyle: "italic",
+                    }}
+                  >
+                    Most days this week, pressure leaked work into home.
+                  </p>
+                </div>
+              </div>
+            </FadeIn>
+
+            {/* Block B — States you carried */}
+            <FadeIn delay={0.16}>
+              <div
+                style={{
+                  position: "relative",
+                  overflow: "hidden",
+                  padding: "26px 24px",
+                  borderRadius: 20,
+                  background: "rgba(18,18,22,0.6)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                }}
+              >
+                <div
+                  aria-hidden
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 16,
+                    right: 16,
+                    height: 1,
+                    background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent)",
+                    pointerEvents: "none",
+                  }}
+                />
+                <div style={{ position: "relative", zIndex: 1, display: "grid", gap: 14 }}>
+                  <div style={{ display: "grid", gap: 4 }}>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        letterSpacing: "0.1em",
+                        textTransform: "uppercase",
+                        color: "rgba(194,122,92,0.7)",
+                      }}
+                    >
+                      Weekly
+                    </span>
+                    <div
+                      style={{
+                        fontFamily: "Zodiak, Georgia, serif",
+                        fontSize: "1.25rem",
+                        fontWeight: 700,
+                        letterSpacing: "-0.025em",
+                        color: "rgba(244,244,245,0.95)",
+                      }}
+                    >
+                      States you carried
+                    </div>
+                  </div>
+                  {/* Day-dot strip — Mon → Sun, colored by state */}
+                  <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
+                    {[
+                      { label: "M", color: "#DCAA5A" /* wired */ },
+                      { label: "T", color: "#C27A5C" /* carrying_work */ },
+                      { label: "W", color: "#B66660" /* overloaded */ },
+                      { label: "T", color: "#6EA290" /* drained */ },
+                      { label: "F", color: "#7E9AC6" /* steady */ },
+                      { label: "S", color: "#7E9AC6" /* steady */ },
+                      { label: "S", color: "#78C896" /* clear_light */ },
+                    ].map((day, idx) => (
+                      <div key={`day-${idx}`} style={{ flex: 1, display: "grid", gap: 6, justifyItems: "center" }}>
+                        <div
+                          style={{
+                            width: "100%",
+                            height: 28,
+                            borderRadius: 8,
+                            background: day.color,
+                            opacity: 0.85,
+                            boxShadow: `0 0 16px ${day.color}33`,
+                          }}
+                        />
+                        <span style={{ fontSize: 10, color: "rgba(161,161,170,0.5)", letterSpacing: "0.04em" }}>
+                          {day.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 12,
+                      color: "rgba(161,161,170,0.55)",
+                      lineHeight: 1.55,
+                      fontStyle: "italic",
+                    }}
+                  >
+                    Heavier early in the week, lighter by Friday.
+                  </p>
+                </div>
+              </div>
+            </FadeIn>
+
+            {/* Block C — What seemed to help */}
+            <FadeIn delay={0.24}>
+              <div
+                style={{
+                  position: "relative",
+                  overflow: "hidden",
+                  padding: "26px 24px",
+                  borderRadius: 20,
+                  background: "rgba(18,18,22,0.6)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                }}
+              >
+                <div
+                  aria-hidden
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 16,
+                    right: 16,
+                    height: 1,
+                    background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent)",
+                    pointerEvents: "none",
+                  }}
+                />
+                <div style={{ position: "relative", zIndex: 1, display: "grid", gap: 14 }}>
+                  <div style={{ display: "grid", gap: 4 }}>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        letterSpacing: "0.1em",
+                        textTransform: "uppercase",
+                        color: "rgba(194,122,92,0.7)",
+                      }}
+                    >
+                      Weekly
+                    </span>
+                    <div
+                      style={{
+                        fontFamily: "Zodiak, Georgia, serif",
+                        fontSize: "1.25rem",
+                        fontWeight: 700,
+                        letterSpacing: "-0.025em",
+                        color: "rgba(244,244,245,0.95)",
+                      }}
+                    >
+                      What seemed to help
+                    </div>
+                  </div>
+                  <div style={{ display: "grid", gap: 0 }}>
+                    {[
+                      { title: "Pre-Home Arrive First", uses: 3 },
+                      { title: "Repeat the Good Thing", uses: 2 },
+                    ].map((tool, i) => (
+                      <div
+                        key={tool.title}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          padding: "12px 0",
+                          borderBottom: i === 0 ? "1px solid rgba(255,255,255,0.05)" : "none",
+                          gap: 12,
+                        }}
+                      >
+                        <span style={{ fontSize: 14, fontWeight: 500, color: "rgba(244,244,245,0.85)" }}>
+                          {tool.title}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 12,
+                            color: "rgba(161,161,170,0.55)",
+                            fontVariantNumeric: "tabular-nums",
+                            flexShrink: 0,
+                          }}
+                        >
+                          Used {tool.uses} times
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </FadeIn>
           </div>
         </section>
 
