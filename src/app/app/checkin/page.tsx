@@ -303,6 +303,13 @@ export default function CheckinPage() {
   const activeActionStyle = getStateActionStyle(selectedState);
   const quickDefaults = resolveQuickDefaults(profileDefaults, attachmentStyle);
   const quickDefaultsSummary = formatQuickDefaultsSummary(quickDefaults);
+  // Live summary reflects the form's current selections, not the saved profile defaults.
+  // Used in standard mode where the user is actively adjusting fields.
+  const liveCheckinSummary = formatQuickDefaultsSummary({
+    need: needVal,
+    time: timeVal,
+    situation: situationVal,
+  });
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -575,7 +582,7 @@ export default function CheckinPage() {
                 <div className="checkin-glass" style={{ position: "relative", padding: 18 }}>
                   <div className="top-highlight" />
                   <p style={{ ...subtextStyle, margin: 0, maxWidth: "none" }}>
-                    Adjust this check-in. Right now Driftlatch will start with {quickDefaultsSummary}.
+                    Adjust this check-in. Right now Driftlatch will start with {liveCheckinSummary}.
                   </p>
                 </div>
 
