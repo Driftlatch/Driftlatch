@@ -1,16 +1,45 @@
 "use client";
 
-import { type CSSProperties, useEffect, useState } from "react";
+import { type CSSProperties, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { type EQDomain } from "@/lib/eqQuestions";
 import { supabaseBrowser } from "@/lib/supabaseBrowser";
+import { selectTool } from "@/lib/selectTool";
+import { getPackName, type DriftNeed, type DriftState } from "@/lib/toolLibrary";
 import EQHexagon from "@/components/EQHexagon";
 import {
   clearStoredPublicEQResult,
   writeStoredPublicEQResult,
 } from "@/lib/publicEQ";
+
+// Map each EQ domain to a default state that the matched-support card uses
+// to surface one representative tool for that user's weakest pattern.
+const EQ_DOMAIN_TO_STATE: Record<EQDomain, DriftState> = {
+  pressure_reading: "carrying_work",
+  repair_instinct: "drained",
+  presence_quality: "carrying_work",
+  boundary_intel: "overloaded",
+  recovery_aware: "drained",
+  signal_accuracy: "wired",
+};
+
+// Default need by state. selectTool requires a need; this picks a reasonable
+// one so the surfaced tool makes sense for the implied moment.
+const STATE_TO_NEED: Record<DriftState, DriftNeed> = {
+  clear_light: "be_here",
+  steady: "be_here",
+  carrying_work: "regain_clarity",
+  wired: "wind_down",
+  drained: "wind_down",
+  overloaded: "regain_clarity",
+};
+
+function firstSentence(text: string): string {
+  const match = text.match(/^[^.!?]+[.!?]?/);
+  return match?.[0]?.trim() || text;
+}
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -297,6 +326,23 @@ export default function PressureEQResultPage() {
       setLoading(false);
     }
   }, [isPublicFlow]);
+
+  // Matched support teaser: compute one tool to show as a paid-product preview.
+  // Only meaningful in public flow; the in-app dashboard has its own paths.
+  const matchedSupport = useMemo(() => {
+    if (!result) return null;
+    const state = EQ_DOMAIN_TO_STATE[result.weakestDomain];
+    const need = STATE_TO_NEED[state];
+    const selection = selectTool({
+      state,
+      need,
+      situation: "alone",
+      timeMinutes: 5,
+      mode: "quick",
+      pressureDirection: null,
+    });
+    return selection.primary;
+  }, [result]);
 
   function handleRetake() {
     try {
@@ -718,6 +764,137 @@ export default function PressureEQResultPage() {
             </div>
           </motion.div>
         )}
+
+        {/* Matched support teaser — public flow only */}
+        {isPublicFlow && !isLoggedIn && matchedSupport ? (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.75, ease: EASE }}
+            style={{ marginTop: 36 }}
+          >
+            <div style={{ display: "grid", gap: 4, marginBottom: 14, textAlign: "center" }}>
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: "rgba(194,122,92,0.7)",
+                }}
+              >
+                A first move for you
+              </div>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: 13,
+                  color: "rgba(161,161,170,0.6)",
+                  lineHeight: 1.55,
+                  maxWidth: 420,
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                }}
+              >
+                Based on your weakest domain. The paid product surfaces matches like this for every state you are in.
+              </p>
+            </div>
+
+            <div
+              style={{
+                position: "relative",
+                overflow: "hidden",
+                padding: "28px 24px",
+                borderRadius: 20,
+                background: "rgba(18,18,22,0.6)",
+                border: "1px solid rgba(255,255,255,0.07)",
+                display: "grid",
+                gap: 14,
+              }}
+            >
+              {/* Clay top accent — paid product visual signal */}
+              <div
+                aria-hidden
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 16,
+                  right: 16,
+                  height: 1,
+                  background: "linear-gradient(90deg, transparent, rgba(194,122,92,0.34), transparent)",
+                  pointerEvents: "none",
+                }}
+              />
+
+              <span
+                style={{
+                  alignSelf: "flex-start",
+                  display: "inline-flex",
+                  padding: "6px 14px",
+                  borderRadius: 999,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  letterSpacing: "0.01em",
+                  border: "1px solid rgba(194,122,92,0.28)",
+                  background: "rgba(194,122,92,0.10)",
+                  color: "rgba(214,154,124,0.92)",
+                }}
+              >
+                {getPackName(matchedSupport.pack_id)}
+              </span>
+
+              <div
+                style={{
+                  fontFamily: "var(--font-serif)",
+                  fontSize: "clamp(1.4rem, 3.4vw, 1.8rem)",
+                  fontWeight: 700,
+                  letterSpacing: "-0.03em",
+                  lineHeight: 1.1,
+                  color: "rgba(244,244,245,0.95)",
+                }}
+              >
+                {matchedSupport.title}
+              </div>
+
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: 14,
+                  lineHeight: 1.6,
+                  color: "rgba(161,161,170,0.85)",
+                }}
+              >
+                {firstSentence(matchedSupport.do)}
+              </p>
+
+              <Link
+                href={`/pricing?teasedTool=${matchedSupport.id}`}
+                style={{
+                  width: "100%",
+                  minHeight: 56,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  borderRadius: 14,
+                  border: "1px solid rgba(194,122,92,0.30)",
+                  background: "linear-gradient(180deg, rgba(194,122,92,0.96) 0%, rgba(173,103,77,0.96) 100%)",
+                  boxShadow: "0 14px 36px rgba(194,122,92,0.26), inset 0 1px 0 rgba(255,255,255,0.14)",
+                  color: "#fff",
+                  fontSize: 16,
+                  fontWeight: 700,
+                  letterSpacing: "-0.01em",
+                  cursor: "pointer",
+                  textDecoration: "none",
+                  marginTop: 4,
+                }}
+              >
+                Open
+                <span style={{ opacity: 0.72, fontSize: 16 }}>→</span>
+              </Link>
+            </div>
+          </motion.div>
+        ) : null}
 
         {/* 5. CTA row */}
         <motion.div
