@@ -483,17 +483,19 @@ Append-only log of interactions the user reviewed. Feeds the "Recent reviews" se
 
 ### Check-in Flow (`src/app/app/checkin/page.tsx`)
 
-Steps in order:
+Steps render in this order in standard mode (vertical stack of glass cards; user can edit any field):
+
 1. **State** — user picks one of 6 `DriftState` options
-2. **Room Tone** (conditional) — shown when situation is `partner_nearby`, `kids_around`, or `long_distance`
-3. **Need** — 4 options (Clear Head / Wind Down / Be Present / Repair)
-4. **Time** — 1 / 3 / 5 / 10 minutes
-5. **Situation** — 4 options
-6. **Recommendation** — calls `buildQuickRecommendation()`, shows primary tool
+2. **Pressure direction** (optional, skippable) — `work_to_home` / `home_to_work` / `both` / `none`. Persisted to `user_checkins.pressure_direction` and used by the selector for direction-aware scoring
+3. **Time** — 1 / 3 / 5 / 10 minutes
+4. **Situation** — 4 options (`partner_nearby` / `kids_around` / `alone` / `long_distance`)
+5. **Room tone** (conditional) — **only renders when `situationVal !== "alone"`**. Intentional design, not a bug: `getRoomToneOptions(situation)` returns situation-specific tones, so situation has to be picked first. For `alone`, room tone is N/A and the card is suppressed
+6. **Need** — 4 options (Clear Head / Wind Down / Be Present / Repair)
+7. **Recommendation** — calls `buildQuickRecommendation()`, shows primary tool
 
-After completing, navigates to `/app/tool/[id]?from=checkin&need=...&state=...&situation=...&time=...&roomTone=...&mode=quick`
+After completing, navigates to `/app/tool/[id]?from=checkin&need=...&state=...&situation=...&time=...&roomTone=...&pressureDirection=...&mode=quick` (each query param is omitted when its value is null).
 
-Check-in mode (`driftlatch_checkin_mode`) toggles between `"quick"` (default) and `"standard"`.
+Check-in mode (`driftlatch_checkin_mode`) toggles between `"quick"` (default) and `"standard"`. Quick mode bypasses every step after State — including pressure direction — and sends `pressureDirection: null` to the selector.
 
 ### Weekly Reflection Engine (`src/lib/weeklyReflection.ts`)
 
