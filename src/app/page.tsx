@@ -1422,19 +1422,19 @@ export default function Home() {
           >
             {[
               {
-                title: "Your mornings open clear",
+                title: "Your mornings start clear",
                 body:
-                  "Start the day without yesterday's tension running underneath. Decisions land sharper. The first hour stops being recovery from the last one.",
+                  "Start the day without yesterday's tension running underneath. Decisions come easier. The first hour stops being recovery from the last one.",
               },
               {
                 title: "Your evenings come back",
                 body:
-                  "Close the laptop and actually arrive home. The 4pm Slack thread stops running in the background of dinner. Be present where you are.",
+                  "You're home, and you're actually here. The tense conversation from 4pm stops running in the background of dinner. Conversation gets easier. Your relationships with everyone get more of you back.",
               },
               {
                 title: "Your weeks feel lighter",
                 body:
-                  "Pressure stops compounding. Sleep stops running on inbox replay. The people closest to you feel the difference before you do.",
+                  "You stop dragging one hard day into the next. By Friday, you're not burnt, you're tired in a recoverable way. The weekend stops being damage control.",
               },
             ].map((card, index) => (
               <FadeIn key={card.title} delay={0.08 + index * 0.08}>
