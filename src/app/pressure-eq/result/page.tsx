@@ -681,6 +681,126 @@ export default function PressureEQResultPage() {
           </p>
         </motion.div>
 
+        {/* Matched support teaser — public flow only, sits between Where to start and the Open-your-first-step CTA */}
+        {isPublicFlow && !isLoggedIn && matchedSupport ? (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.7, ease: EASE }}
+            style={{ marginTop: 36 }}
+          >
+            <div style={{ display: "grid", gap: 4, marginBottom: 14, textAlign: "center" }}>
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: "rgba(194,122,92,0.7)",
+                }}
+              >
+                A first move for you
+              </div>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: 13,
+                  color: "rgba(161,161,170,0.6)",
+                  lineHeight: 1.55,
+                  maxWidth: 440,
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                }}
+              >
+                Based on your weakest domain. This is one of 220+ supports the paid product matches to every state you&apos;re in.
+              </p>
+            </div>
+
+            <div
+              style={{
+                position: "relative",
+                overflow: "hidden",
+                padding: "28px 24px",
+                borderRadius: 20,
+                background: "rgba(18,18,22,0.6)",
+                border: "1px solid rgba(255,255,255,0.07)",
+                display: "grid",
+                gap: 14,
+              }}
+            >
+              {/* Clay top accent — paid product visual signal */}
+              <div
+                aria-hidden
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 16,
+                  right: 16,
+                  height: 1,
+                  background: "linear-gradient(90deg, transparent, rgba(194,122,92,0.34), transparent)",
+                  pointerEvents: "none",
+                }}
+              />
+
+              <span
+                style={{
+                  alignSelf: "flex-start",
+                  display: "inline-flex",
+                  padding: "6px 14px",
+                  borderRadius: 999,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  letterSpacing: "0.01em",
+                  border: "1px solid rgba(194,122,92,0.28)",
+                  background: "rgba(194,122,92,0.10)",
+                  color: "rgba(214,154,124,0.92)",
+                }}
+              >
+                {getPackName(matchedSupport.pack_id)}
+              </span>
+
+              <h2
+                style={{
+                  margin: 0,
+                  fontFamily: "var(--font-serif)",
+                  fontSize: "clamp(1.4rem, 3.4vw, 1.8rem)",
+                  fontWeight: 700,
+                  letterSpacing: "-0.03em",
+                  lineHeight: 1.1,
+                  color: "rgba(244,244,245,0.95)",
+                }}
+              >
+                {matchedSupport.title}
+              </h2>
+
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: 14,
+                  lineHeight: 1.6,
+                  color: "rgba(161,161,170,0.85)",
+                }}
+              >
+                {firstSentence(matchedSupport.do)}
+              </p>
+
+              <div
+                style={{
+                  marginTop: 4,
+                  paddingTop: 14,
+                  borderTop: "1px solid rgba(255,255,255,0.06)",
+                  fontSize: 12,
+                  color: "rgba(161,161,170,0.55)",
+                  fontStyle: "italic",
+                  textAlign: "center",
+                }}
+              >
+                Available with full access
+              </div>
+            </div>
+          </motion.div>
+        ) : null}
+
         {/* Share your result — public flow only */}
         {isPublicFlow && !isLoggedIn && (
           <motion.div
@@ -764,137 +884,6 @@ export default function PressureEQResultPage() {
             </div>
           </motion.div>
         )}
-
-        {/* Matched support teaser — public flow only */}
-        {isPublicFlow && !isLoggedIn && matchedSupport ? (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: 0.75, ease: EASE }}
-            style={{ marginTop: 36 }}
-          >
-            <div style={{ display: "grid", gap: 4, marginBottom: 14, textAlign: "center" }}>
-              <div
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  color: "rgba(194,122,92,0.7)",
-                }}
-              >
-                A first move for you
-              </div>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 13,
-                  color: "rgba(161,161,170,0.6)",
-                  lineHeight: 1.55,
-                  maxWidth: 420,
-                  marginLeft: "auto",
-                  marginRight: "auto",
-                }}
-              >
-                Based on your weakest domain. The paid product surfaces matches like this for every state you are in.
-              </p>
-            </div>
-
-            <div
-              style={{
-                position: "relative",
-                overflow: "hidden",
-                padding: "28px 24px",
-                borderRadius: 20,
-                background: "rgba(18,18,22,0.6)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                display: "grid",
-                gap: 14,
-              }}
-            >
-              {/* Clay top accent — paid product visual signal */}
-              <div
-                aria-hidden
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 16,
-                  right: 16,
-                  height: 1,
-                  background: "linear-gradient(90deg, transparent, rgba(194,122,92,0.34), transparent)",
-                  pointerEvents: "none",
-                }}
-              />
-
-              <span
-                style={{
-                  alignSelf: "flex-start",
-                  display: "inline-flex",
-                  padding: "6px 14px",
-                  borderRadius: 999,
-                  fontSize: 12,
-                  fontWeight: 600,
-                  letterSpacing: "0.01em",
-                  border: "1px solid rgba(194,122,92,0.28)",
-                  background: "rgba(194,122,92,0.10)",
-                  color: "rgba(214,154,124,0.92)",
-                }}
-              >
-                {getPackName(matchedSupport.pack_id)}
-              </span>
-
-              <div
-                style={{
-                  fontFamily: "var(--font-serif)",
-                  fontSize: "clamp(1.4rem, 3.4vw, 1.8rem)",
-                  fontWeight: 700,
-                  letterSpacing: "-0.03em",
-                  lineHeight: 1.1,
-                  color: "rgba(244,244,245,0.95)",
-                }}
-              >
-                {matchedSupport.title}
-              </div>
-
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 14,
-                  lineHeight: 1.6,
-                  color: "rgba(161,161,170,0.85)",
-                }}
-              >
-                {firstSentence(matchedSupport.do)}
-              </p>
-
-              <Link
-                href={`/pricing?teasedTool=${matchedSupport.id}`}
-                style={{
-                  width: "100%",
-                  minHeight: 56,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  borderRadius: 14,
-                  border: "1px solid rgba(194,122,92,0.30)",
-                  background: "linear-gradient(180deg, rgba(194,122,92,0.96) 0%, rgba(173,103,77,0.96) 100%)",
-                  boxShadow: "0 14px 36px rgba(194,122,92,0.26), inset 0 1px 0 rgba(255,255,255,0.14)",
-                  color: "#fff",
-                  fontSize: 16,
-                  fontWeight: 700,
-                  letterSpacing: "-0.01em",
-                  cursor: "pointer",
-                  textDecoration: "none",
-                  marginTop: 4,
-                }}
-              >
-                Open
-                <span style={{ opacity: 0.72, fontSize: 16 }}>→</span>
-              </Link>
-            </div>
-          </motion.div>
-        ) : null}
 
         {/* 5. CTA row */}
         <motion.div
