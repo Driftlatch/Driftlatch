@@ -3134,7 +3134,7 @@ export default function Home() {
         {/* ── 06.5 SAMPLE WEEKLY REFLECTION ────────────────────────────── */}
         <section className="section" id="sample-weekly" style={{ scrollMarginTop: "96px" }}>
           <FadeIn>
-            <div style={{ display: "grid", gap: 14, textAlign: "center", marginBottom: 32 }}>
+            <div style={{ display: "grid", gap: 12, textAlign: "center", marginBottom: 22 }}>
               <div
                 style={{
                   color: "rgba(194,122,92,0.82)",
@@ -3149,16 +3149,16 @@ export default function Home() {
               <h2
                 style={{
                   margin: "0 auto",
-                  maxWidth: "22ch",
-                  fontSize: "clamp(2rem, 4.4vw, 3rem)",
+                  maxWidth: "24ch",
+                  fontSize: "clamp(1.5rem, 3.5vw, 2.4rem)",
                   fontWeight: 700,
-                  lineHeight: 1.06,
-                  letterSpacing: "-0.03em",
+                  lineHeight: 1.1,
+                  letterSpacing: "-0.025em",
                   color: "var(--text)",
                   textWrap: "balance",
                 }}
               >
-                Here&apos;s what a week of using Driftlatch looks like
+                Here&apos;s what a week looks like inside Driftlatch
               </h2>
               <p
                 style={{
@@ -3182,7 +3182,7 @@ export default function Home() {
                 style={{
                   position: "relative",
                   overflow: "hidden",
-                  padding: "26px 24px",
+                  padding: "22px 24px",
                   borderRadius: 20,
                   background: "rgba(18,18,22,0.6)",
                   border: "1px solid rgba(255,255,255,0.06)",
@@ -3201,18 +3201,7 @@ export default function Home() {
                   }}
                 />
                 <div style={{ position: "relative", zIndex: 1, display: "grid", gap: 14 }}>
-                  <div style={{ display: "grid", gap: 4 }}>
-                    <span
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 700,
-                        letterSpacing: "0.1em",
-                        textTransform: "uppercase",
-                        color: "rgba(194,122,92,0.7)",
-                      }}
-                    >
-                      Weekly
-                    </span>
+                  <div>
                     <div
                       style={{
                         fontFamily: "Zodiak, Georgia, serif",
@@ -3275,7 +3264,7 @@ export default function Home() {
                 style={{
                   position: "relative",
                   overflow: "hidden",
-                  padding: "26px 24px",
+                  padding: "22px 24px",
                   borderRadius: 20,
                   background: "rgba(18,18,22,0.6)",
                   border: "1px solid rgba(255,255,255,0.06)",
@@ -3294,18 +3283,7 @@ export default function Home() {
                   }}
                 />
                 <div style={{ position: "relative", zIndex: 1, display: "grid", gap: 14 }}>
-                  <div style={{ display: "grid", gap: 4 }}>
-                    <span
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 700,
-                        letterSpacing: "0.1em",
-                        textTransform: "uppercase",
-                        color: "rgba(194,122,92,0.7)",
-                      }}
-                    >
-                      Weekly
-                    </span>
+                  <div>
                     <div
                       style={{
                         fontFamily: "Zodiak, Georgia, serif",
@@ -3346,6 +3324,46 @@ export default function Home() {
                       </div>
                     ))}
                   </div>
+                  {/* Legend: state-color → label */}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      rowGap: 8,
+                      columnGap: 14,
+                      marginTop: 16,
+                      marginBottom: 12,
+                    }}
+                  >
+                    {[
+                      { label: "Clear & light", color: "#78C896" },
+                      { label: "Steady", color: "#7E9AC6" },
+                      { label: "Carrying work", color: "#C27A5C" },
+                      { label: "Wired", color: "#DCAA5A" },
+                      { label: "Drained", color: "#6EA290" },
+                      { label: "Overloaded", color: "#B66660" },
+                    ].map((entry) => (
+                      <span
+                        key={entry.label}
+                        style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+                      >
+                        <span
+                          aria-hidden
+                          style={{
+                            width: 12,
+                            height: 12,
+                            borderRadius: 4,
+                            background: entry.color,
+                            opacity: 0.85,
+                            flexShrink: 0,
+                          }}
+                        />
+                        <span style={{ fontSize: 12, color: "rgba(161,161,170,0.65)" }}>
+                          {entry.label}
+                        </span>
+                      </span>
+                    ))}
+                  </div>
                   <p
                     style={{
                       margin: 0,
@@ -3367,7 +3385,7 @@ export default function Home() {
                 style={{
                   position: "relative",
                   overflow: "hidden",
-                  padding: "26px 24px",
+                  padding: "22px 24px",
                   borderRadius: 20,
                   background: "rgba(18,18,22,0.6)",
                   border: "1px solid rgba(255,255,255,0.06)",
@@ -3386,18 +3404,7 @@ export default function Home() {
                   }}
                 />
                 <div style={{ position: "relative", zIndex: 1, display: "grid", gap: 14 }}>
-                  <div style={{ display: "grid", gap: 4 }}>
-                    <span
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 700,
-                        letterSpacing: "0.1em",
-                        textTransform: "uppercase",
-                        color: "rgba(194,122,92,0.7)",
-                      }}
-                    >
-                      Weekly
-                    </span>
+                  <div>
                     <div
                       style={{
                         fontFamily: "Zodiak, Georgia, serif",
