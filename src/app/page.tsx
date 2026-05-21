@@ -1383,7 +1383,7 @@ export default function Home() {
                   textTransform: "uppercase",
                 }}
               >
-                What changes
+                The outcome
               </div>
               <h2
                 style={{
