@@ -39,44 +39,14 @@ export default function Image() {
           }}
         />
 
-        {/* Chevron mark */}
-        <div
-          style={{
-            position: "relative",
-            width: 120,
-            height: 80,
-            display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "center",
-            marginBottom: 32,
-          }}
-        >
-          <div
-            style={{
-              position: "absolute",
-              width: 14,
-              height: 72,
-              background: "#C27A5C",
-              borderRadius: 6,
-              transform: "rotate(-45deg)",
-              transformOrigin: "top center",
-              top: 0,
-              left: 28,
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              width: 14,
-              height: 72,
-              background: "#C27A5C",
-              borderRadius: 6,
-              transform: "rotate(45deg)",
-              transformOrigin: "top center",
-              top: 0,
-              right: 28,
-            }}
-          />
+        {/* Brand chevron — matches public/icon.svg path */}
+        <div style={{ display: "flex", marginBottom: 32 }}>
+          <svg width={132} height={134} viewBox="188 123 649 658">
+            <path
+              d="M837 550.273L513.204 123L188 550.273V781L513.204 460.545L837 781V550.273Z"
+              fill="#C27A5C"
+            />
+          </svg>
         </div>
 
         {/* Wordmark */}
