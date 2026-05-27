@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import IOSInstallBanner from "@/components/IOSInstallBanner";
 import "./globals.css";
 
 const inter = localFont({
@@ -139,6 +140,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         {children}
+        <IOSInstallBanner />
       </body>
     </html>
   );
