@@ -289,17 +289,40 @@ function TutorialTooltip({
   isFinal: boolean;
 }) {
   const meta = TUTORIAL_COPY[step];
-  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+  const [pos, setPos] = useState<{ top: number; left: number; arrowOffset: number } | null>(null);
 
   useEffect(() => {
     const update = () => {
       if (!targetRef.current) return;
       const rect = targetRef.current.getBoundingClientRect();
-      if (meta.arrow === "down") {
-        setPos({ top: rect.top - 12, left: rect.left + rect.width / 2 });
-      } else {
-        setPos({ top: rect.bottom + 12, left: rect.left + rect.width / 2 });
-      }
+      const vw = window.innerWidth;
+
+      // Tooltip width matches the inline style below: min(300, vw - 48).
+      const tooltipWidth = Math.min(300, vw - 48);
+      const halfTooltip = tooltipWidth / 2;
+      const safePad = 16;
+
+      // Use the centre of the target's VISIBLE portion. Critical for elements
+      // like the state-chips strip whose bounding box extends past the viewport
+      // (horizontal overflow), in which case rect.left + rect.width/2 can land
+      // off-screen and clip the tooltip.
+      const visibleLeft = Math.max(0, rect.left);
+      const visibleRight = Math.min(vw, rect.right);
+      const targetCenter = (visibleLeft + visibleRight) / 2;
+
+      // Clamp the tooltip's anchor so the rendered tooltip stays fully on-screen.
+      const minLeft = halfTooltip + safePad;
+      const maxLeft = vw - halfTooltip - safePad;
+      const clampedLeft = Math.max(minLeft, Math.min(maxLeft, targetCenter));
+
+      // Shift the arrow nub to keep it pointing at the target after clamping.
+      // Clamp the offset to keep the nub within the tooltip's own bounds.
+      const arrowOffsetRaw = targetCenter - clampedLeft;
+      const maxArrowOffset = halfTooltip - 14;
+      const arrowOffset = Math.max(-maxArrowOffset, Math.min(maxArrowOffset, arrowOffsetRaw));
+
+      const top = meta.arrow === "down" ? rect.top - 12 : rect.bottom + 12;
+      setPos({ top, left: clampedLeft, arrowOffset });
     };
     update();
     window.addEventListener("resize", update);
@@ -333,11 +356,11 @@ function TutorialTooltip({
         pointerEvents: "auto",
       }}
     >
-      {/* Arrow nub */}
+      {/* Arrow nub — left position shifts horizontally to keep pointing at the target after clamping */}
       <div style={{
         position: "absolute",
         [meta.arrow === "down" ? "bottom" : "top"]: -6,
-        left: "50%",
+        left: `calc(50% + ${pos.arrowOffset}px)`,
         transform: "translateX(-50%) rotate(45deg)",
         width: 10, height: 10,
         background: "rgba(24,24,27,0.98)",
