@@ -414,6 +414,7 @@ Append-only log of interactions the user reviewed. Feeds the "Recent reviews" se
 | [src/app/app/layout.tsx](src/app/app/layout.tsx) | Auth guard — session → entitlement → setup → ready. Renders AppSplash + NavBar |
 | [src/app/app/NavBar.tsx](src/app/app/NavBar.tsx) | 5-item bottom pill nav — centering uses `x: "-50%"` (Framer Motion style), NOT CSS `transform` |
 | [src/app/app/AppSplash.tsx](src/app/app/AppSplash.tsx) | One-per-session SVG chevron splash screen |
+| [src/components/IOSInstallBanner.tsx](src/components/IOSInstallBanner.tsx) | Bottom-fixed iOS-Safari-only install nudge ("Tap share → Add to Home Screen"). Mounted once in root layout. Dismissible, persists for 7 days via `driftlatch_ios_install_dismissed_at` |
 | [src/app/app/page.tsx](src/app/app/page.tsx) | Home screen — 1600+ lines, most complex page |
 | [src/app/app/checkin/page.tsx](src/app/app/checkin/page.tsx) | Step-by-step check-in flow |
 | [src/app/app/tool/[id]/ToolClient.tsx](src/app/app/tool/%5Bid%5D/ToolClient.tsx) | Tool detail & feedback |
@@ -613,6 +614,19 @@ Separate, shorter assessment from the Pressure Profile. 8 scenario-based questio
 
 **Scenario copy style:** plain-language, ≤ 3 sentences, no em dashes. Scenarios `PR-04`, `RI-04`, `RA-02`, `RA-05`, `SA-06` were rewritten for readability — keep scenario prompts concise if expanding the bank.
 
+**Result page surfaces** (gated on `isPublicFlow && !isLoggedIn`): below "Where to start", `/pressure-eq/result` renders a matched-support teaser card. It maps `weakestDomain → state` (e.g. `signal_accuracy → wired`) + a derived `need`, calls `selectTool(state, need, time=5, situation="alone", pressureDirection=null)`, and displays the tool with a clay-tinted pack pill + title + `firstSentence(do)` + "Available with full access" note. **No Open button** — the existing "Open your first step" CTA below is the conversion action.
+
+### iOS Install Banner ([src/components/IOSInstallBanner.tsx](src/components/IOSInstallBanner.tsx))
+
+iOS Safari doesn't fire `beforeinstallprompt`, so PWA install on iPhone is a manual gesture (Share → Add to Home Screen). The banner is a fixed bottom-edge nudge that explains it.
+
+- Mounted once in [src/app/layout.tsx](src/app/layout.tsx) `<body>`. Renders nothing on non-iOS or standalone.
+- Detection: UA matches `/iphone|ipad|ipod/i` AND NOT `(display-mode: standalone)` AND NOT `navigator.standalone === true` AND NOT recently dismissed.
+- Dismissal: writes `Date.now()` to localStorage key `driftlatch_ios_install_dismissed_at`. Hidden for 7 days from that timestamp.
+- Route gating: skips assessment-heavy and conversion surfaces (`/pressure-eq*`, `/pressure-profile*`, `/app/onboarding*`, `/login`, `/buy`, `/thanks`) and the home page `/app` exactly (tutorial runs there — banner would compete; deeper `/app/*` routes still show it).
+- Geometry: bottom offset `calc(96px + env(safe-area-inset-bottom))` on `/app/**` (clears NavBar), `calc(16px + ...)` elsewhere. `z-index: 101` (above NavBar 100, below tutorial tooltip 102).
+- Manifest gap: `public/manifest.json` declares 1024×1024 and 512×512 icons but no explicit 192×192. iOS works via `apple-touch-icon`, but **Lighthouse PWA audit will flag the missing 192×192**.
+
 ### Landing Page Copy Reference
 
 Canonical landing copy lives in [src/app/page.tsx](src/app/page.tsx). Update this section whenever the wording ships.
@@ -623,6 +637,8 @@ Canonical landing copy lives in [src/app/page.tsx](src/app/page.tsx). Update thi
 - **Meta line under CTAs:** `2-minute profile. One clear step. Under 10 minutes a day. Private by default.`
 - **FAQ order** (in `FAQ_ITEMS`): therapy, pricing, messages/tracking, relationship app, partner doesn't use it, install (`Do I need to install anything?`), refund.
 - **Mobile hero composition** lives in [src/app/globals.css](src/app/globals.css) under `@media (max-width: 640px)`. Key overrides: `.hero-text-wrapper` `padding-top: 44px` + `max-width: 100%`, tightened h1 clamp (`1.95rem`–`2.55rem`), CTA row `margin-top: 18px`, `gap: 12px`, `flex-wrap: wrap`, `justify-content: center`. The SVG scene is swapped (not resized) on mobile via a separate viewBox inside the TSX.
+
+**Section order** (top to bottom): hero → marquee ribbon → how-it-works → split (`A system that protects both`) → expert tools → pressure-eq teaser → **sample weekly reflection** (`id="sample-weekly"`, static hardcoded data styled like `/app/weekly` — 3 blocks: Where pressure landed / States you carried with state-color legend / What seemed to help) → pricing → privacy band → FAQ → footer. The earlier "What changes when this works" benefits section was removed on 2026-05-27 — overlapped with the split section.
 
 ---
 
@@ -759,6 +775,9 @@ npx tsc --noEmit # TypeScript check (zero errors is the baseline)
 - **`user_moment_reviews` column names:** the real DB columns are `who_involved` and `moment_type` — NOT `who` or `moment`. A query selecting `who` or `moment` will 400 with a column-not-found error. Same for `response`/`reflection` — those columns don't exist at all.
 - **`user_eq_profile.completed_at` on retake:** the `/app/eq` query reads `.order("completed_at", { ascending: false }).limit(1)`. If the upsert payload does not include `completed_at: new Date().toISOString()`, the old snapshot keeps winning the query and the user will think the retake "didn't save." Always set `completed_at` explicitly in the upsert — DB default only fires on INSERT, not on UPDATE via upsert.
 - **SVG `motion.circle` attribute race:** when a `motion.circle` (or similar motion SVG element) animates `r`, `cx`, or `cy`, do NOT also set a static same-name JSX prop. React commits the static attribute on first render before Framer Motion takes over, producing a visible flash and a console warning like `<circle> attribute r: Expected length, "undefined"`. Fix: remove the static prop and give the motion element an explicit `initial={{ r: 9, opacity: 0.3 }}` instead.
+- **Tutorial tooltip overflow on horizontally-scrollable targets:** `TutorialTooltip` in [src/app/app/page.tsx](src/app/app/page.tsx) positions itself relative to `targetRef.getBoundingClientRect()`. For targets like the state-chips strip (horizontal overflow), `rect.width` includes off-screen content and `rect.left + rect.width / 2` can fall past the viewport edge, clipping the tooltip. The fix already in place: compute target center from `(max(0, rect.left) + min(vw, rect.right)) / 2` (visible portion only), clamp the anchor to `[halfTooltip + 16, vw − halfTooltip − 16]`, and shift the arrow nub by `targetCenter − clampedAnchor` so it still points at the target. Any new tooltip on a scrollable target should follow the same pattern.
+- **Check-in summary must read live form state:** the standard-mode "Right now Driftlatch will start with…" line at the top of `/app/checkin` reads from `formatQuickDefaultsSummary({ need: needVal, time: timeVal, situation: situationVal })`, NOT from `quickDefaultsSummary` (which formats saved profile defaults from `user_profile`). The latter doesn't update when the user changes form fields — leads to a "summary says Partner nearby, situation card shows Alone" desync. Keep `quickDefaultsSummary` for the quick-mode "We'll use your defaults" line only.
+- **OG image chevron must use the real brand path, not constructed rects:** `src/app/opengraph-image.tsx` and the per-route OG images render the chevron via inline SVG path from `public/icon.svg` (`viewBox="188 123 649 658"`). An earlier two-rect approximation produced an X-shape at thumbnail size in social-card previews. Don't reintroduce that pattern; reuse the SVG path.
 
 ### Scale Checklist
 
@@ -857,3 +876,7 @@ Verify before or shortly after launch. Most items are Supabase dashboard checks,
 - `20260322000100` — deduped `user_profile` rows, added unique index on `user_id`
 - `20260325000100` — added `room_tone` column to `user_checkins`
 - `20260326000100` — added `source` column to `user_checkins`
+- `20260415000100` — created `user_eq_profile`, `user_eq_sessions`, `user_eq_checkins`
+- `20260415000200` — created `user_moment_reviews` (columns are `who_involved` and `moment_type`)
+- `20260415000300` — added EQ check-ins detail table
+- `20260421000100` — added `pressure_direction text` column to `user_checkins` with named check constraint (`'work_to_home' | 'home_to_work' | 'both' | 'none'` or NULL) and a `(user_id, created_at desc)` composite index
