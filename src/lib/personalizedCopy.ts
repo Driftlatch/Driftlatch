@@ -25,6 +25,7 @@ const SITUATION_LABEL: Record<DriftSituation, string> = {
   kids_around: "Kids around",
   alone: "Alone",
   long_distance: "Long distance",
+  housemates_around: "Housemates around",
 };
 
 function buildStateLine(state: DriftState | null, timeMinutes: number | null) {

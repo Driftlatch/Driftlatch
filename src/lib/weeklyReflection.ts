@@ -156,7 +156,13 @@ export function isDriftNeed(value: unknown): value is DriftNeed {
 }
 
 export function isDriftSituation(value: unknown): value is DriftSituation {
-  return value === "partner_nearby" || value === "kids_around" || value === "alone" || value === "long_distance";
+  return (
+    value === "partner_nearby" ||
+    value === "kids_around" ||
+    value === "alone" ||
+    value === "long_distance" ||
+    value === "housemates_around"
+  );
 }
 
 export function isoDaysAgo(days: number) {

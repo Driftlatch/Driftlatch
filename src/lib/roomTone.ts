@@ -39,7 +39,10 @@ export function isRoomTone(value: unknown): value is RoomTone {
 }
 
 export function getRoomToneOptions(situation: DriftSituation) {
-  if (situation === "alone") return [] as const;
+  // Situations without a person-specific tone read return [] so the room-tone
+  // card is suppressed. housemates_around: a non-intimate person is present
+  // but isn't the channel the user is regulating around.
+  if (situation === "alone" || situation === "housemates_around") return [] as const;
   return ROOM_TONE_OPTIONS[situation];
 }
 

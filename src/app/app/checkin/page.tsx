@@ -146,7 +146,13 @@ function isDriftNeed(value: unknown): value is DriftNeed {
 }
 
 function isDriftSituation(value: unknown): value is DriftSituation {
-  return value === "partner_nearby" || value === "kids_around" || value === "alone" || value === "long_distance";
+  return (
+    value === "partner_nearby" ||
+    value === "kids_around" ||
+    value === "alone" ||
+    value === "long_distance" ||
+    value === "housemates_around"
+  );
 }
 
 function isDriftState(value: unknown): value is DriftState {
@@ -322,11 +328,9 @@ export default function CheckinPage() {
   }, [quickMode, needVal, situationVal, timeVal]);
 
   useEffect(() => {
-    if (situationVal === "alone") {
-      setRoomToneVal(null);
-      return;
-    }
-
+    // Centralised in roomTone.ts: situations without a tone vocabulary (alone,
+    // housemates_around) return false from isRoomToneForSituation for any value,
+    // so this single call covers both cases.
     setRoomToneVal((current) => (isRoomToneForSituation(situationVal, current) ? current : null));
   }, [situationVal]);
 
@@ -458,7 +462,7 @@ export default function CheckinPage() {
     const nextCtx: LastCtx = {
       state: selectedState,
       need: needVal,
-      roomTone: situationVal === "alone" ? null : roomToneVal,
+      roomTone: isRoomToneForSituation(situationVal, roomToneVal) ? roomToneVal : null,
       time: timeVal,
       situation: situationVal,
     };
@@ -703,7 +707,7 @@ export default function CheckinPage() {
                   </div>
                 </div>
 
-                {situationVal !== "alone" ? (
+                {getRoomToneOptions(situationVal).length > 0 ? (
                   <div className="checkin-glass" style={{ position: "relative", padding: 18 }}>
                     <div className="top-highlight" />
                     <div style={{ display: "grid", gap: 12 }}>

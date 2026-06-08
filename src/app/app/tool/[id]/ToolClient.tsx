@@ -117,7 +117,13 @@ function isDriftNeed(value: string | null): value is DriftNeed {
 }
 
 function isDriftSituation(value: string | null): value is DriftSituation {
-  return value === "partner_nearby" || value === "kids_around" || value === "alone" || value === "long_distance";
+  return (
+    value === "partner_nearby" ||
+    value === "kids_around" ||
+    value === "alone" ||
+    value === "long_distance" ||
+    value === "housemates_around"
+  );
 }
 
 function toValidTime(value: string | null): 1 | 3 | 5 | 10 | null {

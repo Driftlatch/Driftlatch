@@ -184,6 +184,7 @@ const SITUATION_TAG_BOOST: Record<DriftSituation, string[]> = {
   partner_nearby: ["re_entry", "repair", "name_state", "misread_prevent", "touch_if_welcome"],
   long_distance: ["text_safe", "no_pressure", "misread_prevent", "return_time"],
   alone: ["grounding", "offload", "containment", "sleep_support", "body_scan", "somatic"],
+  housemates_around: ["grounding", "containment", "body_scan", "somatic", "low_words", "quiet_presence", "short"],
 };
 
 const RELATIONAL_TAGS = [
@@ -327,6 +328,19 @@ function evaluateSituation(tool: Tool, situation: DriftSituation) {
     }
 
     return { pass: true as const, reason: "generic_match" as const };
+  }
+
+  // housemates_around: a non-intimate person is present but is not the focus.
+  // Tools eligible for `alone` work here, with relational scripts excluded.
+  // Library-side tagging (next PR) will replace this fallback for tools that
+  // need explicit housemates-aware copy.
+  if (situation === "housemates_around") {
+    if (situations.includes("alone") && !isRelationalTool(tool)) {
+      return { pass: true as const, reason: "housemates_fallback_to_alone" as const };
+    }
+    if (situations.includes("alone")) {
+      return { pass: false as const, reason: "housemates_excludes_relational" as const };
+    }
   }
 
   return { pass: false as const, reason: "best_for_situation_mismatch" as const };

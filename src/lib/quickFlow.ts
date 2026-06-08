@@ -41,6 +41,7 @@ const SITUATION_LABEL: Record<DriftSituation, string> = {
   kids_around: "Kids around",
   alone: "Alone",
   long_distance: "Long distance",
+  housemates_around: "Housemates around",
 };
 
 function isDriftNeed(value: unknown): value is DriftNeed {
@@ -48,7 +49,13 @@ function isDriftNeed(value: unknown): value is DriftNeed {
 }
 
 function isDriftSituation(value: unknown): value is DriftSituation {
-  return value === "partner_nearby" || value === "kids_around" || value === "alone" || value === "long_distance";
+  return (
+    value === "partner_nearby" ||
+    value === "kids_around" ||
+    value === "alone" ||
+    value === "long_distance" ||
+    value === "housemates_around"
+  );
 }
 
 function isAttachmentStyle(value: unknown): value is AttachmentStyle {

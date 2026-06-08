@@ -2,7 +2,7 @@ import toolLibrary from "./toolLibrary.json";
 import { getPackDisplayName } from "@/lib/supportLabels";
 
 export type DriftState = "carrying_work" | "wired" | "drained" | "overloaded" | "steady" | "clear_light";
-export type DriftSituation = "partner_nearby" | "kids_around" | "alone" | "long_distance";
+export type DriftSituation = "partner_nearby" | "kids_around" | "alone" | "long_distance" | "housemates_around";
 export type ToolSituation = DriftSituation | "any";
 export type DriftNeed = "regain_clarity" | "wind_down" | "be_here" | "come_back";
 export type PressureDirection = "work_to_home" | "home_to_work" | "both" | "none";
