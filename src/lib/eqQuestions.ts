@@ -1,6 +1,8 @@
 // Pressure EQ assessment — static question bank
 // 50 scenarios across 6 domains. Pure TypeScript. No external dependencies.
 
+import { resolveVariant, type WorkPattern } from "@/lib/workPattern";
+
 export type EQDomain =
   | "pressure_reading"
   | "repair_instinct"
@@ -24,6 +26,10 @@ export type IntensityLevel = "low" | "medium" | "high";
 
 export interface EQOption {
   text: string;
+  // Optional per-work-pattern wording for this option. Authored in the
+  // content PR — none today. Scoring always reads `scores` and never `text`,
+  // so swapping `text` cannot affect domain scores.
+  textVariants?: Partial<Record<WorkPattern, string>>;
   scores: Partial<Record<EQDomain, number>>;
 }
 
@@ -37,6 +43,12 @@ export interface EQScenario {
   requiresKids: boolean;
   requiresPartner: boolean;
   options: EQOption[];
+  // Author-discipline note: a short string describing what the scenario
+  // measures so future variants stay anchored to the same construct.
+  // Never rendered to users, never read at runtime.
+  intent?: string;
+  // Optional per-work-pattern wording for the situation stem. None today.
+  situationVariants?: Partial<Record<WorkPattern, string>>;
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -1763,4 +1775,19 @@ export function generateOpeningParagraph(
         : "low";
 
   return paragraphs[weakestDomain][level];
+}
+
+// ─────────────────────────────────────────────────────────────────
+// VARIANT RESOLUTION
+// Render-time only. Returns the work-pattern-specific wording when
+// one exists, otherwise the default. Scoring paths do not call
+// these — they read `scenario.options[i].scores` directly.
+// ─────────────────────────────────────────────────────────────────
+
+export function resolveScenarioSituation(scenario: EQScenario, workPattern: WorkPattern | null): string {
+  return resolveVariant(scenario.situation, scenario.situationVariants, workPattern);
+}
+
+export function resolveOptionText(option: EQOption, workPattern: WorkPattern | null): string {
+  return resolveVariant(option.text, option.textVariants, workPattern);
 }

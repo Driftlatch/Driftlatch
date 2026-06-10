@@ -9,11 +9,20 @@ import {
   getWeakestDomain,
   getArchetype,
   generateOpeningParagraph,
+  resolveOptionText,
+  resolveScenarioSituation,
   type EQDomain,
   type EQScenario,
 } from "@/lib/eqQuestions";
 import { supabaseBrowser } from "@/lib/supabaseBrowser";
 import { hasStoredPublicEQResult } from "@/lib/publicEQ";
+import {
+  isWorkPattern,
+  WORK_PATTERN_LABEL,
+  WORK_PATTERN_VALUES,
+  type WorkPattern,
+} from "@/lib/workPattern";
+import type { TablesInsert } from "@/lib/types/supabase";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -47,6 +56,7 @@ export default function PressureEQPage() {
   const [phase, setPhase] = useState<Phase>("intro");
   const [hasKids, setHasKids] = useState(false);
   const [hasPartner, setHasPartner] = useState(true);
+  const [workPattern, setWorkPattern] = useState<WorkPattern>("fixed_hours");
   const [scenarios, setScenarios] = useState<EQScenario[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
@@ -61,18 +71,50 @@ export default function PressureEQPage() {
     }
   }, [isPublicFlow, router]);
 
-  // Read existing profile context from localStorage on mount
+  // Pre-fill toggles for logged-in users from their persisted profile.
+  // Reads user_profile.defaults — never PP localStorage (EQ owns its own
+  // capture). The previous read looked for hasKidsContext/hasPartnerContext
+  // keys that PP never writes (PP writes home_setup), so the read was a
+  // silent no-op. Replaced with a typed DB lookup that derives kids/partner
+  // from default_situation and pulls work_pattern directly.
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("driftlatch_public_profile_context");
-      if (raw) {
-        const ctx = JSON.parse(raw) as Record<string, unknown>;
-        if (typeof ctx.hasKidsContext === "boolean") setHasKids(ctx.hasKidsContext);
-        if (typeof ctx.hasPartnerContext === "boolean") setHasPartner(ctx.hasPartnerContext);
+    let cancelled = false;
+    (async () => {
+      try {
+        const supabase = supabaseBrowser();
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user?.id) return;
+        const { data } = await supabase
+          .from("user_profile")
+          .select("defaults")
+          .eq("user_id", session.user.id)
+          .order("updated_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (cancelled) return;
+        const defaults = (data?.defaults ?? null) as Record<string, unknown> | null;
+        if (!defaults) return;
+        const situation = typeof defaults.default_situation === "string" ? defaults.default_situation : null;
+        if (situation === "kids_around") {
+          setHasKids(true);
+          setHasPartner(false);
+        } else if (situation === "partner_nearby" || situation === "long_distance") {
+          setHasPartner(true);
+          setHasKids(false);
+        } else if (situation === "alone") {
+          setHasPartner(false);
+          setHasKids(false);
+        }
+        if (isWorkPattern(defaults.work_pattern)) {
+          setWorkPattern(defaults.work_pattern);
+        }
+      } catch {
+        // ignore — toggles keep their initial defaults
       }
-    } catch {
-      // ignore parse errors
-    }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Shuffle options whenever the scenario changes
@@ -136,24 +178,31 @@ export default function PressureEQPage() {
         const supabase = supabaseBrowser();
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user?.id) {
-          const { error: upsertError } = await supabase.from("user_eq_profile").upsert(
-            {
-              user_id: session.user.id,
-              pressure_reading: scores.pressure_reading,
-              repair_instinct: scores.repair_instinct,
-              presence_quality: scores.presence_quality,
-              boundary_intel: scores.boundary_intel,
-              recovery_aware: scores.recovery_aware,
-              signal_accuracy: scores.signal_accuracy,
-              weakest_domain: weakestDomain,
-              archetype,
-              has_kids_context: hasKids,
-              has_partner_context: hasPartner,
-              opening_paragraph: openingParagraph,
-              completed_at: new Date().toISOString(),
-            },
-            { onConflict: "user_id" },
-          );
+          // Intersection adds work_pattern to the generated Insert type. After
+          // running `supabase gen types typescript` against the new migration,
+          // the field will appear in TablesInsert<"user_eq_profile"> directly
+          // and this intersection becomes a no-op (safe to leave or remove).
+          const upsertPayload: TablesInsert<"user_eq_profile"> & {
+            work_pattern?: WorkPattern | null;
+          } = {
+            user_id: session.user.id,
+            pressure_reading: scores.pressure_reading,
+            repair_instinct: scores.repair_instinct,
+            presence_quality: scores.presence_quality,
+            boundary_intel: scores.boundary_intel,
+            recovery_aware: scores.recovery_aware,
+            signal_accuracy: scores.signal_accuracy,
+            weakest_domain: weakestDomain,
+            archetype,
+            has_kids_context: hasKids,
+            has_partner_context: hasPartner,
+            opening_paragraph: openingParagraph,
+            completed_at: new Date().toISOString(),
+            work_pattern: workPattern,
+          };
+          const { error: upsertError } = await supabase
+            .from("user_eq_profile")
+            .upsert(upsertPayload, { onConflict: "user_id" });
           if (upsertError) console.error("EQ profile upsert error:", upsertError);
         }
       } catch (err) {
@@ -274,112 +323,122 @@ export default function PressureEQPage() {
               marginBottom: 20,
             }}
           >
-            Two quick things so your questions fit your life.
+            A few quick things so your questions fit your life.
           </div>
 
-          {/* Row 1 */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 12,
-              marginBottom: 12,
-            }}
-          >
-            <span
-              style={{
-                fontSize: 13,
-                color: "rgba(161,161,170,0.55)",
-                minWidth: 120,
-                textAlign: "right",
-              }}
-            >
-              Kids at home
-            </span>
-            <div style={{ display: "flex", gap: 6 }}>
-              {(["Yes", "Not right now"] as const).map((label) => {
-                const active = label === "Yes" ? hasKids : !hasKids;
-                return (
-                  <button
-                    key={label}
-                    onClick={() => setHasKids(label === "Yes")}
-                    style={{
-                      padding: "7px 16px",
-                      borderRadius: 999,
-                      cursor: "pointer",
-                      fontSize: 13,
-                      fontWeight: 500,
-                      minHeight: 44,
-                      border: active
-                        ? "1px solid rgba(194,122,92,0.3)"
-                        : "1px solid rgba(255,255,255,0.08)",
-                      background: active
-                        ? "rgba(194,122,92,0.12)"
-                        : "rgba(255,255,255,0.04)",
-                      color: active
-                        ? "rgba(194,122,92,0.9)"
-                        : "rgba(161,161,170,0.55)",
-                      transition: "all 0.2s ease",
-                    }}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
+          <div style={{ width: "100%", maxWidth: 360, display: "flex", flexDirection: "column", gap: 16 }}>
+            {/* Kids at home */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <span style={{ fontSize: 13, color: "rgba(161,161,170,0.55)", textAlign: "center" }}>
+                Kids at home
+              </span>
+              <div style={{ display: "flex", justifyContent: "center", gap: 6 }}>
+                {(["Yes", "Not right now"] as const).map((label) => {
+                  const active = label === "Yes" ? hasKids : !hasKids;
+                  return (
+                    <button
+                      key={label}
+                      onClick={() => setHasKids(label === "Yes")}
+                      style={{
+                        padding: "7px 16px",
+                        borderRadius: 999,
+                        cursor: "pointer",
+                        fontSize: 13,
+                        fontWeight: 500,
+                        minHeight: 44,
+                        border: active
+                          ? "1px solid rgba(194,122,92,0.3)"
+                          : "1px solid rgba(255,255,255,0.08)",
+                        background: active
+                          ? "rgba(194,122,92,0.12)"
+                          : "rgba(255,255,255,0.04)",
+                        color: active
+                          ? "rgba(194,122,92,0.9)"
+                          : "rgba(161,161,170,0.55)",
+                        transition: "all 0.2s ease",
+                      }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
 
-          {/* Row 2 */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 12,
-              marginBottom: 0,
-            }}
-          >
-            <span
-              style={{
-                fontSize: 13,
-                color: "rgba(161,161,170,0.55)",
-                minWidth: 120,
-                textAlign: "right",
-              }}
-            >
-              In a relationship
-            </span>
-            <div style={{ display: "flex", gap: 6 }}>
-              {(["Yes", "Not right now"] as const).map((label) => {
-                const active = label === "Yes" ? hasPartner : !hasPartner;
-                return (
-                  <button
-                    key={label}
-                    onClick={() => setHasPartner(label === "Yes")}
-                    style={{
-                      padding: "7px 16px",
-                      borderRadius: 999,
-                      cursor: "pointer",
-                      fontSize: 13,
-                      fontWeight: 500,
-                      minHeight: 44,
-                      border: active
-                        ? "1px solid rgba(194,122,92,0.3)"
-                        : "1px solid rgba(255,255,255,0.08)",
-                      background: active
-                        ? "rgba(194,122,92,0.12)"
-                        : "rgba(255,255,255,0.04)",
-                      color: active
-                        ? "rgba(194,122,92,0.9)"
-                        : "rgba(161,161,170,0.55)",
-                      transition: "all 0.2s ease",
-                    }}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
+            {/* In a relationship */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <span style={{ fontSize: 13, color: "rgba(161,161,170,0.55)", textAlign: "center" }}>
+                In a relationship
+              </span>
+              <div style={{ display: "flex", justifyContent: "center", gap: 6 }}>
+                {(["Yes", "Not right now"] as const).map((label) => {
+                  const active = label === "Yes" ? hasPartner : !hasPartner;
+                  return (
+                    <button
+                      key={label}
+                      onClick={() => setHasPartner(label === "Yes")}
+                      style={{
+                        padding: "7px 16px",
+                        borderRadius: 999,
+                        cursor: "pointer",
+                        fontSize: 13,
+                        fontWeight: 500,
+                        minHeight: 44,
+                        border: active
+                          ? "1px solid rgba(194,122,92,0.3)"
+                          : "1px solid rgba(255,255,255,0.08)",
+                        background: active
+                          ? "rgba(194,122,92,0.12)"
+                          : "rgba(255,255,255,0.04)",
+                        color: active
+                          ? "rgba(194,122,92,0.9)"
+                          : "rgba(161,161,170,0.55)",
+                        transition: "all 0.2s ease",
+                      }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Your work — 2x2 grid */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <span style={{ fontSize: 13, color: "rgba(161,161,170,0.55)", textAlign: "center" }}>
+                Your work
+              </span>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 6 }}>
+                {WORK_PATTERN_VALUES.map((v) => {
+                  const active = workPattern === v;
+                  return (
+                    <button
+                      key={v}
+                      onClick={() => setWorkPattern(v)}
+                      style={{
+                        padding: "7px 14px",
+                        borderRadius: 999,
+                        cursor: "pointer",
+                        fontSize: 13,
+                        fontWeight: 500,
+                        minHeight: 44,
+                        border: active
+                          ? "1px solid rgba(194,122,92,0.3)"
+                          : "1px solid rgba(255,255,255,0.08)",
+                        background: active
+                          ? "rgba(194,122,92,0.12)"
+                          : "rgba(255,255,255,0.04)",
+                        color: active
+                          ? "rgba(194,122,92,0.9)"
+                          : "rgba(161,161,170,0.55)",
+                        transition: "all 0.2s ease",
+                      }}
+                    >
+                      {WORK_PATTERN_LABEL[v]}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -524,7 +583,7 @@ export default function PressureEQPage() {
                     letterSpacing: "-0.01em",
                   }}
                 >
-                  {scenario.situation}
+                  {resolveScenarioSituation(scenario, workPattern)}
                 </p>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -535,7 +594,7 @@ export default function PressureEQPage() {
                     return (
                       <EQOptionButton
                         key={optIdx}
-                        text={opt.text}
+                        text={resolveOptionText(opt, workPattern)}
                         isSelected={isSelected}
                         onClick={() => handleOptionSelect(optIdx)}
                       />

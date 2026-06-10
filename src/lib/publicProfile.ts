@@ -13,6 +13,7 @@ export type PublicProfileContext = {
   priority: string;
   spillover: string;
   work_intensity: string;
+  work_pattern: string;
 };
 
 export type PublicProfileResult = {
@@ -23,6 +24,7 @@ export type PublicProfileResult = {
     default_time: number;
     primary_pack_ids: string[];
     top_patterns: string[];
+    work_pattern: string;
   };
   display_name: string | null;
   primary_pack_ids: string[];

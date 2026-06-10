@@ -23,6 +23,13 @@ import {
 } from "@/lib/attachmentStyleCopy";
 import { getNeedLabel } from "@/lib/supportLabels";
 import { getSupabase } from "@/lib/supabase";
+import {
+  isWorkPattern,
+  resolveVariant,
+  WORK_PATTERN_LABEL,
+  WORK_PATTERN_VALUES,
+  type WorkPattern,
+} from "@/lib/workPattern";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -43,7 +50,16 @@ const SECTION_INTRO_COPY: Record<Question["domain"], { title: string; tagline: s
   attach: { title: "Connection", tagline: "How you handle tension with people close to you." },
 };
 
-type Question = { id: number; text: string; domain: "work" | "recovery" | "home" | "attach" };
+type Question = {
+  id: number;
+  text: string;
+  domain: "work" | "recovery" | "home" | "attach";
+  // Author-discipline note: what the question measures. Never rendered.
+  intent?: string;
+  // Optional per-work-pattern wording. None today. Scoring reads answers
+  // by index regardless of text, so swapping `text` cannot affect scores.
+  variants?: Partial<Record<WorkPattern, string>>;
+};
 
 const QUESTIONS: Question[] = [
   // A) Work Focus & Cognitive Load (1–5)
@@ -791,6 +807,7 @@ export default function OnboardingPage() {
   const [workIntensity, setWorkIntensity] = useState<WorkIntensity>("Busy");
   const [spillover, setSpillover] = useState<Spillover>("Both ways");
   const [priority, setPriority] = useState<Priority>("Both");
+  const [workPattern, setWorkPattern] = useState<WorkPattern>("fixed_hours");
 
   const [answers, setAnswers] = useState<Answer[]>(Array(20).fill(2) as Answer[]);
 
@@ -972,8 +989,9 @@ export default function OnboardingPage() {
       priority,
       spillover,
       work_intensity: workIntensity,
+      work_pattern: workPattern,
     }),
-    [displayNameInput, homeSetup, priority, spillover, workIntensity],
+    [displayNameInput, homeSetup, priority, spillover, workIntensity, workPattern],
   );
 
   const publicProfileResult = useMemo<PublicProfileResult>(
@@ -985,6 +1003,7 @@ export default function OnboardingPage() {
         default_time: mapTimeToDefault(workIntensity),
         primary_pack_ids: primaryPackIds,
         top_patterns: topPatterns,
+        work_pattern: workPattern,
       },
       display_name: displayNameInput.trim() || null,
       primary_pack_ids: primaryPackIds,
@@ -1018,6 +1037,7 @@ export default function OnboardingPage() {
       spillover,
       topPatterns,
       workIntensity,
+      workPattern,
     ],
   );
 
@@ -1172,6 +1192,7 @@ export default function OnboardingPage() {
         if (isWorkIntensity(storedContext.work_intensity)) setWorkIntensity(storedContext.work_intensity);
         if (isSpillover(storedContext.spillover)) setSpillover(storedContext.spillover);
         if (isPriority(storedContext.priority)) setPriority(storedContext.priority);
+        if (isWorkPattern(storedContext.work_pattern)) setWorkPattern(storedContext.work_pattern);
       }
 
       if (readStoredPublicProfileResult()) {
@@ -1308,6 +1329,21 @@ export default function OnboardingPage() {
                   </div>
                 </div>
 
+                {/* Work pattern */}
+                <div style={{ position: "relative", overflow: "hidden", background: "rgba(18,18,22,0.9)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 22, padding: "22px 20px", marginBottom: 12 }}>
+                  <div aria-hidden style={{ position: "absolute", top: 0, left: 16, right: 16, height: 1, background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent)", pointerEvents: "none" as const }} />
+                  <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: "rgba(161,161,170,0.4)", marginBottom: 14 }}>HOW WORK ACTUALLY WORKS</div>
+                  <div style={{ fontSize: 15, fontWeight: 500, color: "rgba(244,244,245,0.9)", lineHeight: 1.5, marginBottom: 14 }}>What does your work actually look like?</div>
+                  <div style={{ display: "flex", flexWrap: "wrap" as const, gap: 8 }}>
+                    {WORK_PATTERN_VALUES.map((v) => {
+                      const selected = workPattern === v;
+                      return (
+                        <button key={v} type="button" onClick={() => setWorkPattern(v)} style={{ padding: "9px 18px", borderRadius: 999, border: selected ? "1px solid rgba(194,122,92,0.28)" : "1px solid rgba(255,255,255,0.08)", background: selected ? "rgba(194,122,92,0.12)" : "rgba(255,255,255,0.04)", fontSize: 13, fontWeight: 500, color: selected ? "rgba(194,122,92,0.9)" : "rgba(161,161,170,0.6)", cursor: "pointer", transition: "all 0.18s ease" }}>{WORK_PATTERN_LABEL[v]}</button>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 {/* Work intensity + spillover */}
                 <div style={{ position: "relative", overflow: "hidden", background: "rgba(18,18,22,0.9)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 22, padding: "22px 20px", marginBottom: 12 }}>
                   <div aria-hidden style={{ position: "absolute", top: 0, left: 16, right: 16, height: 1, background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent)", pointerEvents: "none" as const }} />
@@ -1429,7 +1465,7 @@ export default function OnboardingPage() {
                   <AnimatePresence mode="wait">
                     <motion.div key={currentQuestionIndex} initial={{ x: 40, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -40, opacity: 0 }} transition={{ duration: 0.3, ease: "easeOut" }}>
                       <div style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(1.1rem,2.5vw,1.35rem)", fontWeight: 700, letterSpacing: "-0.025em", color: "rgba(244,244,245,0.92)", lineHeight: 1.5, marginTop: 16, marginBottom: 0 }}>
-                        {currentQuestion.id}. {currentQuestion.text}
+                        {currentQuestion.id}. {resolveVariant(currentQuestion.text, currentQuestion.variants, workPattern)}
                       </div>
                     </motion.div>
                   </AnimatePresence>
