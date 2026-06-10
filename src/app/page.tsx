@@ -14,7 +14,7 @@ const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 const FAQ_ITEMS = [
   {
     q: "Is Driftlatch therapy?",
-    a: "No. Driftlatch is a private support system for stress spillover, recovery, and cleaner re-entry into home life and work.",
+    a: "No. Driftlatch is private and helps with stress spillover, recovery, and cleaner re-entry into home life and work.",
   },
   {
     q: "Why would I pay for this?",
@@ -1370,280 +1370,6 @@ export default function Home() {
       {/* ── CONTENT SECTIONS ─────────────────────────────────────────────── */}
       <div className="container">
 
-        {/* ── 02 HOW IT WORKS ──────────────────────────────────────────── */}
-        <section className="section" id="how-it-works" style={{ scrollMarginTop: "96px" }}>
-          <FadeIn>
-            <div
-              className="how-it-works-top"
-              style={{
-                display: "grid",
-                gridTemplateColumns: "minmax(0, 1.12fr) minmax(380px, 0.88fr)",
-                gap: 30,
-                alignItems: "stretch",
-              }}
-            >
-              <div
-                style={{
-                  display: "grid",
-                  gap: 18,
-                  alignContent: "start",
-                }}
-              >
-                <div
-                  style={{
-                    color: "rgba(194,122,92,0.82)",
-                    fontSize: 12,
-                    fontWeight: 700,
-                    letterSpacing: "0.12em",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  How it works
-                </div>
-                <h2
-                  style={{
-                    margin: 0,
-                    maxWidth: "13ch",
-                    lineHeight: 1.04,
-                    textWrap: "balance",
-                  }}
-                >
-                  Start with a Pressure Profile
-                </h2>
-                <p
-                  style={{
-                    margin: 0,
-                    maxWidth: "36rem",
-                    fontSize: 18,
-                    lineHeight: 1.65,
-                    color: "rgba(244,244,245,0.82)",
-                  }}
-                >
-                  Start with a 2-minute profile. Then Driftlatch turns that into
-                  a short daily system: check in, get one clear step, and build
-                  a steadier week in under 10 minutes a day. No tracking. No
-                  message reading. Just what you choose to enter.
-                </p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-                  {["2-minute profile", "One clear step", "Under 10 min/day", "Private by default"].map(
-                    (item) => (
-                      <div
-                        key={item}
-                        style={{
-                          padding: "10px 14px",
-                          borderRadius: 999,
-                          border: "1px solid rgba(255,255,255,0.07)",
-                          background: "rgba(255,255,255,0.025)",
-                          color: "rgba(244,244,245,0.84)",
-                          fontSize: 13,
-                          fontWeight: 600,
-                          letterSpacing: "0.01em",
-                        }}
-                      >
-                        {item}
-                      </div>
-                    ),
-                  )}
-                </div>
-              </div>
-
-              <div
-                style={{
-                  ...GLASS_CARD_STYLE,
-                  padding: "22px 22px 20px",
-                }}
-              >
-                <GlassRimLight />
-                <div
-                  aria-hidden
-                  style={{
-                    position: "absolute",
-                    top: -56,
-                    right: -10,
-                    width: 220,
-                    height: 140,
-                    borderRadius: "50%",
-                    background: "rgba(194,122,92,0.10)",
-                    filter: "blur(42px)",
-                  }}
-                />
-                <div
-                  style={{
-                    position: "relative",
-                    zIndex: 1,
-                    display: "grid",
-                    gap: 18,
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      gap: 16,
-                      alignItems: "flex-start",
-                    }}
-                  >
-                    <div style={{ display: "grid", gap: 6 }}>
-                      <div
-                        style={{
-                          color: "rgba(194,122,92,0.78)",
-                          fontSize: 11,
-                          fontWeight: 700,
-                          letterSpacing: "0.1em",
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        The Driftlatch loop
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 24,
-                          lineHeight: 1.16,
-                          color: "var(--text)",
-                          fontWeight: 600,
-                          maxWidth: "15ch",
-                          textWrap: "balance",
-                        }}
-                      >
-                        From pressure to a steadier week.
-                      </div>
-                    </div>
-                    <div
-                      style={{
-                        padding: "10px 12px",
-                        borderRadius: 14,
-                        border: "1px solid rgba(255,255,255,0.07)",
-                        background: "rgba(255,255,255,0.03)",
-                        color: "rgba(244,244,245,0.86)",
-                        fontSize: 12,
-                        fontWeight: 700,
-                        lineHeight: 1.4,
-                        minWidth: 112,
-                      }}
-                    >
-                      One system
-                      <br />
-                      three short moves
-                    </div>
-                  </div>
-
-                  <div style={{ display: "grid", gap: 12 }}>
-                    {[
-                      {
-                        title: "Profile the pattern",
-                        body: "See where work pressure, recovery, and home friction are getting tangled.",
-                        accent: "rgba(194,122,92,1)",
-                      },
-                      {
-                        title: "Use the right move fast",
-                        body: "Get one next step that matches your time, state, and situation.",
-                        accent: "rgba(208,164,92,1)",
-                      },
-                      {
-                        title: "Notice what is changing",
-                        body: "Build a clearer weekly signal before the pressure piles up again.",
-                        accent: "rgba(120,190,150,1)",
-                      },
-                    ].map((item, index) => (
-                      <div
-                        key={item.title}
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns: "32px minmax(0, 1fr)",
-                          gap: 12,
-                          alignItems: "start",
-                          padding: "12px 12px 12px 10px",
-                          borderRadius: 14,
-                          border: "1px solid rgba(255,255,255,0.05)",
-                          background: "rgba(255,255,255,0.025)",
-                        }}
-                      >
-                        <div
-                          aria-hidden
-                          style={{
-                            width: 32,
-                            height: 32,
-                            borderRadius: 999,
-                            border: `1px solid ${item.accent.replace(",1)", ",0.28)")}`,
-                            background: item.accent.replace(",1)", ",0.14)"),
-                            display: "grid",
-                            placeItems: "center",
-                            color: item.accent,
-                            fontSize: 12,
-                            fontWeight: 700,
-                          }}
-                        >
-                          {index + 1}
-                        </div>
-                        <div style={{ display: "grid", gap: 4 }}>
-                          <div
-                            style={{
-                              color: "rgba(244,244,245,0.92)",
-                              fontSize: 14,
-                              fontWeight: 600,
-                            }}
-                          >
-                            {item.title}
-                          </div>
-                          <div
-                            style={{
-                              color: "rgba(161,161,170,0.86)",
-                              fontSize: 13,
-                              lineHeight: 1.55,
-                            }}
-                          >
-                            {item.body}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </FadeIn>
-
-          <div style={{ position: "relative", marginTop: 28 }}>
-            <div
-              className="how-it-works-connector"
-              aria-hidden
-              style={{
-                position: "absolute",
-                left: "12%",
-                right: "12%",
-                top: 54,
-                height: 1,
-                background:
-                  "linear-gradient(90deg, rgba(194,122,92,0) 0%, rgba(194,122,92,0.3) 18%, rgba(208,164,92,0.3) 50%, rgba(120,190,150,0.3) 82%, rgba(120,190,150,0) 100%)",
-                pointerEvents: "none",
-              }}
-            />
-            <div
-              className="how-it-works-grid"
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                gap: 16,
-              }}
-            >
-              {HOW_IT_WORKS_STEPS.map((step, index) => (
-                <FadeIn key={step.step} delay={0.04 + index * 0.06}>
-                  <HowItWorksCard step={step} />
-                </FadeIn>
-              ))}
-            </div>
-          </div>
-
-          <div className="btnRow" style={{ marginTop: 18 }}>
-            <a className="btn primary" href="/pressure-profile">
-              Take the Pressure Profile
-            </a>
-            <a className="btn ghost" href="#pricing">
-              See Founding Access
-            </a>
-          </div>
-        </section>
-
         {/* ── 03 PAIN ──────────────────────────────────────────────────── */}
         <section className="section">
           <FadeIn>
@@ -1892,7 +1618,7 @@ export default function Home() {
         <section className="section">
           <FadeIn>
             <div style={{ display: "grid", gap: 24 }}>
-              <h2 style={{ margin: 0 }}>A system that protects both.</h2>
+              <h2 style={{ margin: 0 }}>Built to protect both.</h2>
 
               <div
                 className="protects-grid"
@@ -2243,6 +1969,280 @@ export default function Home() {
           </FadeIn>
         </section>
 
+        {/* ── 02 HOW IT WORKS ──────────────────────────────────────────── */}
+        <section className="section" id="how-it-works" style={{ scrollMarginTop: "96px" }}>
+          <FadeIn>
+            <div
+              className="how-it-works-top"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "minmax(0, 1.12fr) minmax(380px, 0.88fr)",
+                gap: 30,
+                alignItems: "stretch",
+              }}
+            >
+              <div
+                style={{
+                  display: "grid",
+                  gap: 18,
+                  alignContent: "start",
+                }}
+              >
+                <div
+                  style={{
+                    color: "rgba(194,122,92,0.82)",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    letterSpacing: "0.12em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  How it works
+                </div>
+                <h2
+                  style={{
+                    margin: 0,
+                    maxWidth: "13ch",
+                    lineHeight: 1.04,
+                    textWrap: "balance",
+                  }}
+                >
+                  Start with a Pressure Profile
+                </h2>
+                <p
+                  style={{
+                    margin: 0,
+                    maxWidth: "36rem",
+                    fontSize: 18,
+                    lineHeight: 1.65,
+                    color: "rgba(244,244,245,0.82)",
+                  }}
+                >
+                  Start with a 2-minute profile. Then Driftlatch turns that into
+                  a short daily rhythm: check in, get one clear step, and build
+                  a steadier week in under 10 minutes a day. No tracking. No
+                  message reading. Just what you choose to enter.
+                </p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                  {["2-minute profile", "One clear step", "Under 10 min/day", "Private by default"].map(
+                    (item) => (
+                      <div
+                        key={item}
+                        style={{
+                          padding: "10px 14px",
+                          borderRadius: 999,
+                          border: "1px solid rgba(255,255,255,0.07)",
+                          background: "rgba(255,255,255,0.025)",
+                          color: "rgba(244,244,245,0.84)",
+                          fontSize: 13,
+                          fontWeight: 600,
+                          letterSpacing: "0.01em",
+                        }}
+                      >
+                        {item}
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+
+              <div
+                style={{
+                  ...GLASS_CARD_STYLE,
+                  padding: "22px 22px 20px",
+                }}
+              >
+                <GlassRimLight />
+                <div
+                  aria-hidden
+                  style={{
+                    position: "absolute",
+                    top: -56,
+                    right: -10,
+                    width: 220,
+                    height: 140,
+                    borderRadius: "50%",
+                    background: "rgba(194,122,92,0.10)",
+                    filter: "blur(42px)",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "relative",
+                    zIndex: 1,
+                    display: "grid",
+                    gap: 18,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      gap: 16,
+                      alignItems: "flex-start",
+                    }}
+                  >
+                    <div style={{ display: "grid", gap: 6 }}>
+                      <div
+                        style={{
+                          color: "rgba(194,122,92,0.78)",
+                          fontSize: 11,
+                          fontWeight: 700,
+                          letterSpacing: "0.1em",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        The Driftlatch loop
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 24,
+                          lineHeight: 1.16,
+                          color: "var(--text)",
+                          fontWeight: 600,
+                          maxWidth: "15ch",
+                          textWrap: "balance",
+                        }}
+                      >
+                        From pressure to a steadier week.
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        padding: "10px 12px",
+                        borderRadius: 14,
+                        border: "1px solid rgba(255,255,255,0.07)",
+                        background: "rgba(255,255,255,0.03)",
+                        color: "rgba(244,244,245,0.86)",
+                        fontSize: 12,
+                        fontWeight: 700,
+                        lineHeight: 1.4,
+                        minWidth: 112,
+                      }}
+                    >
+                      One loop,
+                      <br />
+                      three short moves
+                    </div>
+                  </div>
+
+                  <div style={{ display: "grid", gap: 12 }}>
+                    {[
+                      {
+                        title: "Profile the pattern",
+                        body: "See where work pressure, recovery, and home friction are getting tangled.",
+                        accent: "rgba(194,122,92,1)",
+                      },
+                      {
+                        title: "Use the right move fast",
+                        body: "Get one next step that matches your time, state, and situation.",
+                        accent: "rgba(208,164,92,1)",
+                      },
+                      {
+                        title: "Notice what is changing",
+                        body: "Build a clearer weekly signal before the pressure piles up again.",
+                        accent: "rgba(120,190,150,1)",
+                      },
+                    ].map((item, index) => (
+                      <div
+                        key={item.title}
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "32px minmax(0, 1fr)",
+                          gap: 12,
+                          alignItems: "start",
+                          padding: "12px 12px 12px 10px",
+                          borderRadius: 14,
+                          border: "1px solid rgba(255,255,255,0.05)",
+                          background: "rgba(255,255,255,0.025)",
+                        }}
+                      >
+                        <div
+                          aria-hidden
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: 999,
+                            border: `1px solid ${item.accent.replace(",1)", ",0.28)")}`,
+                            background: item.accent.replace(",1)", ",0.14)"),
+                            display: "grid",
+                            placeItems: "center",
+                            color: item.accent,
+                            fontSize: 12,
+                            fontWeight: 700,
+                          }}
+                        >
+                          {index + 1}
+                        </div>
+                        <div style={{ display: "grid", gap: 4 }}>
+                          <div
+                            style={{
+                              color: "rgba(244,244,245,0.92)",
+                              fontSize: 14,
+                              fontWeight: 600,
+                            }}
+                          >
+                            {item.title}
+                          </div>
+                          <div
+                            style={{
+                              color: "rgba(161,161,170,0.86)",
+                              fontSize: 13,
+                              lineHeight: 1.55,
+                            }}
+                          >
+                            {item.body}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </FadeIn>
+
+          <div style={{ position: "relative", marginTop: 28 }}>
+            <div
+              className="how-it-works-connector"
+              aria-hidden
+              style={{
+                position: "absolute",
+                left: "12%",
+                right: "12%",
+                top: 54,
+                height: 1,
+                background:
+                  "linear-gradient(90deg, rgba(194,122,92,0) 0%, rgba(194,122,92,0.3) 18%, rgba(208,164,92,0.3) 50%, rgba(120,190,150,0.3) 82%, rgba(120,190,150,0) 100%)",
+                pointerEvents: "none",
+              }}
+            />
+            <div
+              className="how-it-works-grid"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                gap: 16,
+              }}
+            >
+              {HOW_IT_WORKS_STEPS.map((step, index) => (
+                <FadeIn key={step.step} delay={0.04 + index * 0.06}>
+                  <HowItWorksCard step={step} />
+                </FadeIn>
+              ))}
+            </div>
+          </div>
+
+          <div className="btnRow" style={{ marginTop: 18 }}>
+            <a className="btn primary" href="/pressure-profile">
+              Take the Pressure Profile
+            </a>
+            <a className="btn ghost" href="#pricing">
+              See Founding Access
+            </a>
+          </div>
+        </section>
+
         {/* ── 05 EXPERT TOOLS ──────────────────────────────────────────── */}
         <section className="section">
           <FadeIn>
@@ -2263,7 +2263,7 @@ export default function Home() {
                     lineHeight: 1.06,
                   }}
                 >
-                  A calmer system
+                  Calmer steps
                   <br />
                   for hard days.
                 </h2>
@@ -3335,8 +3335,8 @@ export default function Home() {
           <FadeIn>
             <h2>Founding Access</h2>
             <p className="small">
-              No free tier. Driftlatch is designed as an ongoing support system,
-              not a trial app you outgrow.
+              No free tier. Driftlatch is built for steady use,
+              not a short trial you outgrow.
             </p>
             <p className="small" style={{ marginTop: 8 }}>
               Both plans include full access. Annual is simply the lower price.
@@ -3360,7 +3360,7 @@ export default function Home() {
                   <strong>$59 / year</strong>
                 </p>
                 <p className="small">
-                  Full access. Best for people who want a steady system they
+                  Full access. Best for people who want a steady rhythm they
                   can keep using under pressure.
                 </p>
 
@@ -3398,7 +3398,7 @@ export default function Home() {
                   Secure checkout via Paddle.
                 </p>
                 <p className="small" style={{ marginTop: 12 }}>
-                  Includes the same support system, billed monthly.
+                  Full access, billed monthly.
                 </p>
               </div>
             </FadeIn>
