@@ -5,7 +5,6 @@ import Image from "next/image";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { FadeIn } from "@/components/FadeIn";
 import LogoAnimation from "@/components/LogoAnimation";
-import HowItMeetsYou from "@/components/HowItMeetsYou";
 import TheLoop from "@/components/TheLoop";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -828,8 +827,7 @@ function NavBar() {
         </a>
 
         <nav className="navLinks" aria-label="Main navigation">
-          <a href="#how-it-meets-you" className="navLink">How it works</a>
-          <a href="#the-loop" className="navLink">The loop</a>
+          <a href="#the-loop" className="navLink">How it works</a>
           <a href="#pressure-eq" className="navLink">Pressure EQ</a>
           <a href="#pricing" className="navLink">Pricing</a>
           <a href="#faq" className="navLink">FAQ</a>
@@ -867,11 +865,8 @@ function NavBar() {
             <a href="/login" className="mobileMenuLink" onClick={() => setMenuOpen(false)}>
               Log in
             </a>
-            <a href="#how-it-meets-you" className="mobileMenuLink" onClick={() => setMenuOpen(false)}>
-              How it works
-            </a>
             <a href="#the-loop" className="mobileMenuLink" onClick={() => setMenuOpen(false)}>
-              The loop
+              How it works
             </a>
             <a href="#pressure-eq" className="mobileMenuLink" onClick={() => setMenuOpen(false)}>
               Pressure EQ
@@ -1975,27 +1970,397 @@ export default function Home() {
           </FadeIn>
         </section>
 
-        {/* ── HOW IT MEETS YOU ─────────────────────────────────────────── */}
-        <HowItMeetsYou />
-
         {/* ── THE LOOP ─────────────────────────────────────────────────── */}
         <TheLoop />
 
-        {/* ── TRUST STRIP ──────────────────────────────────────────────── */}
-        <p
-          style={{
-            textAlign: "center",
-            margin: "48px auto",
-            padding: "0 20px",
-            maxWidth: 640,
-            color: "rgba(161,161,170,0.6)",
-            fontSize: 13,
-            fontWeight: 500,
-            lineHeight: 1.6,
-          }}
-        >
-          Built with practising psychologists. Private by default. No message reading, no tracking.
-        </p>
+        {/* ── 05 EXPERT TOOLS ──────────────────────────────────────────── */}
+        <section className="section">
+          <FadeIn>
+            <div
+              className="calmer-top-grid"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 24,
+                marginBottom: 40,
+              }}
+            >
+              <div>
+                <h2
+                  style={{
+                    margin: 0,
+                    maxWidth: "none",
+                    lineHeight: 1.06,
+                  }}
+                >
+                  Calmer steps
+                  <br />
+                  for hard days.
+                </h2>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: 15,
+                    color: "rgba(161,161,170,0.85)",
+                    lineHeight: 1.7,
+                  }}
+                >
+                  Proven practices turned into short, usable steps so support
+                  still works when you are tired, busy, or overloaded. One
+                  clear move you can actually use.
+                </p>
+              </div>
+            </div>
+          </FadeIn>
+
+          {/* PART 1: Stats row */}
+          <FadeIn delay={0.04}>
+            <div
+              className="calmer-stats"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(4, 1fr)",
+                gap: 12,
+                marginBottom: 14,
+              }}
+            >
+              {(
+                [
+                  { number: "10", label: "Support packs" },
+                  { number: "220+", label: "Supports inside" },
+                  { number: "1-10", label: "Minutes each" },
+                  { number: "\u221e", label: "Possible paths" },
+                ] as { number: string; label: string }[]
+              ).map((stat) => (
+                <div
+                  key={stat.label}
+                  style={{
+                    ...GLASS_CARD_STYLE,
+                    padding: "20px 16px",
+                    textAlign: "center",
+                  }}
+                >
+                  <GlassRimLight />
+                  <div style={{ position: "relative", zIndex: 1 }}>
+                    <div
+                      style={{
+                        fontSize: 28,
+                        fontWeight: 700,
+                        color: "var(--text)",
+                        letterSpacing: "-0.03em",
+                        fontFamily: "Zodiak, Georgia, serif",
+                      }}
+                    >
+                      {stat.number}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: "rgba(161,161,170,0.65)",
+                        marginTop: 5,
+                        letterSpacing: "0.02em",
+                      }}
+                    >
+                      {stat.label}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </FadeIn>
+
+          {/* PART 2: Main feature card */}
+          <FadeIn delay={0.08}>
+            <div
+              style={{
+                ...GLASS_CARD_STYLE,
+                padding: "30px 26px",
+                marginBottom: 14,
+              }}
+            >
+              <GlassRimLight />
+              <div
+                className="calmer-main-grid"
+                style={{
+                  position: "relative",
+                  zIndex: 1,
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 32,
+                }}
+              >
+                {/* Left: packs */}
+                <div>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: 7,
+                      marginBottom: 20,
+                    }}
+                  >
+                    {PACK_CHIPS.map((pack) => (
+                      <div
+                        key={pack.name}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                          padding: "5px 10px",
+                          borderRadius: 20,
+                          background: "rgba(255,255,255,0.045)",
+                          border: "1px solid rgba(255,255,255,0.07)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: 7,
+                            height: 7,
+                            borderRadius: "50%",
+                            background: pack.color,
+                            flexShrink: 0,
+                          }}
+                        />
+                        <span
+                          style={{
+                            fontSize: 12,
+                            color: "rgba(244,244,245,0.8)",
+                            fontWeight: 500,
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {pack.name}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 14,
+                      color: "rgba(161,161,170,0.78)",
+                      lineHeight: 1.65,
+                    }}
+                  >
+                    Ten packs, each built around a distinct need. From clearing
+                    your head after a hard meeting to staying present with your
+                    kids at 6pm. Short steps, no warmup required.
+                  </p>
+                </div>
+
+                {/* Right: how it picks */}
+                <div>
+                  <div
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      letterSpacing: "0.07em",
+                      textTransform: "uppercase",
+                      color: "rgba(161,161,170,0.5)",
+                      marginBottom: 14,
+                    }}
+                  >
+                    HOW IT PICKS
+                  </div>
+                  <div style={{ display: "grid", gap: 10, marginBottom: 18 }}>
+                    {(
+                      [
+                        {
+                          step: "1",
+                          title: "Reads your current state",
+                          body: "You pick how you feel right now. Wired, drained, carrying work. Six states that map to real pressure patterns.",
+                        },
+                        {
+                          step: "2",
+                          title: "Shaped by your profile",
+                          body: "Your attachment style and defaults guide which packs surface first. It gets more relevant the more you use it.",
+                        },
+                        {
+                          step: "3",
+                          title: "Gets sharper over time",
+                          body: "Tools you pin or rate well appear more often. The ones that do not work get pushed back.",
+                        },
+                      ] as { step: string; title: string; body: string }[]
+                    ).map((item) => (
+                      <div
+                        key={item.step}
+                        style={{
+                          padding: "13px 15px",
+                          borderRadius: 12,
+                          background: "rgba(255,255,255,0.03)",
+                          border: "1px solid rgba(255,255,255,0.06)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "flex-start",
+                            gap: 10,
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: 20,
+                              height: 20,
+                              borderRadius: "50%",
+                              background: "rgba(194,122,92,0.14)",
+                              border: "1px solid rgba(194,122,92,0.2)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              flexShrink: 0,
+                              marginTop: 1,
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontSize: 10,
+                                fontWeight: 700,
+                                color: "rgba(194,122,92,0.9)",
+                              }}
+                            >
+                              {item.step}
+                            </span>
+                          </div>
+                          <div>
+                            <div
+                              style={{
+                                fontSize: 13,
+                                fontWeight: 600,
+                                color: "var(--text)",
+                                marginBottom: 3,
+                              }}
+                            >
+                              {item.title}
+                            </div>
+                            <p
+                              style={{
+                                margin: 0,
+                                fontSize: 12,
+                                color: "rgba(161,161,170,0.72)",
+                                lineHeight: 1.55,
+                              }}
+                            >
+                              {item.body}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 12,
+                      color: "rgba(161,161,170,0.45)",
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    No AI reads your messages. No tracking. Works only from
+                    what you choose to enter.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </FadeIn>
+
+          {/* PART 3: Bottom strip */}
+          <div
+            className="calmer-bottom"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 12,
+            }}
+          >
+            <FadeIn delay={0.12}>
+              <div
+                style={{
+                  ...GLASS_CARD_STYLE,
+                  padding: "20px 22px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 14,
+                }}
+              >
+                <GlassRimLight />
+                <div aria-hidden style={{ flexShrink: 0 }}>
+                  <StarIcon />
+                </div>
+                <div style={{ position: "relative", zIndex: 1 }}>
+                  <div
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: "var(--text)",
+                      marginBottom: 3,
+                    }}
+                  >
+                    More supports added regularly
+                  </div>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 12,
+                      color: "rgba(161,161,170,0.68)",
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    New tools and packs drop based on real usage patterns.
+                  </p>
+                </div>
+              </div>
+            </FadeIn>
+
+            <FadeIn delay={0.16}>
+              <div
+                style={{
+                  ...GLASS_CARD_STYLE,
+                  padding: "20px 22px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 14,
+                }}
+              >
+                <GlassRimLight />
+                <div aria-hidden style={{ flexShrink: 0 }}>
+                  <PinIcon />
+                </div>
+                <div style={{ position: "relative", zIndex: 1 }}>
+                  <div
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: "var(--text)",
+                      marginBottom: 3,
+                    }}
+                  >
+                    Pin what works for you
+                  </div>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 12,
+                      color: "rgba(161,161,170,0.68)",
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    Save your best tools to the top of each context. Always one
+                    tap away.
+                  </p>
+                </div>
+              </div>
+            </FadeIn>
+          </div>
+        </section>
+
 
         {/* ── 06 PRESSURE EQ ───────────────────────────────────────────── */}
         <section

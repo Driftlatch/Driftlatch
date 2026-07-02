@@ -1613,13 +1613,8 @@ textarea,
 .dl-chip { transition: background 180ms ease, color 180ms ease, border-color 180ms ease, box-shadow 220ms ease, transform 140ms ease; }
 .dl-chip:hover { border-color: rgba(255,255,255,0.22) !important; transform: translateY(-1px); }
 .dl-chip:focus-visible,
-.dl-refine:focus-visible,
 .dl-btn:focus-visible { outline: 2px solid #C27A5C; outline-offset: 2px; }
-.dl-refine:hover { color: #F6F1EC !important; }
 .dl-btn:not(:disabled):hover { filter: brightness(1.06); }
-
-.dl-collapse { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 320ms cubic-bezier(0.22,1,0.36,1); }
-.dl-collapse.open { grid-template-rows: 1fr; }
 
 .dl-node:focus-visible { outline: none; }
 .dl-node:focus-visible .dl-nodeDot { box-shadow: 0 0 0 3px rgba(194,122,92,0.55) !important; }
