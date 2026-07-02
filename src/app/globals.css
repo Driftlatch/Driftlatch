@@ -1557,3 +1557,76 @@ textarea,
     padding-top: env(safe-area-inset-top);
   }
 }
+
+/* ============================================================
+   Landing: HowItMeetsYou + TheLoop
+   Keyframes and helper classes for the two interactive landing
+   sections. Class prefix: dl-
+   ============================================================ */
+
+@keyframes dl-rise {
+  0%   { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes dl-grow {
+  0%   { transform: scaleY(0.04); opacity: 0.3; }
+  100% { transform: scaleY(1); opacity: 1; }
+}
+@keyframes dl-floatA {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50%     { transform: translate(16px,-20px) scale(1.08); }
+}
+@keyframes dl-floatB {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50%     { transform: translate(-18px,14px) scale(0.94); }
+}
+@keyframes dl-shimmer {
+  0%   { background-position: -160% 0; }
+  100% { background-position: 260% 0; }
+}
+@keyframes dl-pillGlow {
+  0%,100% { box-shadow: 0 0 0 rgba(0,0,0,0); }
+  50%     { box-shadow: 0 0 20px var(--glow); }
+}
+
+.dl-r    { animation: dl-rise 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+.dl-pill { animation: dl-rise 0.5s cubic-bezier(0.22,1,0.36,1) both, dl-pillGlow 3.6s ease-in-out infinite 0.6s; }
+
+.dl-bar  { transform-origin: bottom; animation: dl-grow 0.6s cubic-bezier(0.22,1,0.36,1) both; }
+
+.dl-accent {
+  position: absolute; top: 0; left: 0; right: 0; height: 2px; z-index: 2;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  background-size: 200% 100%;
+  animation: dl-shimmer 4.5s linear infinite;
+  opacity: 0.9;
+}
+.dl-auraA, .dl-auraB {
+  position: absolute; border-radius: 50%; filter: blur(30px);
+  pointer-events: none; z-index: 0;
+  background: radial-gradient(circle, var(--accent) 0%, rgba(0,0,0,0) 70%);
+  transition: background 500ms ease;
+}
+.dl-auraA { width: 260px; height: 260px; top: -40px; right: -30px; opacity: 0.17; animation: dl-floatA 14s ease-in-out infinite; }
+.dl-auraB { width: 220px; height: 220px; bottom: -50px; left: -20px; opacity: 0.13; animation: dl-floatB 17s ease-in-out infinite; }
+
+.dl-chip { transition: background 180ms ease, color 180ms ease, border-color 180ms ease, box-shadow 220ms ease, transform 140ms ease; }
+.dl-chip:hover { border-color: rgba(255,255,255,0.22) !important; transform: translateY(-1px); }
+.dl-chip:focus-visible,
+.dl-refine:focus-visible,
+.dl-btn:focus-visible { outline: 2px solid #C27A5C; outline-offset: 2px; }
+.dl-refine:hover { color: #F6F1EC !important; }
+.dl-btn:not(:disabled):hover { filter: brightness(1.06); }
+
+.dl-collapse { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 320ms cubic-bezier(0.22,1,0.36,1); }
+.dl-collapse.open { grid-template-rows: 1fr; }
+
+.dl-node:focus-visible { outline: none; }
+.dl-node:focus-visible .dl-nodeDot { box-shadow: 0 0 0 3px rgba(194,122,92,0.55) !important; }
+
+.dl-grid { display: grid; grid-template-columns: 1fr 1.06fr; gap: 34px; align-items: start; }
+@media (max-width: 820px) { .dl-grid { grid-template-columns: 1fr; gap: 24px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .dl-r, .dl-pill, .dl-bar, .dl-accent, .dl-auraA, .dl-auraB { animation: none; }
+}
