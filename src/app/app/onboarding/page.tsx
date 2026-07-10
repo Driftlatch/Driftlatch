@@ -67,6 +67,12 @@ const QUESTIONS: Question[] = [
     id: 1,
     domain: "work",
     text: "When I close the laptop, my mind still keeps working in the background.",
+    intent: "Incomplete cognitive disengagement from work.",
+    variants: {
+      always_on: "Even when I step away from work, my mind keeps running on it in the background.",
+      shift_or_on_call: "When my shift ends, my mind still keeps working in the background.",
+      no_clear_boundary: "Even when I stop for the day, my mind keeps working on it in the background.",
+    },
   },
   {
     id: 2,
@@ -77,6 +83,12 @@ const QUESTIONS: Question[] = [
     id: 3,
     domain: "work",
     text: "One Slack message, Teams notification, or unexpected work message can pull my presence away at home.",
+    intent: "An incoming work signal fractures presence at home.",
+    variants: {
+      always_on: "One message or call about work can pull my presence away, whatever I am doing.",
+      shift_or_on_call: "One call, page, or message can pull my presence away, even when I am off.",
+      no_clear_boundary: "One work thought or message can pull my presence away from whoever I am with.",
+    },
   },
   {
     id: 4,
@@ -99,6 +111,12 @@ const QUESTIONS: Question[] = [
     id: 7,
     domain: "recovery",
     text: "After a heavy day, it takes hours before I feel fully off.",
+    intent: "Slow decompression, the lag before feeling off.",
+    variants: {
+      always_on: "After an intense stretch, it takes hours before I actually feel off, if I get there at all.",
+      shift_or_on_call: "After a hard shift, it takes hours before I feel fully off.",
+      no_clear_boundary: "After a heavy push, it takes hours to come down, and there is rarely a clean stopping point.",
+    },
   },
   {
     id: 8,
@@ -109,11 +127,20 @@ const QUESTIONS: Question[] = [
     id: 9,
     domain: "recovery",
     text: "Work follows me into sleep. I wake early or do not sleep deeply.",
+    intent: "Work intruding on sleep.",
+    variants: {
+      shift_or_on_call: "Work follows me into whatever sleep I get. It is broken or too light to restore me.",
+    },
   },
   {
     id: 10,
     domain: "recovery",
     text: "Hours after finishing, I notice tight shoulders, a clenched jaw, or shallow breathing.",
+    intent: "Physical stress carried past the point of stopping.",
+    variants: {
+      shift_or_on_call: "Hours after a shift, I notice tight shoulders, a clenched jaw, or shallow breathing.",
+      no_clear_boundary: "Even with no clear finish, I notice tight shoulders, a clenched jaw, or shallow breathing.",
+    },
   },
 
   // C) Home Drift & Family Load (11–15)
@@ -131,6 +158,10 @@ const QUESTIONS: Question[] = [
     id: 13,
     domain: "home",
     text: "After a hard day, my patience is thinner at home than I want it to be.",
+    intent: "Depleted patience at home.",
+    variants: {
+      shift_or_on_call: "After a hard shift, my patience is thinner at home than I want it to be.",
+    },
   },
   {
     id: 14,
