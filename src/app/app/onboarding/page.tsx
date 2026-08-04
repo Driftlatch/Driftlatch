@@ -66,12 +66,12 @@ const QUESTIONS: Question[] = [
   {
     id: 1,
     domain: "work",
-    text: "When I close the laptop, my mind still keeps working in the background.",
+    text: "I've stopped for the day. My mind hasn't.",
     intent: "Incomplete cognitive disengagement from work.",
     variants: {
-      always_on: "Even when I step away from work, my mind keeps running on it in the background.",
-      shift_or_on_call: "When my shift ends, my mind still keeps working in the background.",
-      no_clear_boundary: "Even when I stop for the day, my mind keeps working on it in the background.",
+      always_on: "I step away from work. My mind stays switched on.",
+      shift_or_on_call: "My shift ends. My mind keeps going.",
+      no_clear_boundary: "There's no clean end to the day. My mind never fully lands.",
     },
   },
   {
@@ -98,7 +98,8 @@ const QUESTIONS: Question[] = [
   {
     id: 5,
     domain: "work",
-    text: "When things pile up, everything feels urgent and nothing gets done properly.",
+    text: "When it all piles up, everything urgent but nothing gets done..",
+    intent: "Urgency distortion when everything piles up at once.",
   },
 
   // B) Spillover & Recovery (6–10)
