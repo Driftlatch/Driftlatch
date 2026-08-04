@@ -333,12 +333,7 @@ function TutorialTooltip({
   if (!pos) return null;
 
   return (
-    <motion.div
-      key={`tut-tip-${step}`}
-      initial={{ opacity: 0, y: meta.arrow === "down" ? -6 : 6, scale: 0.96 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.94 }}
-      transition={{ duration: 0.26, ease: EASE }}
+    <div
       style={{
         position: "fixed",
         top: pos.top,
@@ -346,6 +341,16 @@ function TutorialTooltip({
         transform: meta.arrow === "down" ? "translate(-50%, -100%)" : "translate(-50%, 0%)",
         zIndex: 102,
         width: "min(300px, calc(100vw - 48px))",
+        pointerEvents: "auto",
+      }}
+    >
+    <motion.div
+      key={`tut-tip-${step}`}
+      initial={{ opacity: 0, y: meta.arrow === "down" ? -6 : 6, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.94 }}
+      transition={{ duration: 0.26, ease: EASE }}
+      style={{
         background: "rgba(24,24,27,0.98)",
         border: "1px solid rgba(255,255,255,0.13)",
         borderRadius: 18,
@@ -353,7 +358,6 @@ function TutorialTooltip({
         backdropFilter: "blur(28px)",
         WebkitBackdropFilter: "blur(28px)",
         boxShadow: "0 28px 64px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08)",
-        pointerEvents: "auto",
       }}
     >
       {/* Arrow nub — left position shifts horizontally to keep pointing at the target after clamping */}
@@ -423,6 +427,7 @@ function TutorialTooltip({
         </motion.button>
       </div>
     </motion.div>
+    </div>
   );
 }
 
