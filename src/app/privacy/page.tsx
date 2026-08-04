@@ -131,9 +131,7 @@ export default function PrivacyPage() {
       <motion.div
         style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}
       >
-        <motion.div
-          animate={{ opacity: [0.12, 0.2, 0.12], scale: [1, 1.08, 1] }}
-          transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
+        <div
           style={{
             position: "absolute",
             top: "16%",
@@ -141,12 +139,21 @@ export default function PrivacyPage() {
             transform: "translateX(-50%)",
             width: 760,
             height: 760,
-            borderRadius: 999,
-            background:
-              "radial-gradient(circle, rgba(194,122,92,0.22) 0%, transparent 72%)",
-            filter: "blur(72px)",
           }}
-        />
+        >
+          <motion.div
+            animate={{ opacity: [0.12, 0.2, 0.12], scale: [1, 1.08, 1] }}
+            transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
+            style={{
+              width: "100%",
+              height: "100%",
+              borderRadius: 999,
+              background:
+                "radial-gradient(circle, rgba(194,122,92,0.22) 0%, transparent 72%)",
+              filter: "blur(72px)",
+            }}
+          />
+        </div>
       </motion.div>
 
       <div

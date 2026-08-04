@@ -198,9 +198,7 @@ export default function ThanksPage() {
       }}
     >
       {/* Background glows */}
-      <motion.div
-        animate={{ opacity: [0.14, 0.24, 0.14], scale: [1, 1.06, 1] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      <div
         style={{
           position: "fixed",
           top: "-5%",
@@ -208,13 +206,22 @@ export default function ThanksPage() {
           transform: "translateX(-50%)",
           width: 700,
           height: 700,
-          borderRadius: 999,
           pointerEvents: "none",
           zIndex: 0,
-          background: "radial-gradient(circle, rgba(194,122,92,0.22) 0%, transparent 68%)",
-          filter: "blur(80px)",
         }}
-      />
+      >
+        <motion.div
+          animate={{ opacity: [0.14, 0.24, 0.14], scale: [1, 1.06, 1] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          style={{
+            width: "100%",
+            height: "100%",
+            borderRadius: 999,
+            background: "radial-gradient(circle, rgba(194,122,92,0.22) 0%, transparent 68%)",
+            filter: "blur(80px)",
+          }}
+        />
+      </div>
       <motion.div
         animate={{ opacity: [0.08, 0.14, 0.08] }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 4 }}

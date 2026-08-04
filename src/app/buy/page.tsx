@@ -485,9 +485,7 @@ function BuyInner() {
         <motion.div
           style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}
         >
-          <motion.div
-            animate={{ opacity: [0.12, 0.2, 0.12], scale: [1, 1.08, 1] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          <div
             style={{
               position: "absolute",
               top: "30%",
@@ -495,12 +493,21 @@ function BuyInner() {
               transform: "translate(-50%, -50%)",
               width: "600px",
               height: "600px",
-              borderRadius: "999px",
-              background:
-                "radial-gradient(circle, rgba(194,122,92,0.25) 0%, transparent 70%)",
-              filter: "blur(60px)",
             }}
-          />
+          >
+            <motion.div
+              animate={{ opacity: [0.12, 0.2, 0.12], scale: [1, 1.08, 1] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              style={{
+                width: "100%",
+                height: "100%",
+                borderRadius: "999px",
+                background:
+                  "radial-gradient(circle, rgba(194,122,92,0.25) 0%, transparent 70%)",
+                filter: "blur(60px)",
+              }}
+            />
+          </div>
         </motion.div>
 
         <motion.div

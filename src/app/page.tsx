@@ -1037,6 +1037,7 @@ export default function Home() {
           />
 
           {/* LAYER 3 — Central warm glow (animated) */}
+          {/* Opacity-only animation, so the CSS transform below is safe. If a scale or y motion value is ever added, move position + transform to a wrapper <div> per the tooltip fix pattern. */}
           <motion.div
             aria-hidden
             animate={{ opacity: [0.85, 1, 0.85] }}

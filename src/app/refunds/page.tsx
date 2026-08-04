@@ -61,6 +61,7 @@ export default function RefundsPage() {
     }}>
 
       {/* Atmosphere */}
+      {/* Opacity-only animation, so the CSS transform below is safe. If a scale or y motion value is ever added, move position + transform to a wrapper <div> per the tooltip fix pattern. */}
       <motion.div
         animate={{ opacity: [0.10, 0.17, 0.10] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}

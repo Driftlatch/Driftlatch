@@ -29,16 +29,22 @@ export default function PricingPage() {
     }}>
 
       {/* ── Atmosphere ── */}
-      <motion.div
-        animate={{ opacity: [0.16, 0.26, 0.16], scale: [1, 1.07, 1] }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+      <div
         style={{
           position: "fixed", top: "-8%", left: "50%", transform: "translateX(-50%)",
-          width: 900, height: 900, borderRadius: 999, pointerEvents: "none", zIndex: 0,
-          background: "radial-gradient(circle, rgba(194,122,92,0.20) 0%, transparent 65%)",
-          filter: "blur(90px)",
+          width: 900, height: 900, pointerEvents: "none", zIndex: 0,
         }}
-      />
+      >
+        <motion.div
+          animate={{ opacity: [0.16, 0.26, 0.16], scale: [1, 1.07, 1] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          style={{
+            width: "100%", height: "100%", borderRadius: 999,
+            background: "radial-gradient(circle, rgba(194,122,92,0.20) 0%, transparent 65%)",
+            filter: "blur(90px)",
+          }}
+        />
+      </div>
       <div style={{
         position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", opacity: 0.035,
         backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
