@@ -98,7 +98,7 @@ const QUESTIONS: Question[] = [
   {
     id: 5,
     domain: "work",
-    text: "When it all piles up, everything urgent but nothing gets done..",
+    text: "When it all piles up, everything urgent but nothing gets done.",
     intent: "Urgency distortion when everything piles up at once.",
   },
 
