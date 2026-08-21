@@ -69,9 +69,9 @@ const QUESTIONS: Question[] = [
     text: "I've stopped for the day. My mind hasn't.",
     intent: "Incomplete cognitive disengagement from work.",
     variants: {
-      always_on: "I step away from work. My mind stays switched on.",
-      shift_or_on_call: "My shift ends. My mind keeps going.",
-      no_clear_boundary: "There's no clean end to the day. My mind never fully lands.",
+      always_on: "I've closed the laptop, I'm technically done, but my head is still in the thread, still half-writing the next reply.",
+      shift_or_on_call: "I'm home, the shift is over, but part of my head is still back there, replaying what happened and what I might have missed.",
+      no_clear_boundary: "There's no real moment when work ends, so my head never fully clocks out, it just keeps running quietly in the background.",
     },
   },
   {
