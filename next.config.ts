@@ -28,9 +28,10 @@ const pwaConfig = withPWA({
     },
     {
       urlPattern: /\.(?:js|css)$/i,
-      handler: "StaleWhileRevalidate",
+      handler: "NetworkFirst",
       options: {
         cacheName: "static-resources",
+        networkTimeoutSeconds: 4,
         expiration: { maxEntries: 32, maxAgeSeconds: 24 * 60 * 60 },
       },
     },
