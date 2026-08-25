@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { FadeIn } from "@/components/FadeIn";
-import LogoAnimation from "@/components/LogoAnimation";
 import TheLoop from "@/components/TheLoop";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -949,18 +948,9 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function Home() {
-  const [landingLoaded, setLandingLoaded] = useState(true);
   const [isMobile, setIsMobile] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth < 640 : false
   );
-
-  useEffect(() => {
-    const seen = sessionStorage.getItem("dl_landing_seen");
-    if (!seen) {
-      setLandingLoaded(false);
-      sessionStorage.setItem("dl_landing_seen", "1");
-    }
-  }, []);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 640);
@@ -986,19 +976,6 @@ export default function Home() {
 
   return (
     <>
-      <AnimatePresence>
-        {!landingLoaded && (
-          <motion.div
-            key="dl-loader"
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.55, ease: EASE }}
-          >
-            <LogoAnimation variant="landing" onComplete={() => setLandingLoaded(true)} />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       <NavBar />
 
       {/* ── 01 HERO ──────────────────────────────────────────────────────── */}
@@ -1272,10 +1249,11 @@ export default function Home() {
             >
             <div>
               <FadeIn delay={0.04} duration={0.55} distance={10}>
-                  <div className="kicker">FOUNDERS AND PROFESSIONALS</div>
+                  <div className="kicker heroKicker">FOUNDERS AND PROFESSIONALS</div>
                 </FadeIn>
                 <FadeIn delay={0.12} duration={0.62} distance={16}>
                   <h1
+                    className="heroStatement"
                     style={{
                       fontSize: "clamp(2.4rem, 9vw, 5.25rem)",
                       lineHeight: 0.98,
@@ -1290,6 +1268,7 @@ export default function Home() {
                 </FadeIn>
                 <FadeIn delay={0.22} duration={0.62} distance={18}>
                   <p
+                    className="heroSupportCopy"
                     style={{
                       maxWidth: "31rem",
                       margin: "0 auto",
@@ -1308,7 +1287,7 @@ export default function Home() {
               <div>
                 <FadeIn delay={0.3} duration={0.58} distance={14}>
                   <div
-                    className="landingHeroActionRow"
+                    className="landingHeroActionRow heroActionRow"
                     style={{ justifyContent: "center" }}
                   >
                     <a className="btn primary" href="/pressure-profile">
