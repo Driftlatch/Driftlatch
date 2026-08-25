@@ -1592,6 +1592,8 @@ textarea:focus {
 @media (max-width: 640px) {
   .landingHeroFull {
     min-height: 100svh;
+    max-width: 100vw;
+    overflow-x: clip;
   }
 
   .landingHeroFull::before {
