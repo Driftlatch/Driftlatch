@@ -1101,6 +1101,148 @@ details[open] .faqSummary::after{
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse 54% 46% at 50% 62%, rgba(165, 84, 50, 0.16), transparent 72%),
+    radial-gradient(ellipse 80% 54% at 50% 108%, rgba(91, 47, 19, 0.22), transparent 76%),
+    #0B0B0E;
+}
+
+.landingHeroFull::before,
+.landingHeroFull::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.landingHeroFull::before {
+  width: min(58vw, 840px);
+  height: min(38vw, 560px);
+  left: 50%;
+  top: 43%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(215, 136, 94, 0.14) 0%, rgba(194, 122, 92, 0.055) 36%, transparent 72%);
+  filter: blur(14px);
+  animation: heroAuraBreath 9s ease-in-out infinite;
+}
+
+.landingHeroFull::after {
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(11,11,14,0.56) 0%, transparent 28%, transparent 72%, rgba(11,11,14,0.56) 100%),
+    linear-gradient(180deg, rgba(11,11,14,0.48) 0%, transparent 29%, transparent 78%, rgba(11,11,14,0.88) 100%);
+}
+
+.hero-scene-svg {
+  opacity: 0.94;
+  filter: saturate(1.08) contrast(1.04);
+}
+
+.hero-text-wrapper {
+  padding-top: clamp(100px, 13.5vh, 156px) !important;
+}
+
+.heroKicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: rgba(235, 192, 170, 0.9);
+  font-size: 10px;
+  letter-spacing: 0.17em;
+  text-shadow: 0 1px 18px rgba(194,122,92,0.32);
+}
+
+.heroKicker::before,
+.heroKicker::after {
+  content: "";
+  display: block;
+  width: 21px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(194,122,92,0.85));
+}
+
+.heroKicker::after {
+  transform: scaleX(-1);
+}
+
+.heroStatement {
+  text-wrap: balance;
+  text-shadow: 0 2px 2px rgba(0,0,0,0.28), 0 14px 48px rgba(0,0,0,0.48);
+}
+
+.heroSupportCopy {
+  text-wrap: balance;
+  text-shadow: 0 3px 22px rgba(0,0,0,0.8);
+}
+
+.heroActionRow {
+  margin-top: 4px;
+}
+
+.heroActionRow .btn.primary {
+  position: relative;
+  overflow: hidden;
+  border-radius: 999px;
+  padding: 16px 27px;
+  border-color: rgba(255,255,255,0.2);
+  background: linear-gradient(135deg, #d69678 0%, #bd684f 52%, #99503e 100%);
+  box-shadow: 0 13px 34px rgba(155,78,55,0.3), inset 0 1px 0 rgba(255,255,255,0.36);
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+}
+
+.heroActionRow .btn.primary::after {
+  content: "";
+  position: absolute;
+  inset: 1px 42% 48% -28%;
+  border-radius: 999px;
+  background: linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.34) 48%, transparent 75%);
+  transform: skewX(-24deg);
+  pointer-events: none;
+}
+
+.heroActionRow .btn.primary:hover {
+  opacity: 1;
+  filter: brightness(1.06);
+  transform: translateY(-2px);
+  box-shadow: 0 17px 42px rgba(155,78,55,0.4), inset 0 1px 0 rgba(255,255,255,0.44);
+}
+
+.heroActionRow .heroSecondaryCta {
+  position: relative;
+  padding: 9px 2px;
+  color: rgba(244,244,245,0.74);
+}
+
+.heroActionRow .heroSecondaryCta::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  bottom: 4px;
+  height: 1px;
+  background: rgba(244,244,245,0.34);
+  transform-origin: left;
+  transition: transform 180ms ease, background 180ms ease;
+}
+
+.heroActionRow .heroSecondaryCta:hover::after {
+  transform: scaleX(0.5);
+  background: rgba(244,244,245,0.82);
+}
+
+.landingHeroMeta {
+  text-shadow: 0 2px 16px rgba(0,0,0,0.75);
+}
+
+.scrollIndicator {
+  opacity: 0.7;
+}
+
+@keyframes heroAuraBreath {
+  0%, 100% { opacity: 0.72; transform: translate(-50%, -50%) scale(0.94); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
 }
 
 .landingHeroParallax {
@@ -1448,8 +1590,27 @@ textarea:focus {
 }
 
 @media (max-width: 640px) {
+  .landingHeroFull {
+    min-height: 100svh;
+  }
+
+  .landingHeroFull::before {
+    width: 132vw;
+    height: 78vw;
+    top: 61%;
+    filter: blur(8px);
+  }
+
+  .landingHeroFull::after {
+    background:
+      linear-gradient(180deg, rgba(11,11,14,0.78) 0%, rgba(11,11,14,0.34) 48%, rgba(11,11,14,0.88) 100%),
+      linear-gradient(90deg, rgba(11,11,14,0.18), transparent 24%, transparent 76%, rgba(11,11,14,0.18));
+  }
+
   .hero-scene-svg {
+    transform: scale(1.05) translateY(3%) !important;
     transform-origin: center bottom !important;
+    opacity: 0.86;
   }
 
   .hero-gradient-shelf {
@@ -1467,15 +1628,19 @@ textarea:focus {
   }
 
   .hero-text-wrapper {
-    padding-top: 44px !important;
+    padding-top: max(76px, env(safe-area-inset-top)) !important;
     padding-left: 20px !important;
     padding-right: 20px !important;
     max-width: 100% !important;
+    overflow: visible;
   }
 
   .hero-text-wrapper h1 {
-    font-size: clamp(1.95rem, 7.6vw, 2.55rem) !important;
-    line-height: 1.05 !important;
+    max-width: 11.5ch;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    font-size: clamp(2rem, 8.25vw, 2.5rem) !important;
+    line-height: 1.01 !important;
     letter-spacing: -0.035em !important;
     margin-bottom: 10px !important;
   }
@@ -1483,7 +1648,7 @@ textarea:focus {
   .hero-text-wrapper p {
     font-size: 15px !important;
     line-height: 1.5 !important;
-    max-width: 26rem !important;
+    max-width: min(100%, 22rem) !important;
   }
 
   /* Collapse the big double-br gaps on mobile */
@@ -1492,27 +1657,52 @@ textarea:focus {
   }
 
   .hero-text-wrapper .landingHeroActionRow {
+    display: grid !important;
     margin-top: 18px !important;
-    gap: 12px !important;
-    flex-wrap: wrap !important;
+    gap: 6px !important;
+    width: 100%;
     justify-content: center !important;
     align-items: center !important;
   }
 
   .hero-text-wrapper .landingHeroActionRow .btn.primary {
-    padding: 14px 22px !important;
+    width: min(100%, 278px);
+    min-height: 52px;
+    margin: 0 auto;
+    padding: 14px 20px !important;
     font-size: 15px !important;
   }
 
   .hero-text-wrapper .heroSecondaryCta {
+    width: fit-content;
+    min-height: auto;
+    margin: 0 auto;
     font-size: 14px !important;
     padding: 6px 4px !important;
   }
 
   .hero-text-wrapper .landingHeroMeta {
+    max-width: 19rem;
+    margin-left: auto !important;
+    margin-right: auto !important;
     margin-top: 10px !important;
     font-size: 11px !important;
-    letter-spacing: 0.02em !important;
+    line-height: 1.45 !important;
+    letter-spacing: 0.055em !important;
+  }
+
+  .heroKicker {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+  }
+
+  .heroKicker::before,
+  .heroKicker::after {
+    width: 16px;
+  }
+
+  .scrollIndicator {
+    display: none;
   }
 }
 
