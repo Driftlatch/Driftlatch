@@ -1030,7 +1030,7 @@ export default function Home() {
               height: 500,
               borderRadius: 999,
               background:
-                "radial-gradient(ellipse, rgba(194,122,92,0.55) 0%, rgba(194,122,92,0.18) 40%, transparent 70%)",
+                "radial-gradient(ellipse, rgba(194,122,92,0.32) 0%, rgba(194,122,92,0.12) 40%, transparent 70%)",
               filter: "blur(80px)",
               pointerEvents: "none",
               willChange: "opacity",
