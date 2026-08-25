@@ -1836,6 +1836,36 @@ textarea,
 .dl-grid { display: grid; grid-template-columns: 1fr 1.06fr; gap: 34px; align-items: start; }
 @media (max-width: 820px) { .dl-grid { grid-template-columns: 1fr; gap: 24px; } }
 
+/* ─── Mobile-first spacing pass ─────────────────────────────────────────
+   Purely additive. Only lowers vertical spacing on mobile so the landing
+   stops carrying 100px section margins and 56-100px inner paddings on
+   viewports where they read as dead space. Desktop values untouched. */
+@media (max-width: 640px) {
+  .container {
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+
+  .section {
+    margin-top: 60px;
+  }
+
+  /* pain-card has an inline padding: "56px 52px" — !important needed to override */
+  .pain-card {
+    padding: 36px 22px !important;
+  }
+
+  /* pressure-eq section has an inline padding: "100px 24px" — !important needed */
+  #pressure-eq {
+    padding: 56px 20px !important;
+  }
+
+  /* pressure-eq inner mirror-copy motion.div has an inline margin: "0 0 64px" */
+  #pressure-eq .pressure-eq-mirror {
+    margin-bottom: 40px !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .dl-r, .dl-pill, .dl-bar, .dl-accent, .dl-auraA, .dl-auraB { animation: none; }
   .heroActionRow .btn.primary,

@@ -275,7 +275,7 @@ function LiveCard({ accent, resetKey, kicker, echo, children }: { accent: string
 }
 
 const styles: Record<string, CSSProperties> = {
-  section: { position: "relative", background: "linear-gradient(180deg, #0B0B0E 0%, #100E12 100%)", color: "#F4F4F5", padding: "clamp(64px, 9vw, 116px) 20px", overflow: "hidden" },
+  section: { position: "relative", background: "linear-gradient(180deg, #0B0B0E 0%, #100E12 100%)", color: "#F4F4F5", padding: "clamp(52px, 9vw, 116px) 20px", overflow: "hidden" },
   grain: { position: "absolute", inset: 0, backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")", opacity: 0.04, mixBlendMode: "soft-light", pointerEvents: "none" },
   inner: { position: "relative", maxWidth: 1000, margin: "0 auto" },
   head: { maxWidth: 640, marginBottom: 36 },

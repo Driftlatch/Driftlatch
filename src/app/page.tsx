@@ -2392,6 +2392,7 @@ export default function Home() {
           <div style={{ maxWidth: "var(--container)", margin: "0 auto" }}>
             {/* PART 1 — Mirror copy */}
             <motion.div
+              className="pressure-eq-mirror"
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
