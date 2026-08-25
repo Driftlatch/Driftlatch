@@ -837,7 +837,7 @@ function NavBar() {
         </a>
 
         <a href="/pressure-profile" className="btn primary navCta">
-          Start free profile test
+          Start the free profile
         </a>
 
         <button
@@ -882,7 +882,7 @@ function NavBar() {
               style={{ marginTop: 10 }}
               onClick={() => setMenuOpen(false)}
             >
-              Start free profile
+              Start the free profile
             </a>
           </motion.div>
         )}
@@ -1291,7 +1291,7 @@ export default function Home() {
                     style={{ justifyContent: "center" }}
                   >
                     <a className="btn primary" href="/pressure-profile">
-                      Take the Pressure Profile
+                      Start the free profile
                     </a>
                     <a className="heroSecondaryCta" href="#pricing">
                       See pricing
